@@ -69,4 +69,5 @@
 #xcommand O_VRSTEP => SELECT (F_VRSTEP); USE (SIFPATH+"VRSTEP"); set order to tag "ID"
 #xcommand O_VPRIH => SELECT (F_VPRIH); USE (SIFPATH+"VPRIH"); set order to tag "ID"
 #xcommand O_ULIMIT => SELECT (F_ULIMIT); USE (SIFPATH+"ULIMIT"); set order to tag "ID"
+#xcommand O_BLAG => SELECT (F_BLAG); USE (KUMPATH+"BLAG"); set order to tag "1"
 

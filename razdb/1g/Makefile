@@ -5,7 +5,7 @@ include /sclib/Makefile_clipper
 
 SRCDOSROOT=c:\\dev\\fmk\\fin\\razdb\\1g\\
 
-PRGS=ldfin.prg faktfin.prg mnu_raz.prg pos_fin.prg
+PRGS=ldfin.prg faktfin.prg mnu_raz.prg pos_fin.prg blag_fin.prg
 
 CS=
 ASMS=

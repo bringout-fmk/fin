@@ -2597,16 +2597,20 @@ return
  
 function PrikK1K4(lK)
 *{
-local fProso:=.f., nArr:=SELECT(), lVrsteP:=.f.
-IF lK==NIL; lK:=.t.; ENDIF
+local fProso:=.f.
+local nArr:=SELECT()
+local lVrsteP:=.f.
+IF lK==NIL
+	lK:=.t.
+ENDIF
 
 IF IzFMKIni("FAKT","VrstePlacanja","N",SIFPATH)=="D"
-  lVrsteP:=.t.
-  SELECT (F_VRSTEP)
-  IF !USED()
-    O_VRSTEP
-  ENDIF
-  SELECT (nArr)
+	lVrsteP:=.t.
+  	SELECT (F_VRSTEP)
+  	IF !USED()
+    		O_VRSTEP
+  	ENDIF
+  	SELECT (nArr)
 ENDIF
 
 cM:=replicate("-",55)
@@ -2614,12 +2618,24 @@ cM:=replicate("-",55)
 cStr:="Pregled odabranih kriterija :"
 
 if gRJ=="D" .and. len(cIdRJ)<>0
+  
+  cRjNaz := ""
+  nArr := SELECT()
+  O_RJ
+  select rj
+  hseek cIdRj
+  
+  if rj->id == cIdRj
+  	cRjNaz:=rj->naz
+  endif
+  
+  select (nArr)
   if !fproso
    ? cM
    ? cStr
    fProso:=.t.
   endif
-  ? "Radna jedinica ='"+cIdRj+"'"
+  ? "Radna jedinica: " + cIdRj + " - " + cRjNaz  
 endif
 IF lK
   if fk1=="D" .and. !len(ck1)==0

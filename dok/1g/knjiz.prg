@@ -335,6 +335,10 @@ if fNovi
 	_OtvSt:=" "
 endif
 
+if fNovi
+	_idpartner := SPACE(6)
+endif
+
 if ((gRj=="D") .and. fNovi)
 	_idRj:=cTekucaRj
 endif
@@ -436,10 +440,11 @@ if gTroskovi=="D"
        	@  m_x+12,m_y+44 SAY "      Fond." GET _Fond valid empty(_Fond) .or. P_Fond(@_Fond) pict "@!"
 endif
 
+altd()
 if DABLAGAS
-	@ m_x+13,m_y+2  SAY "Konto  :" get _IdKonto    pict "@!" valid   Partija(@_IdKonto) .and. P_Konto(@_IdKonto,13,20,.t.) .and. BrDokOK()
+	@ m_x+13,m_y+2  SAY "Konto  :" get _IdKonto    pict "@!" valid   Partija(@_IdKonto) .and. P_Konto(@_IdKonto,13,20,.t.) .and. BrDokOK() .and. MinKtoLen(_IdKonto)
 else
-    	@  m_x+13,m_y+2  SAY "Konto  :" get _IdKonto    pict "@!" valid   Partija(@_IdKonto) .and. P_Konto(@_IdKonto,13,20) .and. BrDokOK()
+    	@  m_x+13,m_y+2  SAY "Konto  :" get _IdKonto    pict "@!" valid   Partija(@_IdKonto) .and. P_Konto(@_IdKonto,13,20) .and. BrDokOK() .and. MinKtoLen(_IdKonto)
 endif
 
 @  m_x+14,m_y+2  SAY "Partner:" get _IdPartner  pict "@!" valid {|| if(empty(_idpartner),Reci(14,20,SPACE(25)),), empty(_IdPartner) .or. P_Firma(@_IdPartner,14,20)}
@@ -467,6 +472,29 @@ _k3:=K3U256(_k3)
 _Rbr:=STR(nRbr,4)
 
 return 1
+*}
+
+
+/*! \fn MinKtoLen(cIdKonto)
+ *  \brief Provjerava minimalnu dozvoljenu duzinu konta pri knjizenju
+ *  \param cIdKonto - konto id
+ */
+function MinKtoLen(cIdKonto)
+*{
+if gKtoLimit=="N"
+	return .t.
+endif
+
+if gKtoLimit=="D" .and. gnKtoLimit > 0
+	if LEN(ALLTRIM(cIdKonto)) > gnKtoLimit
+		return .t.
+	else
+		MsgBeep("Duzina konta mora biti veca od " + ALLTRIM(STR(gnKtoLimit)))
+		return .f.
+	endif
+endif
+
+return
 *}
 
 

@@ -2887,6 +2887,13 @@ read
 ESC_BCR
 Boxc()
 
+if IsTigra()
+	private lGenPartnSt
+	private nSldMinIzn
+	private cPosId := ""
+	GenPartnSt(@lGenPartnSt, @nSldMinIzn, @cPosId)
+endif
+
 if "." $ cIdPartner
 	cIdPartner:=StrTran(cIdPartner,".","")
     	cIdPartner:=Trim(cIdPartner)
@@ -3203,6 +3210,9 @@ DO WHILE !EOF()
              					@ prow(),pcol()+1 SAY anInterVV[nFaza,3,1]-anInterVV[nFaza,4,1] PICTURE picdem
            				ENDIF
          			ENDIF
+				if IsTigra() .and. lGenPartnSt
+					AzurFinOstav(cPosId, cIdPartner, 10, 20, 30, 40, nSldMinIzn)
+				endif
          			anInterVV[nFaza,1,2] += anInterVV[nFaza,1,1]
          			anInterVV[nFaza,2,2] += anInterVV[nFaza,2,1]
          			anInterVV[nFaza,3,2] += anInterVV[nFaza,3,1]

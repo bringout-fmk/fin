@@ -1,4 +1,3 @@
-
 #ifndef SC_DEFINED
 	#include "sc.ch"
 #endif

@@ -66,6 +66,8 @@ Rpar("p2",@gPicBHD)
 Rpar("v1",@gVar1)
 Rpar("rr",@gnRazRed)
 Rpar("so",@gVSubOp)
+Rpar("zx",@gKtoLimit)
+Rpar("zy",@gnKtoLimit)
 
 gNFirma:=padr(gNFirma,20)
 cK1:=padr(cK1,1)
@@ -75,7 +77,7 @@ cK4:=padr(cK4,1)
 gVar1:=padr(gVar1,1)
 
 
-Box(,22,70)
+Box(,23,70)
  set cursor on
  @ m_x+1,m_y+2 SAY "Firma" GET gFirma
  @ m_x+1,col()+2 SAY "Naziv:" get gNFirma
@@ -106,6 +108,8 @@ Box(,22,70)
  @ m_x+20,m_y+2 SAY "Unos radnih jedinica D/N" GET gRJ valid gRj $ "DN" pict "@!"
  @ m_x+21,m_y+2 SAY "Unos ekonom.kategor. D/N" GET gTroskovi valid gTroskovi $ "DN" pict "@!"
  @ m_x+22,m_y+2 SAY "Lijeva marg.za obrazac 'Odobrenje i nalog za isplatu' (br.znakova)" GET gnLMONI PICTURE "999"
+ @ m_x+23,m_y+2 SAY "Konto limit:" GET gKtoLimit pict "@!" valid gKtoLimit$"DN"
+ @ m_x+23,m_y+18 SAY "iznos limita:" GET gnKtoLimit pict "9" 
  read
 BoxC()
 
@@ -137,6 +141,8 @@ if lastkey()<>K_ESC
  Wpar("rr",gnRazRed)
  Wpar("so",gVSubOp)
  Wpar("si",gSAKrIz)
+ Wpar("zx",gKtoLimit)
+ Wpar("zy",gnKtoLimit)
 endif
 
 closeret

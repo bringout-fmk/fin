@@ -2854,11 +2854,22 @@ cIdkonto:=space(7)
 cIdPartner:=space(6)
 dNaDan:=DATE()
 cOpcine:=SPACE(20)
-cSaRokom:="N"
-nDoDana1 :=  8
-nDoDana2 := 15
-nDoDana3 := 30
-nDoDana4 := 60
+
+// Default rocni intervali za user Tigra
+if IsTigra()
+	cSaRokom:="D"
+	nDoDana1 :=  4
+	nDoDana2 :=  8
+	nDoDana3 := 16
+	nDoDana4 := 20
+else
+	cSaRokom:="N"
+	nDoDana1 :=  8
+	nDoDana2 := 15
+	nDoDana3 := 30
+	nDoDana4 := 60
+endif
+
 PICPIC:="999999.99"
 
 Box(,14,60)
@@ -3114,7 +3125,7 @@ DO WHILE !EOF()
         			?? " "+TRANSFORM(dug2,picdem), TRANSFORM(pot2,picdem), TRANSFORM(dug2-pot2,picdem)
       			ENDIF
     		ELSEIF cLastIdPartner!=cIdPartner .or. LEN(cLastIdPartner)<1
-      			Pljuc(cIdPartner)
+     			Pljuc(cIdPartner)
       			PPljuc(Ocitaj(F_PARTN,cIdPartner,"naz"))
       			cLastIdPartner:=cIdPartner
     		ENDIF
@@ -3206,12 +3217,10 @@ DO WHILE !EOF()
            				IF gVar1=="0"
              					@ prow(),pcol()+1 SAY anInterVV[nFaza,3,1] PICTURE picdem
              					@ prow(),pcol()+1 SAY anInterVV[nFaza,4,1] PICTURE picdem
+             					@ prow(),pcol()+1 SAY 44 PICTURE picdem
              					@ prow(),pcol()+1 SAY anInterVV[nFaza,3,1]-anInterVV[nFaza,4,1] PICTURE picdem
            				ENDIF
          			ENDIF
-				if IsTigra() .and. lGenPartnSt
-					AzurFinOstav(cPosId, cIdPartner, 10, 20, 30, 40, nSldMinIzn)
-				endif
          			anInterVV[nFaza,1,2] += anInterVV[nFaza,1,1]
          			anInterVV[nFaza,2,2] += anInterVV[nFaza,2,1]
          			anInterVV[nFaza,3,2] += anInterVV[nFaza,3,1]
@@ -3321,6 +3330,12 @@ if !fPrviProlaz  // bilo je stavki
         		NEXT
         		PPljuc(TRANSFORM(nUkVVD-nUkVVP,PICPIC))
         		PPljuc(TRANSFORM(nUDug-nUPot  ,PICPIC))
+
+			// Priprema za prenos na HH ureðaj
+			if IsTigra() .and. lGenPartnSt
+				AzurFinOstav(cPosId, cIdPartner, (anInterVV[1,1,1]-anInterVV[1,2,1]), (anInterVV[2,1,1]-anInterVV[2,2,1]), (anInterVV[3,1,1]-anInterVV[3,2,1]), (anInterVV[4,1,1]-anInterVV[4,2,1]), nSldMinIzn)
+			endif
+
       		ELSE
         		PPljuc(TRANSFORM(nUkUVD-nUkUVP,PICPIC))
         		PPljuc(TRANSFORM(nUkVVD-nUkVVP,PICPIC))
@@ -3388,6 +3403,7 @@ IF  cPoRn=="D" .and. LEN(cSvi)<LEN(idpartner) .and.;
     NEXT
     ? m
   ENDIF
+
   ? "PARTNERI UKUPNO VAN VALUTE:"
    @ prow(),nCol1 SAY nTUkVVD PICTURE picBHD
    @ prow(),pcol()+1 SAY nTUkVVP PICTURE picBHD

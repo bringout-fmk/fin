@@ -57,10 +57,19 @@ cIdPartner:=space(6)
 dNaDan:=DATE()
 cOpcine:=SPACE(20)
 cSaRokom:="D"
-nDoDana1:=8
-nDoDana2:=15
-nDoDana3:=30
-nDoDana4:=60
+
+// Default rocni intervali za user Tigra
+if IsTigra()
+	nDoDana1 :=  4
+	nDoDana2 :=  8
+	nDoDana3 := 16
+	nDoDana4 := 20
+else
+	nDoDana1 :=  8
+	nDoDana2 := 15
+	nDoDana3 := 30
+	nDoDana4 := 60
+endif
 
 PICPIC:="9999999999.99"
 

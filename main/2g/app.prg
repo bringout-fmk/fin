@@ -292,6 +292,8 @@ AADD(opcexe, {|| nil})
 
 AADD(opc, "K. kontrola zbira datoteka")
 AADD(opcexe, {|| KontrZb()})
+AADD(opc, "L. kontrola zbira datoteka - period")
+AADD(opcexe, {|| KontrZb(.t.)})
 
 AADD(opc, "P. povrat dokumenta u pripremu")
 if (ImaPravoPristupa(goModul:oDatabase:cName,"UT","POVRATNALOGA"))
@@ -402,6 +404,7 @@ public gFKomp:=PADR("KOMP.TXT",13)
 
 public gDUFRJ:="N"
 public gBrojac:="1"
+public glBlag:="N"
 
 
 ::super:setTGVars()
@@ -430,6 +433,7 @@ Rpar("lm",@gnLMONI)
 Rpar("si",@gSAKrIz)
 Rpar("zx",@gKtoLimit)
 Rpar("zy",@gnKtoLimit)
+Rpar("zc",@glBlag)
 
 if empty(gNFirma)
 	Beep(1)

@@ -446,8 +446,9 @@ if DABLAGAS
 else
     	@  m_x+13,m_y+2  SAY "Konto  :" get _IdKonto    pict "@!" valid   Partija(@_IdKonto) .and. P_Konto(@_IdKonto,13,20) .and. BrDokOK() .and. MinKtoLen(_IdKonto)
 endif
+altd()
+@  m_x+14,m_y+2  SAY "Partner:" get _IdPartner  pict "@!" valid {|| if(empty(_idpartner),Reci(14,20,SPACE(25)),), empty(_IdPartner) .or. P_Firma(@_IdPartner,14,20)} when {|| iif(ChkKtoMark(_idkonto),.t.,.f.)}
 
-@  m_x+14,m_y+2  SAY "Partner:" get _IdPartner  pict "@!" valid {|| if(empty(_idpartner),Reci(14,20,SPACE(25)),), empty(_IdPartner) .or. P_Firma(@_IdPartner,14,20)}
 @  m_x+16,m_y+2  SAY "Duguje/Potrazuje (1/2):" get _D_P valid V_DP()
 @ m_x+16,m_y+46  GET _IznosBHD  PICTURE "999999999999.99"
 @ m_x+17,m_y+46  GET _IznosDEM  WHEN {|| DinDEM(,,"_IZNOSBHD"),.t.} VALID {|oGet| V_IznosDEM(,,"_IZNOSDEM",oGet)} PICTURE '9999999999.99'

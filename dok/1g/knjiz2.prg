@@ -534,4 +534,28 @@ endcase
 return nRet
 *}
 
+/*! \fn ChkKtoMark(cIdKonto)
+ *  \brief provjeri da li postoji marker na kontu
+ *  \brief Uslov za ovu opciju: SIFK podesenje: ID=KONTO, OZNAKA=MARK, TIP=C, DUZ=1
+ *  \param cIdKonto - id konto
+ */
+function ChkKtoMark(cIdKonto)
+*{
+bRet:=.t.
+cMark:=IzSifK("KONTO", "MARK", cIdKonto, NIL)
+do case
+	// ne postoji definicija...
+	case cMark==nil
+		bRet:=.t.
+	// postoji marker
+	case cMark=="*"
+		bRet:=.t.
+	// ne postoji marker
+	case cMark==" "
+		bRet:=.f.
+endcase
+
+return bRet
+*}
+
 

@@ -55,6 +55,12 @@ AADD(opcexe, {|| ImaUSubanNemaUNalog()})
 AADD(opc, "5. otvorene stavke")
 AADD(opcexe, {|| OStav()})
 
+if glBlag == "D"
+	AADD(opc, "6. evidencija blagajne")
+	AADD(opcexe, {|| MnuBlag()})
+endif
+
+
 Menu_SC("oop")
 
 return

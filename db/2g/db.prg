@@ -1043,10 +1043,6 @@ if (nArea==-1 .or. nArea==(F_ULIMIT))
 	CREATE_INDEX("2" ,"Id+idpartner", SIFPATH+"ULIMIT.DBF")
 endif
 
-if (glBlag == "D")
-	CreBlagDB()
-endif
-
 
 return
 *}

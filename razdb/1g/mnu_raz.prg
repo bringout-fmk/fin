@@ -17,9 +17,10 @@ AADD(opc, "1. fakt->fin                   ")
 AADD(opcexe, {|| FaktFin()})
 AADD(opc, "2. ld->fin ")
 AADD(opcexe, {|| LdFin()})
-AADD(opc, "3. pos->fin ")
-AADD(opcexe, {|| PosFin()})
-
+if IsPlanika() .or. IsPlNS()
+	AADD(opc, "3. pos->fin ")
+	AADD(opcexe, {|| PosFin()})
+endif
 Menu_SC("raz")
 
 return

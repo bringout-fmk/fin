@@ -395,6 +395,9 @@ public gTroskovi:="N"
 public gnRazRed:=3
 public gVSubOp:="N"
 public gnLMONI:=120
+public gKtoLimit:="N"
+public gnKtoLimit:=3
+
 public gFKomp:=PADR("KOMP.TXT",13)
 
 public gDUFRJ:="N"
@@ -425,6 +428,8 @@ Rpar("rr",@gnRazRed)
 Rpar("so",@gVSubOp)
 Rpar("lm",@gnLMONI)
 Rpar("si",@gSAKrIz)
+Rpar("zx",@gKtoLimit)
+Rpar("zy",@gnKtoLimit)
 
 if empty(gNFirma)
 	Beep(1)

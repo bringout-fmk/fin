@@ -463,7 +463,7 @@ read
 
 // zapamti zadnjeg upisanog partnera
 if len(alltrim(_IdPartner))>0
-    cSavedPartner := _IdPartner
+   // cSavedPartner := _IdPartner
 endif
 
 // ako su radne jedinice setuj var cTekucaRJ na novu vrijednost

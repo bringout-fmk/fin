@@ -366,19 +366,22 @@ cStrana:="D"
 cIDVN:="88"
 cBrNal:="0001"
 dDatDok:=date()
+cRascl:="D"
+lRJRascl:=.f.
 
 do while .t.
 	@ m_x+1,m_y+6 SAY "PREKNJIZENJE SUBANALITICKIH KONTA"
  	if gNW=="D"
-   		@ m_x+3,m_y+2 SAY "Firma "
+   		@ m_x+2,m_y+2 SAY "Firma "
 		?? gFirma,"-",gNFirma
  	else
-  		@ m_x+3,m_y+2 SAY "Firma: " GET cIdFirma valid {|| P_Firma(@cIdFirma),cIdFirma:=Left(cIdFirma,2),.t.}
+  		@ m_x+2,m_y+2 SAY "Firma: " GET cIdFirma valid {|| P_Firma(@cIdFirma),cIdFirma:=Left(cIdFirma,2),.t.}
  	endif
- 	@ m_x+4,m_y+2 SAY "Konto   " GET qqKonto  pict "@!S50"
- 	@ m_x+5,m_y+2 SAY "Partner " GET qqPartner pict "@!S50"
+ 	@ m_x+3,m_y+2 SAY "Konto   " GET qqKonto  pict "@!S50"
+ 	@ m_x+4,m_y+2 SAY "Partner " GET qqPartner pict "@!S50"
  	if gRJ=="D"
-		@ m_x+6,m_y+2 SAY "Rad.jed." GET qqIdRj pict "@!S50"
+		@ m_x+5,m_y+2 SAY "Rad.jed." GET qqIdRj pict "@!S50"
+		@ m_x+6,m_y+2 SAY "Rasclaniti po RJ" GET cRascl pict "@!" valid cRascl$"DN"
  	endif
 	@ m_x+7,m_y+2 SAY "Datum dokumenta od" GET dDatOd
  	@ m_x+7,col()+2 SAY "do" GET dDatDo
@@ -423,6 +426,11 @@ do while .t.
 	if gRJ=="D" .and. aUsl3<>NIL
 		exit
 	endif
+	if gRJ=="D" 
+		if cRascl=="D"
+			lRJRascl := .t.
+		endif
+	endif
 enddo
 BoxC()
 
@@ -448,9 +456,14 @@ if cK4=="99"
 endif
 
 select SUBAN
-set order to 1
 
-cFilt1:="IDFIRMA="+cm2str(cIdFirma)+".and."+aUsl1+".and."+aUsl2+IF(gRJ=="D",".and."+aUsl3,"")+;
+if (gRj=="D" .and. lRjRascl)
+	set order to tag "9" //idfirma+idkonto+idrj+idpartner+...	
+else
+	set order to tag "1"
+endif
+
+cFilt1:="IDFIRMA=" + Cm2Str(cIdFirma) + ".and." + aUsl1 + ".and." + aUsl2 + IF(gRJ == "D", ".and." + aUsl3, "")+;
         IF(empty(dDatOd),"",".and.DATDOK>="+cm2str(dDatOd))+;
         IF(empty(dDatDo),"",".and.DATDOK<="+cm2str(dDatDo))+;
         IF(fk1=="N","",".and.k1="+cm2str(ck1))+;
@@ -469,7 +482,6 @@ EOF CRET
 
 Pic:=PicBhd
 
-
 if cTip=="3"
 	m:="------  ------ ------------------------------------------------- --------------------- --------------------"
 else
@@ -477,7 +489,6 @@ else
 endif
 
 nStr:=0
-
 nUd:=0
 nUp:=0      // DIN
 nUd2:=0
@@ -486,16 +497,16 @@ nRbr:=0
 
 select pripr
 go bottom
-nRbr:=val(rbr)
+nRbr:=VAL(rbr)
 select suban
 
 do whileSC !eof()
-	cSin:=left(idkonto,3)
+	cSin:=LEFT(idkonto, 3)
  	nKd:=0
  	nKp:=0
  	nKd2:=0
  	nKp2:=0
- 	do whileSC !eof() .and.  cSin==left(idkonto,3)
+ 	do whileSC !eof() .and.  cSin==LEFT(idkonto, 3)
      		cIdKonto:=IdKonto
      		cIdPartner:=IdPartner
 		if gRj=="D"
@@ -505,8 +516,14 @@ do whileSC !eof()
      		nP:=0
      		nD2:=0
      		nP2:=0
-     		//if prow()==0; zagl6(); endif
-     		do whileSC !eof() .and. cIdKonto==IdKonto .and. IdPartner==cIdPartner
+		
+		if (gRj=="D" .and. lRjRascl)
+			bCond := {|| cIdKonto==IdKonto .and. IdRj==cIdRj .and. IdPartner==cIdPartner}
+		else
+			bCond := {|| cIdKonto==IdKonto .and. IdPartner==cIdPartner}
+     		endif
+		
+		do whileSC !eof() .and. EVAL(bCond)
          		if d_P=="1"
            			nD+=iznosbhd
            			nD2+=iznosdem
@@ -521,10 +538,10 @@ do whileSC !eof()
          
     		// dodata opcija za preknjizenje saldo T
      		if cPreknjizi=="T"
-      			if round(nd-np,2)<>0
+      			if round(nD-nP,2)<>0
        				append blank
-       				replace idfirma with cidfirma, idpartner with cidpartner, idkonto with cidkonto, idvn with cidvn, brnal with cbrnal, datdok with dDatDok, rbr with str(++nrbr,4)
-				replace d_p with iif(cStrana=="D","1","2"), iznosbhd with (nd-np), iznosdem with (nd2-np2)
+       				replace idfirma with cIdFirma, idpartner with cIdPartner, idkonto with cIdKonto, idvn with cIdVn, brnal with cBrNal, datdok with dDatDok, rbr with str(++nRbr,4)
+				replace d_p with iif(cStrana=="D","1","2"), iznosbhd with (nD-nP), iznosdem with (nD2 - nP2)
       				if gRj=="D"
 					replace idrj with cIdRj
 				endif
@@ -532,10 +549,10 @@ do whileSC !eof()
      		endif
 		
 		if cPreknjizi=="P"
-      			if round(nd-np,2)<>0
+      			if round(nD-nP,2)<>0
        				append blank
-       				replace idfirma with cidfirma,idpartner with cidpartner, idkonto with cidkonto, idvn with cidvn, brnal with cbrnal, datdok with dDatDok, rbr with str(++nrbr,4)
-       				replace  d_p with iif(nd-np>0,"2","1"), iznosbhd with abs(nd-np), iznosdem with abs(nd2-np2)
+       				replace idfirma with cIdFirma, idpartner with cIdPartner, idkonto with cIdKonto, idvn with cIdVn, brnal with cBrNal, datdok with dDatDok, rbr with str(++nRbr,4)
+       				replace  d_p with IIF(nD-nP > 0,"2","1"), iznosbhd with abs(nD-nP), iznosdem with abs(nD2-nP2)
       				if gRj=="D"
 					replace idrj with cIdRj
 				endif
@@ -543,18 +560,18 @@ do whileSC !eof()
      		endif
      		
 		if cPreknjizi=="S"
-        		if round(nd,3)<>0
+        		if round(nD, 3)<>0
          			append blank
-        			replace idfirma with cidfirma,idpartner with cidpartner, idkonto with cidkonto, idvn with cidvn, brnal with cbrnal, datdok with dDatDok, rbr with str(++nrbr,4)
+        			replace idfirma with cIdFirma, idpartner with cIdPartner, idkonto with cIdKonto, idvn with cIdVn, brnal with cBrNal, datdok with dDatDok, rbr with str(++nRbr,4)
          			replace  d_p with "1", iznosbhd with -nd, iznosdem with -nd2
         			if gRj=="D"
 					replace idrj with cIdRj
 				endif
 			endif
-        		if round(np,3)<>0
+        		if round(nP, 3)<>0
          			append blank
-         			replace idfirma with cidfirma,idpartner with cidpartner, idkonto with cidkonto, idvn with cidvn, brnal with cbrnal, datdok with dDatDok, rbr with str(++nrbr,4)
-         			replace  d_p with "2", iznosbhd with -np, iznosdem with -np2
+         			replace idfirma with cIdFirma, idpartner with cIdPartner, idkonto with cIdKonto, idvn with cIdVn, brnal with cBrNal, datdok with dDatDok, rbr with str(++nRbr,4)
+         			replace  d_p with "2", iznosbhd with -nP, iznosdem with -nP2
          			if gRj=="D"
 					replace idrj with cIdRj
 				endif
@@ -574,4 +591,5 @@ enddo // eof
 closeret
 return
 *}
+
 

@@ -29,7 +29,7 @@ private opc:={}
 private opcexe:={}
 private Izbor:=1
 
-AADD(opc, "1. kontrola zbira datoteka                  ")
+AADD(opc, "1. kontrola zbira datoteka                     ")
 AADD(opcexe, {|| KontrZb()})
 
 AADD(opc, "2. stampanje azuriranog dokumenta")
@@ -41,6 +41,9 @@ endif
 
 AADD(opc, "3. stampa liste dokumenata")
 AADD(opcexe, {|| StDatN()})
+
+AADD(opc, "4. kontrola zbira datoteka za period - BETA")
+AADD(opcexe, {|| KontrZb(.t.)})
 
 Menu_SC("pgl")
 

@@ -404,7 +404,6 @@ public gFKomp:=PADR("KOMP.TXT",13)
 
 public gDUFRJ:="N"
 public gBrojac:="1"
-public glBlag:="N"
 
 
 ::super:setTGVars()
@@ -433,7 +432,6 @@ Rpar("lm",@gnLMONI)
 Rpar("si",@gSAKrIz)
 Rpar("zx",@gKtoLimit)
 Rpar("zy",@gnKtoLimit)
-Rpar("zc",@glBlag)
 
 if empty(gNFirma)
 	Beep(1)

@@ -1,5 +1,5 @@
-#include "\cl\sigma\fmk\fin\fin.ch"
-#include "\cl\sigma\fmk\fin\specif\tigra\1g\fin_tgr.ch"
+#include "\dev\fmk\fin\fin.ch"
+#include "\dev\fmk\fin\specif\tigra\1g\fin_tgr.ch"
 
 
 /*! \fn GeneracijaStPartnera()

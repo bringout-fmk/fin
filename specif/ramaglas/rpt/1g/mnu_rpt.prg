@@ -1,4 +1,4 @@
-#include "\cl\sigma\fmk\fin\fin.ch"
+#include "\dev\fmk\fin\fin.ch"
 
 
 /*! \file fmk/fin/specif/ramaglas/rpt/1g/mnu_rpt.prg

@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=fin_1gen
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\fin\\gendok\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\fin\\gendok\\1g\\
 
 PRGS=prenos.prg mnu_gdok.prg
 

@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=fin_1rof
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\fin\\razoff\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\fin\\razoff\\1g\\
 
 PRGS=findisk.prg mnu_off.prg
 

@@ -1,4 +1,4 @@
-#include "\cl\sigma\fmk\fin\fin.ch"
+#include "\dev\fmk\FIN\fin.ch"
 
 /*
  * ----------------------------------------------------------------

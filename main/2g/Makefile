@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=fin_2m
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\fin\\main\\2g\\
+SRCDOSROOT=h:\\dev\\fmk\\fin\\main\\2g\\
 
 PRGS=app.prg
 

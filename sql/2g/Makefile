@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=fin_2sql
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\fin\\sql\\2g\\
+SRCDOSROOT=h:\\dev\\fmk\\fin\\sql\\2g\\
 
 PRGS=sql.prg
 

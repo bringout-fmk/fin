@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=fin_1rpt
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\fin\\rpt\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\fin\\rpt\\1g\\
 
 PRGS=bilans.prg kartas.prg kartica.prg mnu_rpt.prg ostalo.prg proizv.prg specif.prg mnu_spec.prg rpt_dug.prg
 

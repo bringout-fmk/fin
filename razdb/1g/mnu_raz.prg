@@ -1,4 +1,4 @@
-#include "\cl\sigma\fmk\fin\fin.ch"
+#include "\dev\fmk\fin\fin.ch"
 
 /*! \file fmk/fin/razdb/1g/mnu_raz.prg
  *  \brief Menij razmjene podataka

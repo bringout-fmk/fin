@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=fin_1ost
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\fin\\ostav\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\fin\\ostav\\1g\\
 
 PRGS=ios.prg ostav.prg
 

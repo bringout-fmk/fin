@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=fin_s1ti
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\fin\\specif\\tigra\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\fin\\specif\\tigra\\1g\\
 
 PRGS=pren_hh.prg stpart.prg
 

@@ -1,9 +1,9 @@
 VERZIJA=CDX
 MODUL=fin_1bud
 
-include /cl/sigma/Makefile_clipper
+include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\cl\\sigma\\fmk\\fin\\budzet\\1g\\
+SRCDOSROOT=h:\\dev\\fmk\\fin\\budzet\\1g\\
 
 PRGS=budzet.prg
 

@@ -605,3 +605,36 @@ return .t.
 *}
 
 
+/*! \fn NextNal(cIdVN)
+ *  \brief Vraca sljedeci broj naloga za idvn
+ *  \param cIdVN - tip naloga
+ */
+function NextNal(cIdVN)
+*{
+local nArr
+nArr:=SELECT()
+
+if gBrojac=="1"
+	select NALOG
+	set order to 1
+	seek gFirma+cIdVN+"X"
+	skip -1
+	if idfirma+idvn==gFirma+cIdVN
+		cBrNal:=NovaSifra(brNal)
+	else
+		cBrNal:="0001"
+	endif
+else
+	select NALOG
+	set order to 2
+	seek gFirma+"X"
+	skip -1
+	cBrNal:=padl(alltrim(str(val(brnal)+1)),4,"0")
+endif
+
+select (nArr)
+
+return cBrNal
+*}
+
+

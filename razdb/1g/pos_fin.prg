@@ -78,6 +78,12 @@ select trfp2
 set filter to shema="P"
 go top
 
+if (trfp2->shema <> "P")
+	MsgBeep("Ne postoji definisana shema kontiranja!")
+	return
+endif
+
+
 // daj naredni broj naloga
 cBrNal:=NextNal("22")
 nRBr:=0

@@ -3333,7 +3333,7 @@ if !fPrviProlaz  // bilo je stavki
 
 			// Priprema za prenos na HH ureðaj
 			if IsTigra() .and. lGenPartnSt
-				AzurFinOstav(cPosId, cIdPartner, (anInterVV[1,1,1]-anInterVV[1,2,1]), (anInterVV[2,1,1]-anInterVV[2,2,1]), (anInterVV[3,1,1]-anInterVV[3,2,1]), (anInterVV[4,1,1]-anInterVV[4,2,1]), nSldMinIzn)
+				AzurFinOstav(cPosId, cIdPartner, (anInterVV[1,1,1]-anInterVV[1,2,1]), (anInterVV[2,1,1]-anInterVV[2,2,1]), (anInterVV[3,1,1]-anInterVV[3,2,1]), (anInterVV[4,1,1]-anInterVV[4,2,1]), (anInterVV[5,1,1] - anInterVV[5,2,1]), nSldMinIzn)
 			endif
 
       		ELSE

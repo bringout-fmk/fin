@@ -2942,7 +2942,6 @@ ELSE
 ENDIF
 START PRINT RET
 
-
 nUkDugBHD:=nUkPotBHD:=0
 select suban
 set order to 3

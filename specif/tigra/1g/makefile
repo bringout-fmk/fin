@@ -5,7 +5,7 @@ include /sclib/Makefile_clipper
 
 SRCDOSROOT=c:\\dev\\fmk\\fin\\specif\\tigra\\1g\\
 
-PRGS=pren_hh.prg stpart.prg
+PRGS=
 
 CS=
 ASMS=

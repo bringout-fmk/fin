@@ -2,25 +2,30 @@
 #include "\dev\fmk\fin\razdb\1g\razdb.ch"
 
 
-/*! \fn GetPrVPParams(cProdId, dDatOd, dDatDo, dDatDok)
+/*! \fn GetPrVPParams(cProdId, dDatOd, dDatDo, dDatDok, cTipNal, cShema)
  *  \brief Setuj parametre prenosa
  *  \param cProdId - id prodavnice
  *  \param dDatOd - datum prenosa od
  *  \param dDatDo - datum prenosa do
  *  \param dDatDok - datum dokumenta
  */
-function GetPrVPParams(cProdId, dDatOd, dDatDo, dDatDok)
+function GetPrVPParams(cProdId, dDatOd, dDatDo, dDatDok, cTipNal, cShema)
 *{
 dDatOd:=DATE()-30
 dDatDo:=DATE()
 dDatDok:=DATE()
 cProdId:=SPACE(2)
+cTipNal:="  "
+cShema:=" "
 
-Box(,5,50)
-	@ m_x+1, m_y+2 SAY "POS: prodajno mjesto:" GET cProdId VALID !Empty(cProdId)
+Box("#Kontiranje evidencije vrsta placanja",7,60)
+	@ m_x+2, m_y+2 SAY "TOPS - prodajno mjesto:" GET cProdId VALID !Empty(cProdId)
 	@ m_x+3, m_y+2 SAY "Datum od" GET dDatOd VALID !Empty(dDatOd)
 	@ m_x+3, m_y+20 SAY "do" GET dDatDo VALID !Empty(dDatDo)
-	@ m_x+5, m_y+2 SAY "Datum naloga:" GET dDatDok VALID !Empty(dDatDok)
+	
+	@ m_x+5, m_y+2 SAY "Vrsta naloga:" GET cTipNal VALID !Empty(cTipNal)
+	@ m_x+6, m_y+2 SAY "Datum knjizenja:" GET dDatDok VALID !Empty(dDatDok)
+	@ m_x+7, m_y+2 SAY "Shema:" GET cShema
 	read
 BoxC()
 
@@ -46,12 +51,14 @@ private dDatDok
 private KursLis:="1"
 private cTKPath:=""
 private cProdKonto:=""
+private cTipNal
+private cShema
 
 // otvori potrebne tabele
 O_PrVP_DB()
 
 // setuj parametre prenosa
-if !GetPrVPParams(@cProdId, @dDatOd, @dDatDo, @dDatDok)
+if !GetPrVPParams(@cProdId, @dDatOd, @dDatDo, @dDatDok, @cTipNal, @cShema)
 	return
 endif
 
@@ -75,64 +82,125 @@ endif
 // predji na shemu kontiranja
 select trfp2
 // selektuj shemu "P" - polog pazara
-set filter to shema="P"
+set filter to idvd=cTipNal .and. shema=cShema
 go top
 
-if (trfp2->shema <> "P")
+if (trfp2->idvd <> cTipNal)
 	MsgBeep("Ne postoji definisana shema kontiranja!")
 	return
 endif
 
-
+MsgO("Kontiram nalog ...")
 // daj naredni broj naloga
-cBrNal:=NextNal("22")
-nRBr:=0
-nIznos:=0
-nIznDEM:=0
-cBrDok:=""
-nCounter:=0
-cIdKonto:=""
+private cBrNal:=NextNal(cTipNal)
+private nRBr:=0
+private nIznos:=0
+private nIznDEM:=0
+private cBrDok:=""
+private nCounter:=0
+private cIdKonto:=""
+private nIzn:=0
 
 do while !eof()
 	private cPom:=trfp2->id
-	nIznos:=GetPologIznos(cPom)
-	nIznDem:=nIznos*Kurs(dDatDok, "D", "P")
+	
 	cIdKonto:=trfp2->idkonto
 	cIdkonto:=STRTRAN(cIdKonto,"A1",Right(trim(cProdKonto),1))
-        cIdkonto:=STRTRAN(cIdKonto,"A2",Right(trim(cProdKonto),2))
-	if Round(nIznos,2)<>0
-		nCounter ++
-		select pripr
-		append blank
-		replace idvn with trfp2->idvn
-		replace	idfirma with gFirma
-		replace	brnal with cBrNal
-		replace	rbr with STR(++nRBr,4)
-		replace datdok with dDatDo
-		replace	idkonto with cIdKonto
-		replace	d_p with trfp2->d_p
-		replace	iznosbhd with nIznos
-		replace	iznosdem with nIznDEM
-		replace	brdok with cBrDok
-		replace	opis with TRIM(trfp2->naz)
-		select trfp2
+	cIdkonto:=STRTRAN(cIdKonto,"A2",Right(trim(cProdKonto),2))
+
+	if "NaDan" $ cPom
+		nCounter := &cPom
+		skip 1
+	else
+		nIznos:=GetVrPlIznos(cPom)
+		nIznDem:=nIznos*Kurs(dDatDok, "D", "P")
+		Azur2Pripr(cBrNal, dDatDok)
+		skip 1
 	endif
-	skip 1
 enddo
 
-if (nCounter > 0)
-	MsgBeep("Preneseno " + ALLTRIM(STR(nCounter)) + " stavki.")
+MsgC()
+
+select pripr
+go top
+
+if RecCount() > 0
+	MsgBeep("Nalog izgenerisan u pripremu...")
 endif
 
 return
 *}
 
 
-/*! \fn GetPologIznos(cField)
+/*! \fn Azur2Pripr(cBrojNal, dDatNal)
+ *  \brief Azuriranje stavke u pripremu
+ *  \param cBrojNal - broj naloga
+ *  \param dDatNal - datum naloga
+ */
+static function Azur2Pripr(cBrojNal, dDatNal)
+*{
+local nArr
+nArr:=SELECT()
+
+select pripr
+append blank
+replace idvn with trfp2->idvn
+replace	idfirma with gFirma
+replace	brnal with cBrojNal
+replace	rbr with STR(++nRBr,4)
+replace datdok with dDatNal
+replace	idkonto with cIdKonto
+replace	d_p with trfp2->d_p
+replace	iznosbhd with nIznos
+replace	iznosdem with nIznDEM
+replace	brdok with cBrDok
+replace	opis with TRIM(trfp2->naz)
+
+select (nArr)
+return
+*}
+
+
+
+/*! \fn NaDan(cField)
+ *  \brief Vraca ukupan iznos pologa (cField) za datumski period
+ *  \param cField - polje, npr "POLOG01"
+ */
+function NaDan(cField)
+*{
+local nArr
+nArr:=SELECT()
+select F_T_PROMVP
+set order to tag "1"
+go top
+
+nIznos:=0
+do while !EOF() 
+	if (field->pm <> cProdId)
+		skip
+		loop
+	endif
+	if (field->datum > dDatDo .or. field->datum < dDatOd)
+		skip
+		loop
+	endif
+	nIznos:=field->&cField
+	nIznDem:=nIznos*Kurs(dDatDok, "D", "P")
+	Azur2Pripr(cBrNal, field->datum)
+	skip 1
+enddo
+
+select (nArr)
+
+return 1
+*}
+
+
+/*! \fn GetVrPlIznos(cField)
  *  \brief Vraca iznos pologa za datumski period
  *  \param cField - polje, npr "POLOG01"
  */
-static function GetPologIznos(cField)
+static function GetVrPlIznos(cField)
 *{
 local nArr
 nArr:=SELECT()

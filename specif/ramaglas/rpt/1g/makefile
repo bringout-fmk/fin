@@ -3,7 +3,7 @@ MODUL=fin_1rrg
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\fin\\specif\\ramaglas\\rpt\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\fin\\specif\\ramaglas\\rpt\\1g\\
 
 PRGS=mnu_rpt.prg rpt_strn.prg
 

@@ -5,7 +5,7 @@ MODUL=fin_1rpm
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\fin\\rptm\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\fin\\rptm\\1g\\
 
 PRGS=rpt_ppro.prg
 

@@ -3,7 +3,7 @@ MODUL=fin_s1je
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\fin\\specif\\jerry\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\fin\\specif\\jerry\\1g\\
 
 PRGS=rpt_bil.prg
 

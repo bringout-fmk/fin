@@ -3,7 +3,7 @@ MODUL=fin_s1ti
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\fin\\specif\\tigra\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\fin\\specif\\tigra\\1g\\
 
 PRGS=pren_hh.prg stpart.prg
 

@@ -3,7 +3,7 @@ MODUL=fin_2sql
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\fin\\sql\\2g\\
+SRCDOSROOT=c:\\dev\\fmk\\fin\\sql\\2g\\
 
 PRGS=sql.prg
 

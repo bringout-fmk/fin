@@ -3,7 +3,7 @@ MODUL=fin_1gen
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\fin\\gendok\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\fin\\gendok\\1g\\
 
 PRGS=prenos.prg mnu_gdok.prg
 

@@ -3,7 +3,7 @@ MODUL=fin_1ut
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\fin\\ut\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\fin\\ut\\1g\\
 
 PRGS=ut.prg
 

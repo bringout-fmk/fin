@@ -3,7 +3,7 @@ MODUL=fin_1rdb
 
 include /sclib/Makefile_clipper
 
-SRCDOSROOT=h:\\dev\\fmk\\fin\\razdb\\1g\\
+SRCDOSROOT=c:\\dev\\fmk\\fin\\razdb\\1g\\
 
 PRGS=ldfin.prg faktfin.prg mnu_raz.prg
 

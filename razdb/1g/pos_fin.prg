@@ -2,28 +2,15 @@
 #include "\dev\fmk\fin\razdb\1g\razdb.ch"
 
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
- 
-
-/*! \file fmk/fin/razdb/1g/pos_fin.prg
- *  \brief Prenos podataka POS->FIN
- */
-
-
-/*! \fn GetPrVPParams(cProdId, dDatOd, dDatDo)
+/*! \fn GetPrVPParams(cProdId, dDatOd, dDatDo, dDatDok)
  *  \brief Setuj parametre prenosa
- *  \param cProdId
- *  \param dDatOd
- *  \param dDatDo
+ *  \param cProdId - id prodavnice
+ *  \param dDatOd - datum prenosa od
+ *  \param dDatDo - datum prenosa do
+ *  \param dDatDok - datum dokumenta
  */
 function GetPrVPParams(cProdId, dDatOd, dDatDo, dDatDok)
 *{
-
 dDatOd:=DATE()-30
 dDatDo:=DATE()
 dDatDok:=DATE()
@@ -47,6 +34,9 @@ return
 *}
 
 
+/*! \fn PromVP2Fin()
+ *  \brief Centralna funkcija za prenos PROMVP u FIN
+ */
 function PromVP2Fin()
 *{
 private cProdId
@@ -54,22 +44,28 @@ private dDatOd
 private dDatDo
 private dDatDok
 private KursLis:="1"
+private cTKPath:=""
+private cProdKonto:=""
 
+// otvori potrebne tabele
 O_PrVP_DB()
 
+// setuj parametre prenosa
 if !GetPrVPParams(@cProdId, @dDatOd, @dDatDo, @dDatDok)
 	return
 endif
 
-cPromVPDir:=GetTopsKumPath()
-if (cPromVPDir == NIL)
+// daj TOPS.KUMPATH i prodavnicki konto iz KONCIJ
+if !GetTopsParams(@cTKPath, @cProdKonto)
 	return
 endif
-AddBS(@cPromVPDir)
 
-if file(cPromVPDir+"PROMVP.DBF")
+AddBS(@cTKPath)
+
+// selektuj PROMVP kao F_T_PROMVP
+if file(cTKPath + "PROMVP.DBF")
 	SELECT (F_T_PROMVP)
-	USE (cPromVPDir+"PROMVP")
+	USE (cTKPath + "PROMVP")
 	set order to tag "1"
 else
 	MsgBeep("Ne postoji fajl PROMVP.DBF!")
@@ -78,20 +74,28 @@ endif
 
 // predji na shemu kontiranja
 select trfp2
+// selektuj shemu "P" - polog pazara
 set filter to shema="P"
 go top
 
+// daj naredni broj naloga
 cBrNal:=NextNal("22")
 nRBr:=0
 nIznos:=0
 nIznDEM:=0
 cBrDok:=""
+nCounter:=0
+cIdKonto:=""
 
 do while !eof()
 	private cPom:=trfp2->id
 	nIznos:=GetPologIznos(cPom)
 	nIznDem:=nIznos*Kurs(dDatDok, "D", "P")
-	if round(nIznos,2)<>0
+	cIdKonto:=trfp2->idkonto
+	cIdkonto:=STRTRAN(cIdKonto,"A1",Right(trim(cProdKonto),1))
+        cIdkonto:=STRTRAN(cIdKonto,"A2",Right(trim(cProdKonto),2))
+	if Round(nIznos,2)<>0
+		nCounter ++
 		select pripr
 		append blank
 		replace idvn with trfp2->idvn
@@ -99,7 +103,7 @@ do while !eof()
 		replace	brnal with cBrNal
 		replace	rbr with STR(++nRBr,4)
 		replace datdok with dDatDo
-		replace	idkonto with trfp2->idkonto
+		replace	idkonto with cIdKonto
 		replace	d_p with trfp2->d_p
 		replace	iznosbhd with nIznos
 		replace	iznosdem with nIznDEM
@@ -110,15 +114,19 @@ do while !eof()
 	skip 1
 enddo
 
+if (nCounter > 0)
+	MsgBeep("Preneseno " + ALLTRIM(STR(nCounter)) + " stavki.")
+endif
+
 return
 *}
 
 
-/*! \fn GetPologIznos(cPom)
+/*! \fn GetPologIznos(cField)
  *  \brief Vraca iznos pologa za datumski period
- *  \param cPom - polje
+ *  \param cField - polje, npr "POLOG01"
  */
-static function GetPologIznos(cPom)
+static function GetPologIznos(cField)
 *{
 local nArr
 nArr:=SELECT()
@@ -127,7 +135,6 @@ set order to tag "1"
 go top
 
 nIzn:=0
-
 do while !EOF() 
 	if (field->pm <> cProdId)
 		skip
@@ -137,47 +144,19 @@ do while !EOF()
 		skip
 		loop
 	endif
-	nIzn+=field->&cPom
+	nIzn+=field->&cField
 	skip
 enddo
+
+select (nArr)
 
 return nIzn
 *}
 
 
-/*! \fn GetPosPolozi(aPolog, cIdPM)
- *  \brief Upisuje u matricu aPolog pologe
- *  \param aPolog - matrica pologa
- *  \param cIdPM - id prodajnog mjesta
- */
-static function GetPosPolozi(aPolog, cIdPM)
-*{
-local nArr
-nArr:=SELECT()
-select F_T_PROMVP
-set order to tag "1"
-go top
-
-do while !EOF() 
-	if (field->pm <> cIdPM)
-		skip
-		loop
-	endif
-	if (field->datum > dDatDo .or. field->datum < dDatOd)
-		skip
-		loop
-	endif
-
-	AADD(aPolog, {field->pm, field->datum, field->polog01, field->polog02, field->polog03, field->polog04, field->polog05, field->polog06, field->polog07, field->polog08, field->ukupno})
-	skip
-enddo
-
-return
-*}
-
 
 /*! \fn O_PrVP_DB()
- *  \brief Otvara potrebne tabele 
+ *  \brief Otvaranje neophodnih tabela 
  */
 static function O_PrVP_DB()
 *{
@@ -194,39 +173,39 @@ return
 *}
 
 
-/*! \fn GetTopsKumPath(cPosId)
- *  \brief Vraca kum path TOPS-a
- *  \param cPosId - id pos
+/*! \fn GetTopsParams(cTKPath, cProdKonto)
+ *  \brief Setuje TOPS kumpath i idkonto 
+ *  \param cTKPath - kumpath tops
+ *  \param cProdKonto - prodavnicki konto
  */
-static function GetTopsKumPath()
+static function GetTopsParams(cTKPath, cProdKonto)
 *{
 O_KONCIJ
 select koncij
+// setuj filter po cProdId
 set filter to idprodmjes=cProdId
 go top
-
 if field->idprodmjes<>cProdId
 	MsgBeep("Ne postoji prodajno mjesto:" + cProdId + "##Prekidam operaciju!")
-	return NIL
+	return .f.
 endif
 
-cPath:=ALLTRIM(koncij->kumtops)
+cTKPath:=ALLTRIM(koncij->kumtops)
+cProdKonto:=koncij->id
 
+// vrati filter
 set filter to
 
-if EMPTY(cPath)
+if EMPTY(cTKPath)
 	MsgBeep("Nije podesen kumpath TOPS-a u tabeli KONCIJ!")
-	return NIL
+	return .f.
+endif
+if EMPTY(cProdKonto)
+	MsgBeep("Ne postoji prodavnicki konto!")
+	return .f.
 endif
 
-return cPath
+return .t.
 *}
-
-
-
-
-
-
-
 
 

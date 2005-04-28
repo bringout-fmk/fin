@@ -490,7 +490,7 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
       			set order to tag "ID"
       			seek cRasclan
       			? "        "
-      			@ prow(),pcol()+1 SAY left(cRasclan,6) +"/"+substr(cRasclan,7,5)+"/"+substr(cRasclan,12)
+      			@ prow(),pcol()+1 SAY left(cRasclan,6) +"/"+substr(cRasclan,7,5)+"/"+substr(cRasclan,12) + " / " + Ocitaj(F_RJ,left(cRasclan, 6),"NAZ")
       			select konto
     		endif
 
@@ -780,7 +780,7 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
      ? M
      ? "UKUPNO:"+cIdkonto+IF(cBrza=="D".and.RTRIM(qqPartner)==";","","-"+cIdPartner)
      if cRasclaniti=="D"
-        @ prow(), pcol()+1 SAY left(cRasclan,6) +"/"+substr(cRasclan,7,5)+"/"+substr(cRasclan,12)
+        @ prow(), pcol()+1 SAY left(cRasclan,6) +"/"+substr(cRasclan,7,5)+"/"+substr(cRasclan,12) + " / " + Ocitaj(F_RJ, left(cRasclan, 6), "NAZ")
      endif
 
      if cDinDem=="1"
@@ -979,70 +979,75 @@ return partn->telefon=cTel
  
 function ZaglSif(lPocStr)
 *{
-if lPocStr==NIL; lPocStr:=.f.; ENDIF
-if c1k1z==NIL; c1k1z:="N"; endif
-if c1k1z<>"D" .or. lPocStr
-  Preduzece()
-  if cDinDem=="3"  .or. cKumul=="2"
-    P_COND2
-  else
-    P_COND
-  endif
-  if fOtvSt
-   ? "FIN: KARTICA OTVORENIH STAVKI "
-  else
-   ? "FIN: SUBANALITICKA KARTICA  ZA "
-  endif
+if lPocStr==NIL
+	lPocStr:=.f.
+ENDIF
 
-  ?? iif(cDinDem=="1",ValDomaca(),iif(cDinDem=="2",ValPomocna(),ValDomaca()+"-"+ValPomocna()))," NA DAN:",DATE()
-  if !(empty(dDatOd) .and. empty(dDatDo))
-      ?? "   ZA PERIOD OD",dDatOd,"DO",dDatDo
-  endif
-  IF !EMPTY(qqBrDok)
-    ? "Izvjestaj pravljen po uslovu za broj veze/racuna: '"+TRIM(qqBrDok)+"'"
-  ENDIF
-  @ prow(),125 SAY "Str."+str(++nStr,5)
+if c1k1z==NIL
+	c1k1z:="N"
+endif
+
+if c1k1z<>"D" .or. lPocStr
+	Preduzece()
+  	if cDinDem=="3"  .or. cKumul=="2"
+    		P_COND2
+  	else
+    		P_COND
+ 	endif
+  	if fOtvSt
+   		? "FIN: KARTICA OTVORENIH STAVKI "
+  	else
+   		? "FIN: SUBANALITICKA KARTICA  ZA "
+  	endif
+
+  	?? iif(cDinDem=="1", ValDomaca(), iif(cDinDem=="2",ValPomocna(),ValDomaca()+"-"+ValPomocna()))," NA DAN:",DATE()
+  	if !(empty(dDatOd) .and. empty(dDatDo))
+      		?? "   ZA PERIOD OD",dDatOd,"DO",dDatDo
+  	endif
+  	IF !EMPTY(qqBrDok)
+    		? "Izvjestaj pravljen po uslovu za broj veze/racuna: '"+TRIM(qqBrDok)+"'"
+  	ENDIF
+  	@ prow(),125 SAY "Str."+str(++nStr,5)
 endif
 
 SELECT SUBAN
 if c1k1z<>"D" .or. !lPocStr
-  if cDinDem=="3"
-   if cSazeta=="D"
-    ?  "-------- --------------------------- ---------------------------- -------------- -------------------------- ------------"
-    ?  "*NALOG *     D O K U M E N T        *      PROMET  "+ValDomaca()+"          *    SALDO     *       PROMET  "+ValPomocna()+"       *   SALDO   *"
-    ?  "------- ------------------- -------- -----------------------------     "+ValDomaca()+"     * -------------------------    "+ValPomocna()+"    *"
-    ?  "*V.* BR *   BROJ   * DATUM  *"+iif(cK14=="1"," K1-K4 "," VALUTA")+;
-                                           "*     DUG     *      POT     *              *      DUG    *   POT      *           *"
-    ?  "*N.*    *          *        *       *                            *              *             *            *           *"
-   else
-    if gNW=="N".and.cK14=="4"
-     ?  "------------ ----------------------------------------------------- --------------------------------- -------------- -------------------------- -------------"
-     ?  "*  NALOG    *               D  O  K  U  M  E  N  T                *          PROMET  "+ValDomaca()+"           *    SALDO     *       PROMET  "+ValPomocna()+"       *   SALDO    *"
-     ?  "------------ ------------------------------------ ---------------- ----------------------------------      "+ValDomaca()+"    * --------------------------    "+ValPomocna()+"    *"
-     ?  "*V.*BR * R. *     TIP I      *   BROJ   *  DATUM *    OPIS        *     DUG       *       POT       *              *      DUG    *   POT      *            *"
-     ?  "*N.*   * Br.*     NAZIV      *          *        *                *               *                 *              *             *            *            *"
-    elseif gNW=="N"
-     ?  "------------ -------------------------------------------------------------- --------------------------------- -------------- -------------------------- -------------"
-     ?  "*  NALOG    *                       D  O  K  U  M  E  N  T                 *          PROMET  "+ValDomaca()+"           *    SALDO     *       PROMET  "+ValPomocna()+"       *   SALDO    *"
-     ?  "------------ ------------------------------------ -------- ---------------- ----------------------------------      "+ValDomaca()+"    * --------------------------    "+ValPomocna()+"    *"
-     ?  "*V.*BR * R. *     TIP I      *   BROJ   *  DATUM *"+iif(cK14=="1"," K1-K4  "," VALUTA ")+"*    OPIS        *     DUG       *       POT       *              *      DUG    *   POT      *            *"
-     ?  "*N.*   * Br.*     NAZIV      *          *        *        *                *               *                 *              *             *            *            *"
-    else
-     ?  "------------ --------------------------------------------- --------------------------------- -------------- -------------------------- -------------"
-     ?  "*  NALOG    *           D O K U M E N T                   *          PROMET  "+ValDomaca()+"           *    SALDO     *       PROMET  "+ValPomocna()+"       *   SALDO    *"
-     ?  "------------ ------------------- -------- ---------------- ----------------------------------      "+ValDomaca()+"    * --------------------------    "+ValPomocna()+"    *"
-     ?  "*V.*BR * R. *   BROJ   *  DATUM *"+iif(cK14=="1"," K1-K4  "," VALUTA ")+"*    OPIS        *     DUG       *       POT       *              *      DUG    *   POT      *            *"
-     ?  "*N.*   * Br.*          *        *        *                *               *                 *              *             *            *            *"
-    endif
-   endif
-  elseif cKumul=="1"
-   if cSazeta=="D"
-    ?  "-------- ---------------------------- --------------------------- ---------------"
-    ?  "* NALOG *      D O K U M E N T       *       P R O M E T         *    SALDO     *"
-    ?  "-------- ------------------- -------- ---------------------------               *"
-    ?  "*V.*BR  *   BROJ   *  DATUM *"+iif(cK14=="1"," K1-K4  "," VALUTA ")+"*    DUGUJE   *   POTRA¦UJE  *             *"
-    ?  "*N.*    *          *        *        *            *              *              *"
-   else
+	if cDinDem=="3"
+   		if cSazeta=="D"
+    			?  "-------- --------------------------- ---------------------------- -------------- -------------------------- ------------"
+    			?  "*NALOG *     D O K U M E N T        *      PROMET  "+ValDomaca()+"          *    SALDO     *       PROMET  "+ValPomocna()+"       *   SALDO   *"
+    			?  "------- ------------------- -------- -----------------------------     "+ValDomaca()+"     * -------------------------    "+ValPomocna()+"    *"
+    			?  "*V.* BR *   BROJ   * DATUM  *"+iif(cK14=="1"," K1-K4 "," VALUTA")+"*     DUG     *      POT     *              *      DUG    *   POT      *           *"
+    			?  "*N.*    *          *        *       *                            *              *             *            *           *"
+   		else
+    			if gNW=="N".and.cK14=="4"
+     				? "------------ ----------------------------------------------------- --------------------------------- -------------- -------------------------- -------------"
+     				? "*  NALOG    *               D  O  K  U  M  E  N  T                *          PROMET  "+ValDomaca()+"           *    SALDO     *       PROMET  "+ValPomocna()+"       *   SALDO    *"
+     				? "------------ ------------------------------------ ---------------- ----------------------------------      "+ValDomaca()+"    * --------------------------    "+ValPomocna()+"    *"
+     				? "*V.*BR * R. *     TIP I      *   BROJ   *  DATUM *    OPIS        *     DUG       *       POT       *              *      DUG    *   POT      *            *"
+     				? "*N.*   * Br.*     NAZIV      *          *        *                *               *                 *              *             *            *            *"
+    			elseif gNW=="N"
+     				? "------------ -------------------------------------------------------------- --------------------------------- -------------- -------------------------- -------------"
+     				? "*  NALOG    *                       D  O  K  U  M  E  N  T                 *          PROMET  "+ValDomaca()+"           *    SALDO     *       PROMET  "+ValPomocna()+"       *   SALDO    *"
+     				? "------------ ------------------------------------ -------- ---------------- ----------------------------------      "+ValDomaca()+"    * --------------------------    "+ValPomocna()+"    *"
+     				? "*V.*BR * R. *     TIP I      *   BROJ   *  DATUM *"+iif(cK14=="1"," K1-K4  "," VALUTA ")+"*    OPIS        *     DUG       *       POT       *              *      DUG    *   POT      *            *"
+     				? "*N.*   * Br.*     NAZIV      *          *        *        *                *               *                 *              *             *            *            *"
+    			else
+     				? "------------ --------------------------------------------- --------------------------------- -------------- -------------------------- -------------"
+     				? "*  NALOG    *           D O K U M E N T                   *          PROMET  "+ValDomaca()+"           *    SALDO     *       PROMET  "+ValPomocna()+"       *   SALDO    *"
+     				? "------------ ------------------- -------- ---------------- ----------------------------------      "+ValDomaca()+"    * --------------------------    "+ValPomocna()+"    *"
+     				? "*V.*BR * R. *   BROJ   *  DATUM *"+iif(cK14=="1"," K1-K4  "," VALUTA ")+"*    OPIS        *     DUG       *       POT       *              *      DUG    *   POT      *            *"
+     				? "*N.*   * Br.*          *        *        *                *               *                 *              *             *            *            *"
+    			endif
+   		endif
+  	elseif cKumul=="1"
+   		if cSazeta=="D"
+    			? "-------- ---------------------------- --------------------------- ---------------"
+    			? "* NALOG *      D O K U M E N T       *       P R O M E T         *    SALDO     *"
+    			? "-------- ------------------- -------- ---------------------------               *"
+    			? "*V.*BR  *   BROJ   *  DATUM *"+iif(cK14=="1"," K1-K4  "," VALUTA ")+"*    DUGUJE   *   POTRA¦UJE  *             *"
+    			? "*N.*    *          *        *        *            *              *              *"
+   		else
     if gNW=="N"
      ?  "------------ ------------------------------------------------------------------ ---------------------------------- ---------------"
      ?  "*  NALOG    *                       D  O  K  U  M  E  N  T                     *           P R O M E T            *    SALDO     *"
@@ -1101,9 +1106,9 @@ RETURN
 function Rasclan()
 *{
 if cRasclaniti=="D"
-  return cRasclan==suban->(idrj+funk+fond)
+	return cRasclan == suban->(idrj+funk+fond)
 else
-  return .t.
+  	return .t.
 endif
 *}
 
@@ -1115,106 +1120,137 @@ endif
  
 function SubKart2(lOtvSt)
 *{
-local cBrza:="D", nSirOp:=20, nCOpis:=0, cOpis:=""
-local fK1:=fk2:=fk3:=fk4:="N",nC1:=35
+local cBrza:="D"
+local nSirOp:=20
+local nCOpis:=0
+local cOpis:=""
+local fK1:=fk2:=fk3:=fk4:="N"
+local nC1:=35
 
 private fOtvSt:=lOtvSt
 cIdFirma:=gFirma
 
 private picBHD:=FormPicL(gPicBHD,16)
 private picDEM:=FormPicL(gPicDEM,12)
+private qqKonto:=qqKonto2:=qqPartner:=""
+
+O_PARAMS
+private cSection:="1"
+private cHistory:=" "
+private aHistory:={}
+
+RPar("y1",@qqKonto)
+RPar("y2",@qqKonto2)
+RPar("y3",@qqPartner)
 
 O_KONTO
 O_PARTN
 
-private cSazeta:="N",cK14:="1"
+private cSazeta:="N"
+private cK14:="1"
 
 cDinDem:="1"
 dDatOd:=dDatDo:=ctod("")
 cKumul:=cPredh:="1"
-private qqKonto:=qqKonto2:=qqPartner:=""
 
-if pcount()==0; fOtvSt:=.f.;endif
-if gNW=="D";cIdFirma:=gFirma; endif
-cK1:=cK2:="9"; cK3:=cK4:="99"
+if pcount()==0
+	fOtvSt:=.f.
+endif
+if gNW=="D"
+	cIdFirma:=gFirma
+endif
+
+cK1:=cK2:="9"
+cK3:=cK4:="99"
+
 IF IzFMKIni("FIN","LimitiPoUgovoru_PoljeK3","N",SIFPATH)=="D"
-  cK3:="999"
+	cK3:="999"
 ENDIF
 cPoVezi:="N"
-
 cNula:="N"
+
 Box("",18,65)
-set cursor on
- if fOtvSt
-  @ m_x+1,m_y+2 SAY "KARTICA OTVORENIH STAVKI KONTO/KONTO2"
- else
-  @ m_x+1,m_y+2 SAY "SUBANALITICKA KARTICA"
- endif
- @ m_x+2,m_y+2 SAY "BEZ/SA kumulativnim prometom  (1/2):" GET cKumul
- @ m_x+4,m_y+2 SAY "Sazeta kartica (bez opisa) D/N" GET cSazeta  pict "@!" valid cSazeta $ "DN"
- read
-do while .t.
+	set cursor on
+ 	if fOtvSt
+  		@ m_x+1,m_y+2 SAY "KARTICA OTVORENIH STAVKI KONTO/KONTO2"
+ 	else
+  		@ m_x+1,m_y+2 SAY "SUBANALITICKA KARTICA"
+ 	endif
+ 	@ m_x+2,m_y+2 SAY "BEZ/SA kumulativnim prometom  (1/2):" GET cKumul
+ 	@ m_x+4,m_y+2 SAY "Sazeta kartica (bez opisa) D/N" GET cSazeta  pict "@!" valid cSazeta $ "DN"
+ 	read
+	do while .t.
+		if gNW=="D"
+   			@ m_x+5,m_y+2 SAY "Firma "
+			?? gFirma,"-",gNFirma
+ 		else
+  			@ m_x+5,m_y+2 SAY "Firma: " GET cIdFirma valid {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
+ 		endif
+		cPrelomljeno:="N"
+ 		if cBrza="D"
+   			qqKonto:=padr(qqKonto,7)
+   			qqKonto2:=padr(qqKonto2,7)
+   			qqPartner:=padr(qqPartner,6)
+   			@ m_x+6,m_y+2 SAY "Konto   " GET qqKonto  valid P_KontoFin(@qqKonto)
+   			@ m_x+7,m_y+2 SAY "Konto 2 " GET qqKonto2  valid P_KontoFin(@qqKonto2) .and. qqKonto2>qqkonto
+   			@ m_x+8,m_y+2 SAY "Partner (prazno svi)" GET qqPartner valid (";" $ qqpartner) .or. empty(qqPartner) .or. P_Firma(@qqPartner)  pict "@!"
+ 		endif
+ 		@ m_x+9,m_y+2 SAY "Datum dokumenta od:" GET dDatod
+ 		@ m_x+9,col()+2 SAY "do" GET dDatDo   valid dDatOd<=dDatDo
+ 		IF gVar1=="0"
+   			@ m_x+10,m_y+2 SAY "Kartica za "+ALLTRIM(ValDomaca())+"/"+ALLTRIM(ValPomocna())+"/"+ALLTRIM(ValDomaca())+"-"+ALLTRIM(ValPomocna())+" (1/2/3)"  GET cDinDem valid cDinDem $ "123"
+ 		ENDIF
+ 		@ m_x+11,m_y+2 SAY "Sabrati po brojevima veze D/N ?"  GET cPoVezi valid cPoVezi $ "DN" pict "@!"
+ 		@ m_x+11,col()+2 SAY "Prikaz prebijenog stanja " GET cPrelomljeno valid cprelomljeno $ "DN" pict "@!"
+ 		@ m_x+12,m_y+2 SAY "Prikaz  K1-K4 (1); Dat.Valute (2); oboje (3)"  GET cK14 valid cK14 $ "123"
 
- if gNW=="D"
-   @ m_x+5,m_y+2 SAY "Firma "; ?? gFirma,"-",gNFirma
- else
-  @ m_x+5,m_y+2 SAY "Firma: " GET cIdFirma valid {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
- endif
 
- cPrelomljeno:="N"
- if cBrza="D"
-   qqKonto:=padr(qqKonto,7)
-   qqKonto2:=padr(qqKonto2,7)
-   qqPartner:=padr(qqPartner,6)
-   @ m_x+6,m_y+2 SAY "Konto   " GET qqKonto  valid P_KontoFin(@qqKonto)
-   @ m_x+7,m_y+2 SAY "Konto 2 " GET qqKonto2  valid P_KontoFin(@qqKonto2) .and. qqKonto2>qqkonto
-   @ m_x+8,m_y+2 SAY "Partner (prazno svi)" GET qqPartner valid (";" $ qqpartner) .or. empty(qqPartner) .or. P_Firma(@qqPartner)  pict "@!"
- endif
- @ m_x+9,m_y+2 SAY "Datum dokumenta od:" GET dDatod
- @ m_x+9,col()+2 SAY "do" GET dDatDo   valid dDatOd<=dDatDo
- IF gVar1=="0"
-   @ m_x+10,m_y+2 SAY "Kartica za "+ALLTRIM(ValDomaca())+"/"+ALLTRIM(ValPomocna())+"/"+ALLTRIM(ValDomaca())+"-"+ALLTRIM(ValPomocna())+" (1/2/3)"  GET cDinDem valid cDinDem $ "123"
- ENDIF
- @ m_x+11,m_y+2 SAY "Sabrati po brojevima veze D/N ?"  GET cPoVezi valid cPoVezi $ "DN" pict "@!"
- @ m_x+11,col()+2 SAY "Prikaz prebijenog stanja " GET cPrelomljeno valid cprelomljeno $ "DN" pict "@!"
- @ m_x+12,m_y+2 SAY "Prikaz  K1-K4 (1); Dat.Valute (2); oboje (3)"  GET cK14 valid cK14 $ "123"
+ 		if fk1=="D"
+			@ m_x+14,m_y+2 SAY "K1 (9 svi) :" GET cK1
+		endif
+ 		if fk2=="D"
+			@ m_x+15,m_y+2 SAY "K2 (9 svi) :" GET cK2
+		endif
+ 		if fk3=="D"
+			@ m_x+16,m_y+2 SAY "K3 ("+cK3+" svi):" GET cK3
+		endif
+ 		if fk4=="D"
+			@ m_x+17,m_y+2 SAY "K4 (99 svi):" GET cK4
+		endif
 
+ 		@ m_x+18,m_Y+2 SAY "Prikaz kartica sa 0 stanjem " GET cNula valid cNula $ "DN" pict "@!"
+ 		read
+		ESC_BCR
+		if cSazeta=="N"
+  			if cDinDem=="3"
+   				nC1:=68
+  			else
+   				nC1:=72
+  			endif
+ 		endif
 
- if fk1=="D"; @ m_x+14,m_y+2 SAY "K1 (9 svi) :" GET cK1; endif
- if fk2=="D"; @ m_x+15,m_y+2 SAY "K2 (9 svi) :" GET cK2; endif
- if fk3=="D"; @ m_x+16,m_y+2 SAY "K3 ("+cK3+" svi):" GET cK3; endif
- if fk4=="D"; @ m_x+17,m_y+2 SAY "K4 (99 svi):" GET cK4; endif
+ 		if cDinDem=="3"
+   			cKumul:="1"
+ 		endif
 
- @ m_x+18,m_Y+2 SAY "Prikaz kartica sa 0 stanjem " GET cNula valid cNula $ "DN" pict "@!"
- read; ESC_BCR
-
- if cSazeta=="N"
-  if cDinDem=="3"
-   nC1:=68
-  else
-   nC1:=72
-  endif
- endif
-
- if cDinDem=="3"
-   cKumul:="1"
- endif
-
- if cBrza=="D"
-   exit
- else
-    qqKonto:=trim(qqKonto)
-    qqPartner:=trim(qqPartner)
-    exit
-
- endif
-
-enddo
-
+ 		if cBrza=="D"
+  			exit
+ 		else
+    			qqKonto:=trim(qqKonto)
+    			qqPartner:=trim(qqPartner)
+    			exit
+		endif
+	enddo
 BoxC()
 
+select params
+// zapamti konto i konto2
+WPar("y1", @qqKonto)
+WPar("y2", @qqKonto2)
+WPar("y3", @qqPartner)
+
 if cSazeta=="D"
- private picBHD:=FormPicL(gPicBHD,14)
+	private picBHD:=FormPicL(gPicBHD,14)
 endif
 
 

@@ -634,6 +634,9 @@ if (nArea==-1 .or. nArea==(F_SUBAN))
 	CREATE_INDEX("6","IdKonto",KUMPATH+"SUBAN")
 	CREATE_INDEX("7","Idpartner",KUMPATH+"SUBAN")
 	CREATE_INDEX("8","Datdok",KUMPATH+"SUBAN")
+	if gRJ=="D"
+		CREATE_INDEX("9","idfirma+idkonto+idrj+idpartner+DTOS(datdok)+brnal+rbr",KUMPATH+"SUBAN")
+	endif
 endif
 
 

@@ -2854,6 +2854,7 @@ cIdkonto:=space(7)
 cIdPartner:=space(6)
 dNaDan:=DATE()
 cOpcine:=SPACE(20)
+cValuta:="1"
 
 // Default rocni intervali za user Tigra
 if IsTigra()
@@ -2872,7 +2873,7 @@ endif
 
 PICPIC:="999999.99"
 
-Box(,14,60)
+Box(,16,60)
 if gNW=="D"
       	@ m_x+1,m_y+2 SAY "Firma "
 	?? gFirma,"-",gNFirma
@@ -2894,6 +2895,9 @@ IF cPoRN=="N"
 	@ m_x+13,m_y+2 SAY "Prikaz iznosa (format)" GET PICPIC PICT "@!"
 ENDIF
 @ m_x+14,m_y+2 SAY "Uslov po opcini (prazno - nista)" GET cOpcine
+if cPoRN=="N"
+	@ m_x+16,m_y+2 SAY "Prikaz izvjestaja u (1)KM (2)EURO" GET cValuta VALID cValuta$"12"
+endif
 read
 ESC_BCR
 Boxc()
@@ -3173,15 +3177,16 @@ DO WHILE !EOF()
          				SKIP -1
          				IF cPoRn=="D"
            					? "UK.U VALUTI"+IspisRocnosti()+":"
-           					@ prow(),nCol1 SAY anInterUV[nFaza,1,1] PICTURE picBHD
+						@ prow(),nCol1 SAY anInterUV[nFaza,1,1] PICTURE picBHD
            					@ prow(),pcol()+1 SAY anInterUV[nFaza,2,1] PICTURE picBHD
            					@ prow(),pcol()+1 SAY anInterUV[nFaza,1,1]-anInterUV[nFaza,2,1] PICTURE picBHD
-           					IF gVar1=="0"
+           					
+						if gVar1=="0"
              						@ prow(),pcol()+1 SAY anInterUV[nFaza,3,1] PICTURE picdem
              						@ prow(),pcol()+1 SAY anInterUV[nFaza,4,1] PICTURE picdem
              						@ prow(),pcol()+1 SAY anInterUV[nFaza,3,1]-anInterUV[nFaza,4,1] PICTURE picdem
-           					ENDIF
-         				ENDIF
+           					endif
+         				endif
          				anInterUV[nFaza,1,2] += anInterUV[nFaza,1,1]
          				anInterUV[nFaza,2,2] += anInterUV[nFaza,2,1]
          				anInterUV[nFaza,3,2] += anInterUV[nFaza,3,1]
@@ -3193,14 +3198,14 @@ DO WHILE !EOF()
         		ENDIF
         		IF cPoRn=="D"
           			? "UKUPNO U VALUTI:"
-          			@ prow(),nCol1 SAY nUkUVD PICTURE picBHD
+				@ prow(),nCol1 SAY nUkUVD PICTURE picBHD
           			@ prow(),pcol()+1 SAY nUkUVP PICTURE picBHD
           			@ prow(),pcol()+1 SAY nUkUVD-nUkUVP PICTURE picBHD
-          			IF gVar1=="0"
+				if gVar1=="0"
             				@ prow(),pcol()+1 SAY nUkUVD2 PICTURE picdem
             				@ prow(),pcol()+1 SAY nUkUVP2 PICTURE picdem
             				@ prow(),pcol()+1 SAY nUkUVD2-nUkUVP2 PICTURE picdem
-          			ENDIF
+          			endif
         		ENDIF
         		nTUkUVD  += nUkUVD 
 			nTUkUVP  += nUkUVP
@@ -3211,15 +3216,15 @@ DO WHILE !EOF()
          			SKIP -1
          			IF cPoRn=="D"
            				? "UK.VAN VALUTE"+IspisRocnosti()+":"
-           				@ prow(),nCol1 SAY anInterVV[nFaza,1,1] PICTURE picBHD
+					@ prow(),nCol1 SAY anInterVV[nFaza,1,1] PICTURE picBHD
            				@ prow(),pcol()+1 SAY anInterVV[nFaza,2,1] PICTURE picBHD
            				@ prow(),pcol()+1 SAY anInterVV[nFaza,1,1]-anInterVV[nFaza,2,1] PICTURE picBHD
-           				IF gVar1=="0"
+           				if gVar1=="0"
              					@ prow(),pcol()+1 SAY anInterVV[nFaza,3,1] PICTURE picdem
              					@ prow(),pcol()+1 SAY anInterVV[nFaza,4,1] PICTURE picdem
              					@ prow(),pcol()+1 SAY 44 PICTURE picdem
              					@ prow(),pcol()+1 SAY anInterVV[nFaza,3,1]-anInterVV[nFaza,4,1] PICTURE picdem
-           				ENDIF
+           				endif
          			ENDIF
          			anInterVV[nFaza,1,2] += anInterVV[nFaza,1,1]
          			anInterVV[nFaza,2,2] += anInterVV[nFaza,2,1]
@@ -3232,14 +3237,14 @@ DO WHILE !EOF()
         		ENDIF
         		IF cPoRn=="D"
           			? "UKUPNO VAN VALUTE:"
-          			@ prow(),nCol1 SAY nUkVVD PICTURE picBHD
+				@ prow(),nCol1 SAY nUkVVD PICTURE picBHD
           			@ prow(),pcol()+1 SAY nUkVVP PICTURE picBHD
           			@ prow(),pcol()+1 SAY nUkVVD-nUkVVP PICTURE picBHD
-          			IF gVar1=="0"
+          			if gVar1=="0"
             				@ prow(),pcol()+1 SAY nUkVVD2 PICTURE picdem
             				@ prow(),pcol()+1 SAY nUkVVP2 PICTURE picdem
             				@ prow(),pcol()+1 SAY nUkVVD2-nUkVVP2 PICTURE picdem
-          			ENDIF
+          			endif
         		ENDIF
         		nTUkVVD  += nUkVVD 
 			nTUkVVP  += nUkVVP
@@ -3261,14 +3266,14 @@ DO WHILE !EOF()
       		IF cFaza==" "
         		IF cPoRn=="D"
           			? "UK.U VALUTI"+IspisRocnosti()+":"
-          			@ prow(),nCol1 SAY anInterUV[nFaza,1,1] PICTURE picBHD
+				@ prow(),nCol1 SAY anInterUV[nFaza,1,1] PICTURE picBHD
           			@ prow(),pcol()+1 SAY anInterUV[nFaza,2,1] PICTURE picBHD
           			@ prow(),pcol()+1 SAY anInterUV[nFaza,1,1]-anInterUV[nFaza,2,1] PICTURE picBHD
-          			IF gVar1=="0"
+          			if gVar1=="0"
             				@ prow(),pcol()+1 SAY anInterUV[nFaza,3,1] PICTURE picdem
             				@ prow(),pcol()+1 SAY anInterUV[nFaza,4,1] PICTURE picdem
             				@ prow(),pcol()+1 SAY anInterUV[nFaza,3,1]-anInterUV[nFaza,4,1] PICTURE picdem
-          			ENDIF
+          			endif
         		ENDIF
         		anInterUV[nFaza,1,2] += anInterUV[nFaza,1,1]
         		anInterUV[nFaza,2,2] += anInterUV[nFaza,2,1]
@@ -3277,14 +3282,14 @@ DO WHILE !EOF()
       		ELSE
         		IF cPoRn=="D"
           			? "UK.VAN VALUTE"+IspisRocnosti()+":"
-          			@ prow(),nCol1 SAY anInterVV[nFaza,1,1] PICTURE picBHD
+				@ prow(),nCol1 SAY anInterVV[nFaza,1,1] PICTURE picBHD
           			@ prow(),pcol()+1 SAY anInterVV[nFaza,2,1] PICTURE picBHD
           			@ prow(),pcol()+1 SAY anInterVV[nFaza,1,1]-anInterVV[nFaza,2,1] PICTURE picBHD
-          			IF gVar1=="0"
+          			if gVar1=="0"
             				@ prow(),pcol()+1 SAY anInterVV[nFaza,3,1] PICTURE picdem
             				@ prow(),pcol()+1 SAY anInterVV[nFaza,4,1] PICTURE picdem
             				@ prow(),pcol()+1 SAY anInterVV[nFaza,3,1]-anInterVV[nFaza,4,1] PICTURE picdem
-          			ENDIF
+          			endif
         		ENDIF
         		anInterVV[nFaza,1,2] += anInterVV[nFaza,1,1]
         		anInterVV[nFaza,2,2] += anInterVV[nFaza,2,1]
@@ -3313,33 +3318,58 @@ if !fPrviProlaz  // bilo je stavki
       		@ prow(),nCol1 SAY nUDug PICTURE picBHD
       		@ prow(),pcol()+1 SAY nUPot PICTURE picBHD
       		@ prow(),pcol()+1 SAY nUDug-nUPot PICTURE picBHD
-      		IF gVar1=="0"
+      		if gVar1=="0"
         		@ prow(),pcol()+1 SAY nUDug2 PICTURE picdem
         		@ prow(),pcol()+1 SAY nUPot2 PICTURE picdem
         		@ prow(),pcol()+1 SAY nUDug2-nUPot2 PICTURE picdem
-      		ENDIF
+      		endif
       		? m
     	ELSE
       		IF cSaRokom=="D"
         		FOR i:=1 TO LEN(anInterUV)
-          			PPljuc(TRANSFORM(anInterUV[i,1,1]-anInterUV[i,2,1],PICPIC))
-        		NEXT
-        		PPljuc(TRANSFORM(nUkUVD-nUkUVP,PICPIC))
-        		FOR i:=1 TO LEN(anInterVV)
-          			PPljuc(TRANSFORM(anInterVV[i,1,1]-anInterVV[i,2,1],PICPIC))
-        		NEXT
-        		PPljuc(TRANSFORM(nUkVVD-nUkVVP,PICPIC))
-        		PPljuc(TRANSFORM(nUDug-nUPot  ,PICPIC))
+          			if ( cValuta == "1" )
+					PPljuc(TRANSFORM(anInterUV[i,1,1]-anInterUV[i,2,1],PICPIC))
+				else
+					PPljuc(TRANSFORM(anInterUV[i,3,1]-anInterUV[i,4,1],PICPIC))
+        			endif
+			NEXT
 
+			if ( cValuta == "1" )
+        			PPljuc(TRANSFORM(nUkUVD-nUkUVP,PICPIC))
+        		else
+        			PPljuc(TRANSFORM(nUkUVD2-nUkUVP2,PICPIC))
+			endif
+			
+			FOR i:=1 TO LEN(anInterVV)
+				if ( cValuta == "1" )
+          				PPljuc(TRANSFORM(anInterVV[i,1,1]-anInterVV[i,2,1],PICPIC))
+        			else
+          				PPljuc(TRANSFORM(anInterVV[i,3,1]-anInterVV[i,4,1],PICPIC))
+				endif
+			NEXT
+			if ( cValuta == "1" )
+        			PPljuc(TRANSFORM(nUkVVD-nUkVVP,PICPIC))
+        			PPljuc(TRANSFORM(nUDug-nUPot,PICPIC))
+			else
+				PPljuc(TRANSFORM(nUkVVD2-nUkVVP2,PICPIC))
+        			PPljuc(TRANSFORM(nUDug2-nUPot2,PICPIC))
+			endif
+			
 			// Priprema za prenos na HH ureПaj
 			if IsTigra() .and. lGenPartnSt
 				AzurFinOstav(cPosId, cIdPartner, Ocitaj(F_PARTN, cIdPartner, "naz"), (anInterVV[1,1,1]-anInterVV[1,2,1]), (anInterVV[2,1,1]-anInterVV[2,2,1]), (anInterVV[3,1,1]-anInterVV[3,2,1]), (anInterVV[4,1,1]-anInterVV[4,2,1]), (anInterVV[5,1,1] - anInterVV[5,2,1]), nSldMinIzn)
 			endif
 
       		ELSE
-        		PPljuc(TRANSFORM(nUkUVD-nUkUVP,PICPIC))
-        		PPljuc(TRANSFORM(nUkVVD-nUkVVP,PICPIC))
-        		PPljuc(TRANSFORM(nUDug-nUPot  ,PICPIC))
+			if ( cValuta == "1" )
+        			PPljuc(TRANSFORM(nUkUVD-nUkUVP,PICPIC))
+        			PPljuc(TRANSFORM(nUkVVD-nUkVVP,PICPIC))
+        			PPljuc(TRANSFORM(nUDug-nUPot  ,PICPIC))
+			else
+				PPljuc(TRANSFORM(nUkUVD2-nUkUVP2,PICPIC))
+        			PPljuc(TRANSFORM(nUkVVD2-nUkVVP2,PICPIC))
+        			PPljuc(TRANSFORM(nUDug2-nUPot2  ,PICPIC))
+			endif
       		ENDIF
     	ENDIF
 endif
@@ -3356,7 +3386,7 @@ nTUPot += nUPot
 nTUPot2 += nUPot2
 ENDDO
 
-IF  cPoRn=="D" .and. LEN(cSvi)<LEN(idpartner) .and.;
+IF cPoRn=="D" .and. LEN(cSvi)<LEN(idpartner) .and.;
     ( ROUND(nTUDug ,2)!=0 .or. ROUND(nTUPot ,2)!=0 .or.;
       ROUND(nTUkUVD,2)!=0 .or. ROUND(nTUkUVP,2)!=0 .or.;
       ROUND(nTUkVVD,2)!=0 .or. ROUND(nTUkVVP,2)!=0 )
@@ -3428,36 +3458,64 @@ IF  cPoRn=="D" .and. LEN(cSvi)<LEN(idpartner) .and.;
 ENDIF // total
 
 IF cPoRn=="N"
-  IF cSaRokom=="D"
-     ? "цддддддадддддддддддддддддддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддеддддддддд╢"
-  ELSE
-     ? "цддддддадддддддддддддддддддддддддедддддддддедддддддддеддддддддд╢"
-  ENDIF
-  Pljuc( PADR( "UKUPNO" , LEN(POM->IDPARTNER+PARTN->naz)+1 ) )
-  IF cSaRokom=="D"
-    FOR i:=1 TO LEN(anInterUV)
-      PPljuc(TRANSFORM(anInterUV[i,1,2]-anInterUV[i,2,2],PICPIC))
-    NEXT
-    PPljuc(TRANSFORM(nTUkUVD-nTUkUVP,PICPIC))
-    FOR i:=1 TO LEN(anInterVV)
-      PPljuc(TRANSFORM(anInterVV[i,1,2]-anInterVV[i,2,2],PICPIC))
-    NEXT
-    PPljuc(TRANSFORM(nTUkVVD-nTUkVVP,PICPIC))
-    PPljuc(TRANSFORM(nTUDug-nTUPot  ,PICPIC))
-    ? "юддддддддддддддддддддддддддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддаддддддддды"
-  ELSE
-    PPljuc(TRANSFORM(nTUkUVD-nTUkUVP,PICPIC))
-    PPljuc(TRANSFORM(nTUkVVD-nTUkVVP,PICPIC))
-    PPljuc(TRANSFORM(nTUDug-nTUPot  ,PICPIC))
-    ? "юддддддддддддддддддддддддддддддддадддддддддадддддддддаддддддддды"
-  ENDIF
+	IF cSaRokom=="D"
+     		? "цддддддадддддддддддддддддддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддеддддддддд╢"
+  	ELSE
+     		? "цддддддадддддддддддддддддддддддддедддддддддедддддддддеддддддддд╢"
+  	ENDIF
+  	Pljuc( PADR( "UKUPNO" , LEN(POM->IDPARTNER+PARTN->naz)+1 ) )
+  	IF cSaRokom=="D"
+    		FOR i:=1 TO LEN(anInterUV)
+      			if ( cValuta == "1" )
+      				PPljuc(TRANSFORM(anInterUV[i,1,2]-anInterUV[i,2,2],PICPIC))
+    			else
+      				PPljuc(TRANSFORM(anInterUV[i,3,2]-anInterUV[i,4,2],PICPIC))
+			endif
+    		NEXT
+    		if ( cValuta == "1" )
+			PPljuc(TRANSFORM(nTUkUVD-nTUkUVP,PICPIC))
+    		else
+			PPljuc(TRANSFORM(nTUkUVD2-nTUkUVP2,PICPIC))
+		endif
+		
+		FOR i:=1 TO LEN(anInterVV)
+      			if ( cValuta == "1" )
+				PPljuc(TRANSFORM(anInterVV[i,1,2]-anInterVV[i,2,2],PICPIC))
+    			else
+				PPljuc(TRANSFORM(anInterVV[i,3,2]-anInterVV[i,4,2],PICPIC))
+			endif
+		NEXT
+    		
+		if ( cValuta == "1" )
+			PPljuc(TRANSFORM(nTUkVVD-nTUkVVP,PICPIC))
+   			PPljuc(TRANSFORM(nTUDug-nTUPot,PICPIC))
+    		else
+			PPljuc(TRANSFORM(nTUkVVD2-nTUkVVP2,PICPIC))
+   			PPljuc(TRANSFORM(nTUDug2-nTUPot2,PICPIC))
+		endif
+		
+		? "юддддддддддддддддддддддддддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддаддддддддды"
+  	ELSE
+		if ( cValuta == "1" )
+    			PPljuc(TRANSFORM(nTUkUVD-nTUkUVP,PICPIC))
+    			PPljuc(TRANSFORM(nTUkVVD-nTUkVVP,PICPIC))
+    			PPljuc(TRANSFORM(nTUDug-nTUPot,PICPIC))
+    		else
+			PPljuc(TRANSFORM(nTUkUVD2-nTUkUVP2,PICPIC))
+    			PPljuc(TRANSFORM(nTUkVVD2-nTUkVVP2,PICPIC))
+    			PPljuc(TRANSFORM(nTUDug2-nTUPot2,PICPIC))
+		endif
+		
+		? "юддддддддддддддддддддддддддддддддадддддддддадддддддддаддддддддды"
+  	ENDIF
 ENDIF
 
 FF
 
 END PRINT
 
-select (F_POM); use
+select (F_POM)
+use
 
 CLOSERET
 return
@@ -3473,87 +3531,81 @@ return
 function ZSpecPoDosp(fStrana,lSvi)
 *{
 IF cPoRn=="D"
-  IF gVar1=="0"
-    P_COND2
-  ELSE
-    P_COND
-  ENDIF
+	IF gVar1=="0"
+    		P_COND2
+  	ELSE
+    		P_COND
+  	ENDIF
 ELSE
-  IF cSaRokom=="D"
-    P_COND2
-  ELSE
-    P_10CPI
-  ENDIF
+  	IF cSaRokom=="D"
+    		P_COND2
+  	ELSE
+    		P_10CPI
+  	ENDIF
 ENDIF
 
-IF lSvi==NIL; lSvi:=.f.; ENDIF
+IF lSvi==NIL
+	lSvi:=.f.
+ENDIF
 
 if fStrana==NIL
-  fStrana:=.f.
+	fStrana:=.f.
 endif
 
 if nStr=0
-  fStrana:=.t.
+  	fStrana:=.t.
 endif
 
 IF cPoRn=="D"
-
- ?? "FIN.P:  SPECIFIKACIJA OTVORENIH STAVKI PO DOSPIJECU NA DAN "; ?? dNaDan
- if fStrana
-  @ prow(),110 SAY "Str:"+str(++nStr,3)
- endif
-
- SELECT PARTN; HSEEK cIdFirma
- ? "FIRMA:",cIdFirma,"-",gNFirma
-
- SELECT KONTO; HSEEK cIdKonto
-
- ? "KONTO  :",cIdKonto,naz
-
- if lSvi
-  ? "PARTNER: SVI"
- else
-  SELECT PARTN; HSEEK cIdPartner
-  ? "PARTNER:", cIdPartner,TRIM(naz)," ",TRIM(naz2)," ",TRIM(mjesto)
- endif
-
- ? M
- ?
- ?? "Dat.dok.*Dat.val.* "
- IF gVar1=="0"
-  ?? "  BrDok   *   dug "+ValDomaca()+"  *   pot "+ValDomaca()+"   *  saldo  "+ValDomaca()+" * dug "+ValPomocna()+" * pot "+ValPomocna()+" *saldo "+ValPomocna()+"*      U/VAN VALUTE      *"
- ELSE
-  ?? "  BrDok   *   dug "+ValDomaca()+"  *   pot "+ValDomaca()+"   *  saldo  "+ValDomaca()+" *      U/VAN VALUTE      *"
- ENDIF
- ? M
-
+	?? "FIN.P:  SPECIFIKACIJA OTVORENIH STAVKI PO DOSPIJECU NA DAN "; ?? dNaDan
+ 	if fStrana
+  		@ prow(),110 SAY "Str:"+str(++nStr,3)
+ 	endif
+	SELECT PARTN
+	HSEEK cIdFirma
+ 	? "FIRMA:",cIdFirma,"-",gNFirma
+	SELECT KONTO
+	HSEEK cIdKonto
+	? "KONTO  :", cIdKonto, naz
+	if lSvi
+  		? "PARTNER: SVI"
+ 	else
+  		SELECT PARTN
+		HSEEK cIdPartner
+  		? "PARTNER:", cIdPartner,TRIM(naz)," ",TRIM(naz2)," ",TRIM(mjesto)
+ 	endif
+	? m
+ 	?
+ 	?? "Dat.dok.*Dat.val.* "
+ 	IF gVar1=="0"
+  		?? "  BrDok   *   dug "+ValDomaca()+"  *   pot "+ValDomaca()+"   *  saldo  "+ValDomaca()+" * dug "+ValPomocna()+" * pot "+ValPomocna()+" *saldo "+ValPomocna()+"*      U/VAN VALUTE      *"
+ 	ELSE
+  		?? "  BrDok   *   dug "+ValDomaca()+"  *   pot "+ValDomaca()+"   *  saldo  "+ValDomaca()+" *      U/VAN VALUTE      *"
+ 	ENDIF
+ 	? m
 ELSE
-
- ?? "FIN.P:  SPECIFIKACIJA OTVORENIH STAVKI PO DOSPIJECU NA DAN "; ?? dNaDan
-
- SELECT PARTN; HSEEK cIdFirma
- ? "FIRMA:",cIdFirma,"-",gNFirma
-
- SELECT KONTO; HSEEK cIdKonto
-
- ? "KONTO  :",cIdKonto,naz
-
- IF cSaRokom=="D"
-   ? "зддддддбдддддддддддддддддддддддддбдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддбдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддбддддддддд©"
-   ? "Ё      Ё                         Ё                  U      V  A  L  U  T  I                  Ё               V  A  N      V  A  L  U  T  E               Ё         Ё"
-   ? "ЁSIFRA Ё     NAZIV  PARTNERA     цдддддддддбдддддддддбдддддддддбдддддддддбдддддддддбдддддддддедддддддддбдддддддддбдддддддддбдддддддддбдддддддддбддддддддд╢  UKUPNO Ё"
-   ? "ЁPARTN.Ё                         ЁDO"+STR(nDoDana1,3)+" D. ЁDO"+STR(nDoDana2,3)+" D. ЁDO"+STR(nDoDana3,3)+" D. ЁDO"+STR(nDoDana4,3)+" D. ЁPR."+STR(nDoDana4,2)+" D. Ё UKUPNO  ЁDO"+STR(nDoDana1,3)+" D. ЁDO"+STR(nDoDana2,3)+" D. ЁDO"+STR(nDoDana3,3)+" D. ЁDO"+STR(nDoDana4,3)+" D. ЁPR."+STR(nDoDana4,2)+" D. Ё UKUPNO  Ё         Ё"
-   ? "цддддддедддддддддддддддддддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддеддддддддд╢"
- ELSE
-   ? "зддддддбдддддддддддддддддддддддддбдддддддддбдддддддддбддддддддд©"
-   ? "ЁSIFRA Ё                         Ё UKUPNO  Ё UKUPNO  Ё         Ё"
-   ? "ЁPARTN.Ё     NAZIV  PARTNERA     ЁU VALUTI ЁVAN VAL. Ё UKUPNO  Ё"
-   ? "цддддддедддддддддддддддддддддддддедддддддддедддддддддеддддддддд╢"
- ENDIF
-
+	?? "FIN.P:  SPECIFIKACIJA OTVORENIH STAVKI PO DOSPIJECU NA DAN "; ?? dNaDan
+	SELECT PARTN
+	HSEEK cIdFirma
+ 	? "FIRMA:",cIdFirma,"-",gNFirma
+	SELECT KONTO
+	HSEEK cIdKonto
+	? "KONTO  :",cIdKonto,naz
+	IF cSaRokom=="D"
+   		? "зддддддбдддддддддддддддддддддддддбдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддбдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддбддддддддд©"
+   		? "Ё      Ё                         Ё                  U      V  A  L  U  T  I                  Ё               V  A  N      V  A  L  U  T  E               Ё         Ё"
+   		? "ЁSIFRA Ё     NAZIV  PARTNERA     цдддддддддбдддддддддбдддддддддбдддддддддбдддддддддбдддддддддедддддддддбдддддддддбдддддддддбдддддддддбдддддддддбддддддддд╢  UKUPNO Ё"
+   		? "ЁPARTN.Ё                         ЁDO"+STR(nDoDana1,3)+" D. ЁDO"+STR(nDoDana2,3)+" D. ЁDO"+STR(nDoDana3,3)+" D. ЁDO"+STR(nDoDana4,3)+" D. ЁPR."+STR(nDoDana4,2)+" D. Ё UKUPNO  ЁDO"+STR(nDoDana1,3)+" D. ЁDO"+STR(nDoDana2,3)+" D. ЁDO"+STR(nDoDana3,3)+" D. ЁDO"+STR(nDoDana4,3)+" D. ЁPR."+STR(nDoDana4,2)+" D. Ё UKUPNO  Ё         Ё"
+   		? "цддддддедддддддддддддддддддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддеддддддддд╢"
+ 	ELSE
+   		? "зддддддбдддддддддддддддддддддддддбдддддддддбдддддддддбддддддддд©"
+   		? "ЁSIFRA Ё                         Ё UKUPNO  Ё UKUPNO  Ё         Ё"
+   		? "ЁPARTN.Ё     NAZIV  PARTNERA     ЁU VALUTI ЁVAN VAL. Ё UKUPNO  Ё"
+  	 	? "цддддддедддддддддддддддддддддддддедддддддддедддддддддеддддддддд╢"
+ 	ENDIF
 ENDIF
 
-RETURN
+return
 *}
 
 

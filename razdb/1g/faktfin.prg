@@ -134,7 +134,8 @@ use (gFaktKum+"FAKT")
 set order to tag "1"
 //"1","IdFirma+idtipdok+brdok+rbr+podbr",KUMPATH+"FAKT")
 
-select FINMAT; zap
+select FINMAT
+zap
 
 aUsl:=Parsiraj(qqDok,"Brdok","C")
 
@@ -227,10 +228,10 @@ enddo
 
 select finmat
 if reccount2()>0
- close all
- Kontnal(dDatDo)
+	close all
+ 	Kontnal(dDatDo)
 else
- MsgBeep("Nema dokumenata za prenos ...")
+ 	MsgBeep("Nema dokumenata za prenos ...")
 endif
 closeret
 *}
@@ -334,41 +335,46 @@ cBrNalF:=""
 O_NALOG
 O_PRIPR
 
-select FINMAT; go top
+select FINMAT
+go top
 select trfp2
 seek finmat->IdVD+" "
+
 cIdVN:=IdVN   // uzmi vrstu naloga koja ce se uzeti u odnosu na prvu kalkulaciju
              //  koja se kontira
 
 if lAFin
-select nalog
-seek finmat->idfirma+cidvn+"X"
-skip -1
+	select nalog
+	seek finmat->idfirma+cidvn+"X"
+	skip -1
 if idvn<>cidvn
      cBrnalF:="0000"
 else
      cBrNalF:=brnal
 endif
 cBrNalF:=NovaSifra(cBrNalF)
-select nalog; use
+select nalog
+use
 endif
 
-select finmat; go top
+select finmat
+go top
 
 Box("brn?",5,55)
 //dDatNal:=datdok
 set cursor on
-  @ m_x+1,m_y+2  SAY "Broj naloga u FIN  "+finmat->idfirma+" - "+cidvn+" -" GET cBrNalF
-  @ m_x+5,m_y+2 SAY "(ako je broj naloga prazan - ne vrsi se kontiranje)"
-  read; ESC_BCR
+@ m_x+1,m_y+2  SAY "Broj naloga u FIN  "+finmat->idfirma+" - "+cidvn+" -" GET cBrNalF
+@ m_x+5,m_y+2 SAY "(ako je broj naloga prazan - ne vrsi se kontiranje)"
+read
+ESC_BCR
 BoxC()
 nRbr:=0; nRbr2:=0
-
 
 MsgO("Prenos FAKT -> FIN")
 
 select finmat
 private cKonto1:=NIL
+private KursLis:="1"
 
 do while !eof()    // datoteka finmat
 	cIDVD:=IdVD
@@ -398,10 +404,12 @@ do while !eof()    // datoteka finmat
 				if trfp2->znak=="-"
               				nIz:=-nIz
             			endif
-               			nIz:=round7(nIz,RIGHT(TRFP2->naz,2))  
+               			nIz:=round7(nIz, RIGHT(TRFP2->naz,2))  
+				
 				//DEM - pomocna valuta
-               			nIz2:=nIz
-            			cIdKonto:=trfp2->Idkonto
+               			nIz2:=nIz * Kurs(dDatNal, "D", "P")
+            			
+				cIdKonto:=trfp2->Idkonto
             			cIdkonto:=STRTRAN(cidkonto,"?1",trim(ckonto1))
             			cIdkonto:=STRTRAN(cidkonto,"?2",trim(ckonto2))
             			cIdkonto:=STRTRAN(cidkonto,"?3",trim(ckonto3))
@@ -454,8 +462,8 @@ do while !eof()    // datoteka finmat
              				append blank
             			endif
 
-            replace iznosDEM with iznosDEM+nIz,;
-                    iznosBHD with iznosBHD+nIz2,;
+            replace iznosDEM with iznosDEM+nIz2,;
+                    iznosBHD with iznosBHD+nIz,;
                     idKonto  with cIdKonto,;
                     IdPartner  with cIdPartner,;
                     D_P      with trfp2->d_P,;

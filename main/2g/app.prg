@@ -292,8 +292,6 @@ AADD(opcexe, {|| nil})
 
 AADD(opc, "K. kontrola zbira datoteka")
 AADD(opcexe, {|| KontrZb()})
-AADD(opc, "L. kontrola zbira datoteka - period")
-AADD(opcexe, {|| KontrZb(.t.)})
 
 AADD(opc, "P. povrat dokumenta u pripremu")
 if (ImaPravoPristupa(goModul:oDatabase:cName,"UT","POVRATNALOGA"))

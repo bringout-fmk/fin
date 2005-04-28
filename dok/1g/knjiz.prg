@@ -692,20 +692,27 @@ case Ch==K_ALT_F5
    case Ch==K_CTRL_A
         PushWA()
         select PRIPR
-        go top
+        //go top
         Box("anal",20,75,.f.,"Ispravka naloga")
-        nDug:=0; nPot:=0
+        nDug:=0
+	nPot:=0
         do while !eof()
-           skip; nTR2:=RECNO(); skip-1
+           skip
+	   nTR2:=RECNO()
+	   skip-1
            Scatter()
            nRbr:=VAL(_Rbr)
            @ m_x+1,m_y+1 CLEAR to m_x+19,m_y+74
            if EditPRIPR(.f.)==0
-             exit
+           	exit
            else
-             BrisiPBaze()
+             	BrisiPBaze()
            endif
-           if _D_P='1'; nDug+=_IznosBHD; else; nPot+=_IznosBHD; endif
+           if _D_P='1'
+	   	nDug+=_IznosBHD
+	   else
+	        nPot+=_IznosBHD
+	   endif
            @ m_x+19,m_y+1 SAY "ZBIR NALOGA:"
            @ m_x+19,m_y+14 SAY nDug PICTURE '9 999 999 999.99'
            @ m_x+19,m_y+35 SAY nPot PICTURE '9 999 999 999.99'

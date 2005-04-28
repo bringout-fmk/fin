@@ -57,6 +57,7 @@ cIdPartner:=space(6)
 dNaDan:=DATE()
 cOpcine:=SPACE(20)
 cSaRokom:="D"
+cValuta:="1"
 
 // Default rocni intervali za user Tigra
 if IsTigra()
@@ -73,13 +74,14 @@ endif
 
 PICPIC:="9999999999.99"
 
-Box(,11,60)
+Box(, 13, 60)
 if gNW=="D"
       	@ m_x+1,m_y+2 SAY "Firma "
 	?? gFirma,"-",gNFirma
 else
 	@ m_x+1,m_y+2 SAY "Firma: " GET cIdFirma valid {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
 endif
+
 @ m_x+2,m_y+2 SAY "Konto:               " GET cIdkonto   pict "@!"  valid P_konto(@cIdkonto)
 @ m_x+3,m_y+2 SAY "Izvjestaj se pravi na dan:" GET dNaDan
 @ m_x+4,m_y+2 SAY "Interval 1: do (dana)" GET nDoDana1 PICT "999"
@@ -88,9 +90,11 @@ endif
 @ m_x+7,m_y+2 SAY "Interval 4: do (dana)" GET nDoDana4 PICT "999"
 @ m_x+10,m_y+2 SAY "Prikaz iznosa (format)" GET PICPIC PICT "@!"
 @ m_x+11,m_y+2 SAY "Uslov po opcini (prazno - nista)" GET cOpcine
+@ m_x+13,m_y+2 SAY "Izvjestaj za (1)KM (2)EURO" GET cValuta VALID cValuta$"12"
 read
 ESC_BCR
 BoxC()
+
 altd()
 if EMPTY(cIdPartner)
 	cIdPartner:=""
@@ -329,13 +333,27 @@ do while !EOF()
 	if !fPrviProlaz  // bilo je stavki
 		nIznosRok:=0
 		nSaldo:=nUDug-nUPot
+		nSldDem:=nUDug2-nUPot2
 		FOR i:=1 TO LEN(anInterVV)
-			nIznosRok+=anInterVV[i,1,1]-anInterVV[i,2,1]
-			nIznosStavke:=nSaldo-nIznosRok
-			PPljuc(TRANSFORM(nIznosStavke,PICPIC))
+			if ( cValuta == "1" )
+				nIznosRok+=anInterVV[i,1,1]-anInterVV[i,2,1]
+				nIznosStavke:=nSaldo-nIznosRok
+				PPljuc(TRANSFORM(nIznosStavke,PICPIC))
+			else
+				nIznosRok+=anInterVV[i,3,1]-anInterVV[i,4,1]
+				nIznosStavke:=nSldDem-nIznosRok
+				PPljuc(TRANSFORM(nIznosStavke,PICPIC))
+		
+			endif
 		NEXT
-		PPljuc(TRANSFORM(nUkVVD-nUkVVP,PICPIC))
-		PPljuc(TRANSFORM(nSaldo,PICPIC))
+		if ( cValuta == "1" )
+			PPljuc(TRANSFORM(nUkVVD-nUkVVP,PICPIC))
+			PPljuc(TRANSFORM(nSaldo,PICPIC))
+		else
+			PPljuc(TRANSFORM(nUkVVD2-nUkVVP2,PICPIC))
+			PPljuc(TRANSFORM(nSldDem,PICPIC))
+		endif
+		
 		IF prow()>52+gPStranica
 			FF
 			ZaglDuznici()
@@ -357,12 +375,25 @@ do while !EOF()
 ENDDO
 
 ? "쳐컴컴컨컴컴컴컴컴컴컴컴컴컴컴컴컵컴컴컴컴컴컴컵컴컴컴컴컴컴컵컴컴컴컴컴컴컵컴컴컴컴컴컴컵컴컴컴컴컴컴컵컴컴컴컴컴컴컵컴컴컴컴컴컴캑"
+
 Pljuc( PADR( "UKUPNO" , LEN(POM->IDPARTNER+PARTN->naz)+1 ) )
+
 FOR i:=1 TO LEN(anInterVV)
-	PPljuc(TRANSFORM(anInterVV[i,1,2]-anInterVV[i,2,2],PICPIC))
+	if ( cValuta == "1" )
+		PPljuc(TRANSFORM(anInterVV[i,1,2]-anInterVV[i,2,2],PICPIC))
+	else
+		PPljuc(TRANSFORM(anInterVV[i,3,2]-anInterVV[i,4,2],PICPIC))
+	endif
 NEXT
-PPljuc(TRANSFORM(nTUkVVD-nTUkVVP,PICPIC))
-PPljuc(TRANSFORM(nTUDug-nTUPot  ,PICPIC))
+
+if ( cValuta == "1" )
+	PPljuc(TRANSFORM(nTUkVVD-nTUkVVP,PICPIC))
+	PPljuc(TRANSFORM(nTUDug-nTUPot,PICPIC))
+else
+	PPljuc(TRANSFORM(nTUkVVD2-nTUkVVP2,PICPIC))
+	PPljuc(TRANSFORM(nTUDug2-nTUPot2,PICPIC))
+endif
+
 ? "읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컨컴컴컴컴컴컴컨컴컴컴컴컴컴컨컴컴컴컴컴컴컨컴컴컴컴컴컴컨컴컴컴컴컴컴컨컴컴컴컴컴컴컨컴컴컴컴컴컴켸"
 
 FF

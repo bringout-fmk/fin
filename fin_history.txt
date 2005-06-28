@@ -1,6 +1,14 @@
 FIN 
 ======
-
+28.06.2004,  1.w.0.6.78, benjamin.jahic@sigma-com.net
+---------------------------------------------
+Programske dorade
+------------------
+ - Uvedena nova opcija: izvjestaji/specifikacija/rekapitulacija partnera po poslovnim godinama/popunj.dat.valutiranja u tek.sez. na osnovu Partn/ROKP
+ - Popunjava datum valute na osnovu Partn/ROKP, a opciono i br.veze u dok.PS sa "P.S."
+ - Zasticena lozinkom
+ - pravi log za uradjeno u KUMPATH/_ZAMVAL.txt
+ 
 03.11.2004,  1.w.0.6.69, mersed.ahmetbegovic@sigma-com.net
 ---------------------------------------------------------------
 BugFix

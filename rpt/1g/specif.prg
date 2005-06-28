@@ -4105,10 +4105,11 @@ function RPPG()
 *{
 local izbor
 
-private opc[2]
+private opc[3]
 opc[1]:="1. izvjestaj rekapitulacije partnera po poslovnim godinama"
-opc[2]:="2. popunjavanje datuma valutiranja u pocetnom stanju"
-h[1]:=h[2]:=""
+opc[2]:="2. popunj.dat.valutiranja u pocetnom stanju"
+opc[3]:="3. popunj.dat.valutiranja u tek.sez. na osnovu Partn/ROKP"
+h[1]:=h[2]:=h[3]:=""
 
 Izbor:=1
 do while .t.
@@ -4128,7 +4129,10 @@ Izbor:=menu("frppg",opc,Izbor,.f.)
              RekPPG(.t.)
            ENDIF
          ENDIF
+     case izbor==3
+         PopValIzSifPartn()
    endcase
+
 enddo
 return
 *}
@@ -4158,5 +4162,159 @@ endif
 function PN2()
 *{
 RETURN ( if( cN2Fin=="D" , " "+TRIM(PARTN->naz2) , "" ) )
+*}
+
+
+
+
+
+/*! \fn PopValIzSifPartn()
+ *  \brief Popunjavanje datuma valute na osnovu DatDok+Partn/RokPl
+ *  \note Preduslov je da je podeseno polje ROKP u sif.partnera (preko SifK)
+ */
+function PopValIzSifPartn()
+*{
+
+PRIVATE cIdKonto:=PADR("2120",7), cTGodina:=STR(YEAR(DATE()),4)
+PRIVATE cIdFirma:=gFirma, cIdPartner:=space(6), cBrisi:="N"
+PRIVATE cIdVnOb:=cIdVnPS:=space(30), cDP:="1", ccOpis, cPopuni:="D"
+PRIVATE aUslBrisi:=aUslPopuni:=".f." 
+
+if !SigmaSif("SCPOPVAL")
+   return
+endif
+
+if pitanje(,"Da li je podesen i popunjen Partn/ROKP ?","N")<>"D"
+   return
+endif
+
+
+O_KONTO
+O_PARTN
+O_SUBAN
+select SUBAN
+
+Box("POPUNAVANJE DATUMA VALUTE",10,75)
+ set cursor on
+ @ m_x+2, m_y+2 SAY "Konto    " GET cIdKonto   PICT "@!" VALID (empty(cIdKonto) .or. P_KontoFin(@cIdKonto)) .and. left(cIdKonto,2) $ "#21#54#"
+ @ m_x+3, m_y+2 SAY "Partner  " GET cIdPartner PICT "@!" VALID empty(cIdPartner) .or. P_Firma(@cIdPartner)
+ READ ; ESC_BCR 
+
+ if left(cIdKonto,2) == "21" // kupac, Duguje=14;15, potrazuje=izvod,kompenzacija
+	cIdVnOb:="14;15;"+cIdVnOb
+	cDP:="1"
+	ccOpis:="(Kupac->DUGUJE)       "
+ else // dobavljac, potrazuje=10;81;, duguje=izvod, kompenzacija
+	cIdVnOb:="10;81;"+cIdVnOb
+	cDP:="2"
+	ccOpis:="(Dobavljac->POTRAZUJE)"
+ endif
+
+ cIdVnPS:="00;"+cIdVnPS
+
+ do while .t.
+	 @ m_x+5, m_y+2 SAY "Vrste nal. za knjiz. faktura"+ccOpis                GET cIdVnOb  PICT "@!S20" VALID !empty(cIdVnOb)
+	 @ m_x+6, m_y+2 SAY "Vrsta nal.'Pocetno stanje'                        " GET cIdVnPS  PICT "@!S20" VALID !empty(cIdVnPS)
+
+	 @ m_x+8, m_y+2 SAY "Prethodno pobrisati !!SVE!! datume valuta? (d/N) ?" GET cBrisi   PICT "@!"    VALID cBrisi $ "DN" 
+	 @ m_x+9, m_y+2 SAY "U nal. Poc.stanja za vezni broj staviti 'P.S.' ?  " GET cPopuni  PICT "@!"    VALID cPopuni $ "DN" 
+	 READ ; ESC_BCR
+
+	 PRIVATE aUslVnOb :=parsiraj(cIdVnOb,"SUBAN->IDVN","C")
+	 PRIVATE aUslVnPS :=parsiraj(cIdVnPS,"SUBAN->IDVN","C")
+	 PRIVATE aUslKonto:=parsiraj(alltrim(cIdKonto)+";","SUBAN->IDKONTO","C")
+	 if !empty(cIdPartner) // ako je partner prazan onda SVI partneri
+	 	PRIVATE aUslPartn:=parsiraj(alltrim(cIdPartner)+";","SUBAN->IDPARTNER","C")
+	 else
+	 	PRIVATE aUslPartn:=".t."
+	 endif
+
+	 If aUslVnOb<>NIL .and.  aUslVnPS<>NIL .and. aUslKonto<>NIL .and. aUslPartn<>NIL
+		exit
+	 endif // ako je NIL - sintaksna greska
+ enddo
+BoxC()
+
+// sastavi pitanje i provjeri jos jednom!
+Msg("Konto:"+cIdKonto+", Partner: "+iif(empty(cIdPartner),"SVI",cIdPartner)+"##Valute za VN:"+alltrim(cIdVnOb)+" "+ccOpis+" ##uvecati za br.dana iz Partn/ROKP, ##ostali nalozi->datum valute=datum dokumenta."+iif(cBrisi=="D","##Uz prethodno BRISANJE postojecih datuma valute","##Uz popunjavanje samo nepopunjenih datuma valute")+ iif(cPopuni=="D","##Uz popunjavanje broja veze Poc.stanju sa 'P.S.'","")+"####!!! Ako je to tacno na sljedece pitanje odgovorite sa 'D' !!!",60)
+
+if Pitanje(,"Nastaviti popunjavanje datuma valuta?", "N")!="D"
+   CLOSERET
+endif 
+
+
+
+cFilter:="(SUBAN->IDFIRMA=cIdFirma).and."+aUslkonto+".and."+aUslPartn
+cFilter:=STRTRAN(cFilter,".t..and.","")
+cFilter:=STRTRAN(cFilter,".and..t.","")
+
+
+select SUBAN
+set index to
+index on idfirma+idkonto+idpartner+idvn to SUBTMP2 // for &cFilter
+set filter to &cFilter
+go top
+
+PRIVATE lIzmjenio:=.f.
+PRIVATE nCount:=0
+// main loop
+save screen to ek_pom
+
+SET ALTERNATE TO _zamval.txt
+SET ALTERNATE ON
+
+do while !EOF()
+        Scatter()
+        ? _idfirma+" -"+_idvn+"-"+_brnal+", Partn:"+_idpartner+"("+str(IzSifk("PARTN", "ROKP", _idpartner, .f.),3,0)+"), kto:"+_idkonto+",brdok:"+brdok+", datDok:"+dtoc(_datdok)+"-datval:"+dtoc(_datval)
+	if cBrisi=="D"
+		_datval:=ctod("") // pocisti ako treba
+		?? "Brisem!!"
+	endif		
+	
+	// ako je dokumenat zaduzenja -> datval=datdok+Partn/ROKPL
+	if &aUslVnOb
+
+		if empty(_datval) // ako je prazan izracunaj
+			_datval:=_datdok+IzSifk("PARTN", "ROKP", _idpartner, .f.)
+			lIzmjenio:=.t.
+			?? "->"+dtoc(_datval)
+		endif
+
+	else // ostali -> datval=datdok
+		
+		if empty(_datval) // ako je prazan izracunaj
+			_datval:=_datdok
+			lIzmjenio:=.t.
+			?? "->"+dtoc(_datval)
+		endif 
+		if cPopuni=="D".AND.empty(_brdok).AND.(&aUslVnPS)
+			_brdok:="P.S." // ako je dok.pc.stanja i treba popuniti vezni broj sa "P.S"
+			lIzmjenio:=.t.
+			?? ", brdok->"+_brdok
+		endif
+	endif
+
+        select SUBAN 
+	if lIzmjenio // snimi samo ako je izmjenio
+
+		? "----------------------------------------------------------------------------------------"
+		Gather()
+		nCount++
+		lIzmjenio:=.f.
+	endif 
+	
+	skip 1
+enddo
+? "----> Izmjenjeno: "+alltrim(str(nCount,10,0))+" slogova!"
+
+SET ALTERNATE OFF
+CLOSE ALTERNATE
+
+restore screen from ek_pom
+
+msg("Izmjenjeno: "+alltrim(str(nCount,10,0))+" slogova!##Detalji u KUMPATH/_ZAMVAL.TXT datoteci." )
+
+
+CLOSERET
 *}
 

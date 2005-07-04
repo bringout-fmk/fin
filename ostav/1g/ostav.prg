@@ -2113,6 +2113,7 @@ use
 
 cIdKonto:=padr(cidkonto,len(suban->idkonto))
 cIdPartner:=padr(cidpartner,len(suban->idPartner))
+// kupci cDugPot:=1
 cDugPot:="1"
 
 Box(,3,60)
@@ -2153,9 +2154,15 @@ index on dtos(datdok)+dtos(iif(empty(DatVal),DatDok,DatVal))  tag "DATUM"
 //OSUBAN
 select suban
 seek cidfirma+cidkonto+cidpartner
+
+// ukupan broj storno racuna za partnera
+nBrojStornoRacuna := 0
 do while !eof() .and. idfirma+idkonto+idpartner=cidfirma+cidkonto+cidpartner
+
 	cBrDok:=Brdok
    	nSaldo:=0
+
+        // proracunaj saldo za partner+dokument
    	do while !eof() .and. cidfirma+cidkonto+cidpartner+cbrdok=idfirma+idkonto+idpartner+brdok
       		if cDugPot=d_p .and. empty(brdok)
          		MsgBeep("Postoje nepopunjen brojevi veze :"+idvn+"-"+brdok+"/"+rbr+"##Morate ih popuniti !")
@@ -2168,8 +2175,11 @@ do while !eof() .and. idfirma+idkonto+idpartner=cidfirma+cidkonto+cidpartner
 		endif
       		skip
    	enddo
-   	if round(nsaldo,4)<>0 // postoji
+   	// saldo za dokument + partner postoji
+        if round(nsaldo,4)<>0 
+		// napuni tabelu osuban za partner+dokument
       		seek cidfirma+cidkonto+cidpartner+cbrdok
+		lStorno:=.f.
       		do while !eof() .and. cidfirma+cidkonto+cidpartner+cbrdok=idfirma+idkonto+idpartner+brdok
          		select suban
          		Scatter()
@@ -2178,92 +2188,209 @@ do while !eof() .and. idfirma+idkonto+idpartner=cidfirma+cidkonto+cidpartner
          		__recno:=suban->(recno())
          		__PPk1:=""
          		__OBRDOK:=_Brdok
-         		if ((nSaldo>0 .and. cDugPot="2") .or. (nSaldo<0 .and. cDugpot="1")) .and. _d_p<>cDugPot
+			if (_iznosbhd<0 .and. _d_p==cDugPot)
+				lStorno:=.t.
+			endif
+
+         		if ((nSaldo>0 .and. cDugPot="2") ) .and. _d_p<>cDugPot
            			// neko je bez veze zatvorio uplate (ili se mozda radi o avansima)
-           			altd()
            			_BrDok:='AVANS'
          		endif
 			Gather()
          		select suban
          		skip
       		enddo
+
+		if lStorno
+			++nBrojStornoRacuna
+		endif
    	endif
 enddo
 
 select osuban 
 set order to tag "DATUM"
 
+//if nBrojStornoRacuna>0
+//	MsgBeep("debug: Broj storno racuna" + STR(nBrojStornoRacuna))
+//endif
+
 do while .t.
+
+	// svaki put prolazim ispocetka
+	select osuban
 	go top
+
+        //varijabla koja kazuje da je racun/storno racun nadjen
   	fNasao:=.f.
-  	nZatvoriti:=0
-  	// prvi krug  (nadji ukupno stvorene obaveze)
-  	cZatvoriti:=chr(200)+chr(255)
-  	do while !eof()
-   		if empty(_PPK1) // neobradjeno
-    			if !fNasao .and. d_p==cDugPot  // nastanak dugovanja
-         			nZatvoriti:=iznosbhd
-         			cZatvoriti:=brdok
+  	
+        // prvi krug  (nadji ukupno stvorene obaveze za jednog partnera
+  	nZatvori:=0
+	// nijedan brdok dokument u bazi ne moze biti chr(200)+chr(255)
+        cZatvori:=chr(200)+chr(255)
+
+	nZatvoriStorno:=0
+  	cZatvoriStorno:=chr(200)+chr(255)
+
+  	// ovdje su sada sve stavke za jednog partnera, sortirane hronoloski
+        do while !eof()
+
+		// neobradjene stavke
+   		if empty(_PPK1) 
+
+			// nastanak duga
+    			if !fNasao .and. d_p==cDugPot 
+
+				
+				if (iznosbhd>0)
+				  if nBrojStornoRacuna>0
+					// prvo se moraju zatvoriti storno racuni
+					// zato preskacemo sve pozitivne racune koji se nalaze ispred
+
+				        MsgBeep("debug: pozitivne preskacem " + STR(nBrojStornoRacuna) + "  BrDok:" +  brdok )
+					skip
+					loop
+				  endif
+				  //racun
+         			  nZatvori:=iznosbhd
+         			  cZatvori:=brdok
+				  cZatvoriStorno:=chr(200)+chr(255)
+				 
+ 				else
+
+				  // storno racun
+				  nZatvoriStorno:=iznosbhd
+				  cZatvoriStorno:=brdok
+				  cZatvori:=chr(200)+chr(255)
+				   --nBrojStornoRacuna
+				   MsgBeep("debug: -- " + STR(nBrojStornoRacuna) + " / BrDok:" + BrDok)
+
+				endif
+
          			fNasao:=.t.
          			replace _PPK1 with "1" // prosli smo ovo
-         			go top // idi od pocetka da saberes czatvoriti
+         			go top // idi od pocetka da saberes czatvori
+
          			loop
-    			elseif fNasao .and. cZatvoriti=Brdok
-         			if d_p==cdugpot
-            				nZatvoriti+=iznosbhd
+
+    			elseif fNasao .and. (cZatvori == Brdok)
+
+				// sve ostale stavke koje su hronoloski starije
+				//  koje imaju isti broj dokumenta kao nadjeni racun
+				// saberi
+         			if d_p==cDugPot
+            				nZatvori+=iznosbhd
          			else
-            				nZatvoriti-=iznosbhd
+            				nZatvori-=iznosbhd
+         			endif
+        			// prosli smo ovo - marker
+ 				replace _PPK1 with "1" 
+
+    			elseif fNasao .and. (cZatvoriStorno == Brdok) 
+
+         			// isto vrijedi i za stavke iza storno racuna
+				// a koje imaju isti broj veze
+				if d_p==cDugPot
+            				nZatvoriStorno+=iznosbhd
+         			else
+            				nZatvoriStorno-=iznosbhd
          			endif
         			replace _PPK1 with "1" // prosli smo ovo
+
     			endif
+
    		endif // empty(_PPk1)
    		skip
   	enddo
 	if !fNasao
-      		exit // nema se sta zatvoriti
+		// nema racuna za zatvoriti
+		MsgBeep("prosao sve racune - nisam  nista nasao - izlazim")
+      		exit 
   	endif
 
-  	// drugi krug
-
+  	// drugi krug - sada se formiraju uplate
+	MsgBeep("2.krug: idem sada formirati uplate - zatvaranje racuna ")
   	fNasao:=.f.
   	go top
   	do while !eof()
     		if empty(_PPK1)
-     			if d_p<>cDugPot // radi se o uplatama
+
+			// potrazna strana
+     			if d_p<>cDugPot 
+
         			nUplaceno:=iznosbhd
-        			if nUplaceno>0 .and. nZatvoriti>0  // pozitivni iznosi
-           				if  nZatvoriti>=nUplaceno  // vise treba zatvoriti nego je uplaceno
-                				replace brdok with cZatvoriti, _PPk1 with "1"
-                				nZatvoriti-=nUplaceno
-           				elseif nZatvoriti<nUplaceno
+
+				// prvo cemo se rijesiti storno racuna, ako ih ima
+        			if nUplaceno>0  .and. ABS(nZatvoriStorno)>0
+						MsgBeep("Zatvaram storno racun - iznos:" + STR(nZatvoriStorno))
+                				skip
+						nSljRec:=recno()
+						skip -1
+                				nOdem:=iznosdem-nZatvoriStorno*iznosdem/iznosbhd
+                				
+						// zatvaram storno racun
+                				replace brdok with cZatvoriStorno, _PPk1 with "1", iznosbhd with nZatvoriStorno, iznosdem with iznosdem-nODem
+                				scatter()
+                				_iznosbhd:=nuplaceno-nZatvoriStorno
+                				_iznosdem:=nodem
+                				if round(_iznosbhd,4)<>0 .and. round(nodem,4)<>0
+							// prebacujem ostatak uplate na novu stavku
+                 					append blank
+                 					_brdok:="AVANS"
+                 					__PPK1:=""
+                 					gather()
+							MsgBeep("AVANS-1" + STR(_iznosbhd)) 
+                				endif
+                				nZatvoriStorno:=0
+                				go nSljRec 
+						loop
+
+				elseif nUplaceno>0 .and. nZatvori>0  
+					
+					//pozitivni iznosi
+           				if  nZatvori>=nUplaceno  
+
+						MsgBeep(" nZatvori >= nUplaceno :" + STR(nZatvori) + "/" + STR(nUplaceno))
+						// vise treba zatvoriti nego je uplaceno
+                				replace brdok with cZatvori, _PPk1 with "1"
+                				nZatvori-=nUplaceno
+
+           				elseif nZatvori<nUplaceno
+
+
+
+						MsgBeep(" nZatvori < nUplaceno :" + STR(nZatvori) + "/" + STR(nUplaceno))
                 				// imamo i ostatak sredstava razbij uplatu !!
                 				skip
 						nSljRec:=recno()
 						skip -1
-                				nOdem:=iznosdem-nzatvoriti*iznosdem/iznosbhd
+                				nOdem:=iznosdem-nZatvori*iznosdem/iznosbhd
                 				// alikvotni dio..HA HA HA
-                				replace brdok with czatvoriti, _PPk1 with "1", iznosbhd with nzatvoriti, iznosdem with iznosdem-nODem
+                				replace brdok with czatvori, _PPk1 with "1", iznosbhd with nZatvori, iznosdem with iznosdem-nODem
                 				scatter()
-                				_iznosbhd:=nuplaceno-nzatvoriti
+                				_iznosbhd:=nuplaceno-nZatvori
                 				_iznosdem:=nodem
                 				if round(_iznosbhd,4)<>0 .and. round(nodem,4)<>0
                  					append blank
                  					_brdok:="AVANS"
                  					__PPK1:=""
                  					gather()
+							MsgBeep("AVANS-2" + STR(_iznosbhd)) 
                 				endif
-                				nzatvoriti:=0
+                				nZatvori:=0
                 				go nSljRec 
 						loop
 					endif
-           				if nzatvoriti<=0
+           				if nZatvori<=0
+						MsgBeep(" nZatvori <=0 izlazim ! :" + STR(nZatvori) )
 						exit
 					endif  // zavrsi sa ovim racunom
-        			endif  // nuplaceno>0 .and. nzatvoriti>0
+        			endif  // nuplaceno>0 .and. nzatvori>0
+
      			endif // d_p<>cdugpot
     		endif // _PPk1
     		skip
   	enddo
+
 enddo
 
 // !!! markiraj stavke koje su postale zatvorene

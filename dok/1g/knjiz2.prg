@@ -263,8 +263,10 @@ DO WHILE !EOF() .and. idfirma==cidfirma .AND. cIdKonto==IdKonto .and. cIdPartner
            aFaktura[1]:=DATDOK
            aFaktura[2]:=DATVAL
          ENDIF
-
-         altd()
+	 
+	 cMarkdp := D_P
+         
+	 altd()
          if afaktura[3]<DatDok  // datum zadnje promjene
             aFaktura[3]:=DatDok
          endif
@@ -277,19 +279,23 @@ DO WHILE !EOF() .and. idfirma==cidfirma .AND. cIdKonto==IdKonto .and. cIdPartner
           select ostav
           append blank
           //replace iznosbhd with (ndug-npot), datdok with dDatDok, brdok with cbrdok
-          replace iznosbhd with (ndug-npot), ;
-                  datdok with aFaktura[1],;
-                  datval with aFaktura[2],;
-                  datzpr with aFaktura[3],;
-                  brdok with cbrdok
-          if iznosbhd>0
-             replace d_p with "1"
-          else
-             replace d_p with "2", iznosbhd with -iznosbhd
-          endif
-          select suban
+          replace iznosbhd with ( nDug - nPot )
+          replace datdok with aFaktura[1]
+          replace datval with aFaktura[2]
+          replace datzpr with aFaktura[3]
+          replace brdok with cbrdok
+          
+	  //if iznosbhd>0
+            // replace d_p with "1"
+          //else
+	     //replace d_p with "2", iznosbhd with -iznosbhd
+	    // replace d_p with "1"
+         // endif
+          replace d_p with cMarkdp
+	  
+	  select suban
+	  
        endif
-
 enddo // partner
 
 
@@ -490,10 +496,13 @@ do case
 
      nRet:=DE_REFRESH
   case Ch=K_F10
-        select ostav; go top
+        
+	select ostav
+	go top
 
-        if pitanje(,"Asistent zatvara stavke ?","D")=="D"
-             nPIznos:=nIznos  // iznos uplate npr
+        if Pitanje(,"Asistent zatvara stavke ?","D")=="D"
+             altd()
+	     nPIznos:=nIznos  // iznos uplate npr
              go top
              DO WHILE !EOF()
                IF cDugPot<>d_p .and. nPIznos>0

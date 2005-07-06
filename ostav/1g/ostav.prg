@@ -2248,7 +2248,7 @@ do while .t.
 					// prvo se moraju zatvoriti storno racuni
 					// zato preskacemo sve pozitivne racune koji se nalaze ispred
 
-				        MsgBeep("debug: pozitivne preskacem " + STR(nBrojStornoRacuna) + "  BrDok:" +  brdok )
+				        //MsgBeep("debug: pozitivne preskacem " + STR(nBrojStornoRacuna) + "  BrDok:" +  brdok )
 					skip
 					loop
 				  endif
@@ -2266,7 +2266,7 @@ do while .t.
 				  dDatDokStorno:=datdok
 				  cZatvori:=chr(200)+chr(255)
 				   --nBrojStornoRacuna
-				   MsgBeep("debug: -- " + STR(nBrojStornoRacuna) + " / BrDok:" + BrDok)
+				   //MsgBeep("debug: -- " + STR(nBrojStornoRacuna) + " / BrDok:" + BrDok)
 
 				endif
 
@@ -2312,7 +2312,7 @@ do while .t.
   	endif
 
   	// drugi krug - sada se formiraju uplate
-	MsgBeep("2.krug: idem sada formirati uplate - zatvaranje racuna ")
+	//MsgBeep("2.krug: idem sada formirati uplate - zatvaranje racuna ")
   	fNasao:=.f.
   	go top
   	do while !eof()
@@ -2325,7 +2325,7 @@ do while .t.
 
 				// prvo cemo se rijesiti storno racuna, ako ih ima
         			if nUplaceno>0  .and. ABS(nZatvoriStorno)>0 .and. (dDatDokStorno<=datdok)
-						MsgBeep("Zatvaram storno racun - iznos:" + STR(nZatvoriStorno))
+						//MsgBeep("Zatvaram storno racun - iznos:" + STR(nZatvoriStorno))
                 				skip
 						nSljRec:=recno()
 						skip -1
@@ -2342,7 +2342,7 @@ do while .t.
                  					_brdok:="AVANS"
                  					__PPK1:=""
                  					gather()
-							MsgBeep("AVANS-1" + STR(_iznosbhd)) 
+							//MsgBeep("AVANS-1" + STR(_iznosbhd)) 
                 				endif
                 				nZatvoriStorno:=0
                 				go nSljRec 
@@ -2353,7 +2353,7 @@ do while .t.
 					//pozitivni iznosi
            				if  nZatvori>=nUplaceno  
 
-						MsgBeep(" nZatvori >= nUplaceno :" + STR(nZatvori) + "/" + STR(nUplaceno))
+						//MsgBeep(" nZatvori >= nUplaceno :" + STR(nZatvori) + "/" + STR(nUplaceno))
 						// vise treba zatvoriti nego je uplaceno
                 				replace brdok with cZatvori, _PPk1 with "1"
                 				nZatvori-=nUplaceno
@@ -2362,7 +2362,7 @@ do while .t.
 
 
 
-						MsgBeep(" nZatvori < nUplaceno :" + STR(nZatvori) + "/" + STR(nUplaceno))
+						//MsgBeep(" nZatvori < nUplaceno :" + STR(nZatvori) + "/" + STR(nUplaceno))
                 				// imamo i ostatak sredstava razbij uplatu !!
                 				skip
 						nSljRec:=recno()
@@ -2378,14 +2378,14 @@ do while .t.
                  					_brdok:="AVANS"
                  					__PPK1:=""
                  					gather()
-							MsgBeep("AVANS-2" + STR(_iznosbhd)) 
+							//MsgBeep("AVANS-2" + STR(_iznosbhd)) 
                 				endif
                 				nZatvori:=0
                 				go nSljRec 
 						loop
 					endif
            				if nZatvori<=0
-						MsgBeep(" nZatvori <=0 izlazim ! :" + STR(nZatvori) )
+						//MsgBeep(" nZatvori <=0 izlazim ! :" + STR(nZatvori) )
 						exit
 					endif  // zavrsi sa ovim racunom
         			endif  // nuplaceno>0 .and. nzatvori>0

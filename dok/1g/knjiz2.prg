@@ -138,8 +138,8 @@ RETURN (NIL)
 function KonsultOS()
 *{
 local fgenerisano
-LOCAL nNaz:=1, nRec:=RECNO()
-
+local nNaz:=1
+local nRec:=RECNO()
 
 if !IzvrsenIn(,,"OASIST", .t. )
   MsgBeep("Ovaj modul nije registrovan za koristenje !")
@@ -178,7 +178,8 @@ IF !USED()
   O_SUBAN
 ENDIF
 
-select SUBAN; set order to 1 // IdFirma+IdKonto+IdPartner+dtos(DatDok)+BrNal+RBr
+select SUBAN
+set order to 1 // IdFirma+IdKonto+IdPartner+dtos(DatDok)+BrNal+RBr
 
 //GO TOP
 //COUNT TO nPomBS FOR cIdfirma+cIdkonto+cIdpartner == Idfirma+Idkonto+Idpartner .and. otvst != "9"
@@ -190,7 +191,6 @@ select SUBAN; set order to 1 // IdFirma+IdKonto+IdPartner+dtos(DatDok)+BrNal+RBr
 //ENDIF
 
 GO TOP
-
 
 Box(,19,77)
 @ m_x, m_y+25 SAY "KONSULTOVANJE OTVORENIH STAVKI"
@@ -207,24 +207,29 @@ AADD(aDBf,{ 'UPLACENO'            , 'N' ,  21 ,  2 })
 AADD(aDBf,{ 'M2'                  , 'C' ,  1 , 0 })
 DBCREATE2(PRIVPATH+'OStav.dbf',aDbf)
 
-select (F_OSTAV); use (PRIVPATH+'OStav')
+select (F_OSTAV)
+use (PRIVPATH+'OStav')
 index ON BRISANO TAG "BRISAN"
 index on dtos(DatDok)+DTOS(iif(empty(datval),datdok,datval))+Brdok  tag "1"
 
-nUkDugBHD:=nUkPotBHD:=0
-select suban; set order to 3
+nUkDugBHD:=0
+nUkPotBHD:=0
+select suban
+set order to 3
 
 seek cidfirma+cidkonto+cidpartner
 
 dDatDok:=ctod("")
 
 cPrirkto:="1"   // priroda konta
-select (F_TRFP2); if !used(); O_TRFP2; endif
+select (F_TRFP2)
+if !used()
+	O_TRFP2
+endif
 HSEEK "99 "+LEFT(cIdKonto,1)
 DO WHILE !EOF() .and. IDVD=="99" .and. TRIM(idkonto)!=LEFT(cIdKonto,LEN(TRIM(idkonto)))
-  SKIP 1
+	SKIP 1
 ENDDO
-
 
 IF IDVD=="99" .and. TRIM(idkonto)==LEFT(cIdKonto,LEN(TRIM(idkonto)))
   cPrirkto:=D_P
@@ -264,9 +269,6 @@ DO WHILE !EOF() .and. idfirma==cidfirma .AND. cIdKonto==IdKonto .and. cIdPartner
            aFaktura[2]:=DATVAL
          ENDIF
 	 
-	 cMarkdp := D_P
-         
-	 altd()
          if afaktura[3]<DatDok  // datum zadnje promjene
             aFaktura[3]:=DatDok
          endif
@@ -286,12 +288,17 @@ DO WHILE !EOF() .and. idfirma==cidfirma .AND. cIdKonto==IdKonto .and. cIdPartner
           replace brdok with cbrdok
           
 	  //if iznosbhd>0
-            // replace d_p with "1"
+             // replace d_p with "1"
           //else
-	     //replace d_p with "2", iznosbhd with -iznosbhd
-	    // replace d_p with "1"
-         // endif
-          replace d_p with cMarkdp
+	     // replace d_p with "2", iznosbhd with -iznosbhd
+          // endif
+          
+	  if (cDugPot == "2")
+	  	replace d_p with "1"
+	  else
+	  	replace d_p with "2"
+		replace iznosbhd with -iznosbhd
+	  endif
 	  
 	  select suban
 	  
@@ -516,23 +523,23 @@ do case
             ENDDO
             go top
             if nPIznos>0  // ostao si u avansu
-               append blank
-               Scatter("w")
-               wbrdok:=padr("AVANS",10)
-               if cdugpot=="1"
-                 wd_p:="2"
-               else
-                 wd_p:="1"
-               endif
-               wiznosbhd:=npiznos
-               wuplaceno:=npiznos
-               wdatdok:=date()
-               wm2:="3"
-               Box(,2,60)
-                  @ m_x+1,m_y+2 SAY  "Ostatak sredstava knjiziti na dokument:" GET wbrdok
-                  read
-               Boxc()
-               gather("w")
+               	append blank
+               	Scatter("w")
+               	wbrdok:=padr("AVANS",10)
+               	if cDugPot=="1"
+                 	wd_p:="1"
+               	else
+                 	wd_p:="2"
+               	endif
+               	wiznosbhd:=npiznos
+               	wuplaceno:=npiznos
+               	wdatdok:=date()
+               	wm2:="3"
+               	Box(,2,60)
+                  	@ m_x+1,m_y+2 SAY  "Ostatak sredstava knjiziti na dokument:" GET wbrdok
+                  	read
+               	Boxc()
+               	gather("w")
 
             endif
 

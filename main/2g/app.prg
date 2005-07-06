@@ -201,6 +201,8 @@ close all
 
 SETKEY(K_SH_F1,{|| Calc()})
 
+CheckROnly(KUMPATH + "\SUBAN.DBF")
+
 O_NALOG
 select NALOG
 TrebaRegistrovati(20)

@@ -1,5 +1,6 @@
 VERZIJA=CDX
 MODUL=FIN
+MODVER=1.w.0.6.82
 
 PRGS=/dev/fmk/fin/main/1g/e.prg
 CS=
@@ -32,11 +33,14 @@ mod: $(OBJS)
 	cp e.exe $(EXEDEST)/$(MODUL).EXE
 
 zip:
-	rm -f /z/fmk/$(MODUL).zip 
 	echo "pravim zip .."
-	/sclib/zip.sh z:\\fmk\\$(MODUL).zip ..\\chs\\\*.chs h:\\dev\\fmk\af\cl-af\\svi\\\*.chs ..\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE
+	/sclib/zip.sh h:\\cs\\FMK\\binary\\$(MODUL).zip ..\\chs\\\*.chs c:\\dev\\fmk\af\cl-af\\svi\\\*.chs ..\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE
 	echo "kraj .."
 
+commit:
+	echo "svn commit"
+	/sclib/commit.sh $(MODVER) h:\\cs\\FMK\\binary\\$(MODUL).zip
+	echo "kraj .."
 clean:
 	rm -f *.obj *.OBJ
 	rm -f $(OBJS) I$(MODULH).OBJ *.bak *.BAK
@@ -44,4 +48,8 @@ clean:
 
 sfx:
 	/cygdrive/z/bat/SFXMA.BAT fin
+
+7exe:
+	/sclib/7exe.sh h:\\cs\\fmk\\binary\\$(MODUL).exe ..\\chs\\\*.chs \\dev\\fmk\\af\\cl-af\\svi\\\*.chs ..\\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE
+	
 

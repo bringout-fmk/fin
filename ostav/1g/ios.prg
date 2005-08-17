@@ -254,13 +254,19 @@ return
 function ZagSpecIOS()
 *{
 P_COND
-??  "FIN: SPECIFIKACIJA IOS-a     NA DAN "; ?? DATE()
+
+??  "FIN: SPECIFIKACIJA IOS-a     NA DAN "
+?? DATE()
 ? "FIRMA:"
 @ prow(),pcol()+1 SAY cIdFirma
-SELECT PARTN; HSEEK cIdFirma
-@ prow(),pcol()+1 SAY naz; @ prow(),pcol()+1 SAY naz2
+
+SELECT PARTN
+HSEEK cIdFirma
+@ prow(),pcol()+1 SAY naz
+@ prow(),pcol()+1 SAY naz2
 
 ? M
+
 ? "*RED.* ÊIFRA*      NAZIV POSLOVNOG PARTNERA      * PTT *      MJESTO     *   KUMULATIVNI PROMET  U  "+ValDomaca()+"  *    S A L D O   U   "+ValDomaca()+"         "+IF(gVar1=="0","*  KUMULAT. PROMET U "+ValPomocna()+" *  S A L D O   U   "+ValPomocna()+"  ","")+"*"
 ? "                                                                          ________________________________ _________________________________"+IF(gVar1=="0","*_________________________ ________________________","")+"_"
 ? "*BROJ*      *                                    * BROJ*                 *    DUGUJE     *   POTRAZUJE    *    DUGUJE      *   POTRAZUJE    "+IF(gVar1=="0","*    DUGUJE  * POTRAZUJE  *   DUGUJE   * POTRAZUJE ","")+"*"
@@ -467,6 +473,7 @@ SELECT PARTN; HSEEK cIdFirma
 @ prow(),pcol()+1 SAY naz2
 @ prow()+1,5 SAY Mjesto
 @ prow()+1,5 SAY Adresa
+@ prow()+1,5 SAY PTT
 @ prow()+1,5 SAY ZiroR
 ?
 ?
@@ -474,6 +481,7 @@ SELECT PARTN; HSEEK cIdPartner
 @ prow(),45 SAY cidpartner; ?? " -",naz
 @ prow()+1,45 SAY mjesto
 @ prow()+1,45 SAY adresa
+@ prow()+1,45 SAY ptt
 @ prow()+1,45 SAY ziror
 if !empty(telefon)
   @ prow()+1,45 SAY "Telefon: "+telefon

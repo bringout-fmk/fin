@@ -1,6 +1,5 @@
 VERZIJA=CDX
 MODUL=FIN
-MODVER=1.w.0.6.82
 
 PRGS=/dev/fmk/fin/main/1g/e.prg
 CS=
@@ -33,23 +32,16 @@ mod: $(OBJS)
 	cp e.exe $(EXEDEST)/$(MODUL).EXE
 
 zip:
-	echo "pravim zip .."
 	/sclib/zip.sh h:\\cs\\FMK\\binary\\$(MODUL).zip ..\\chs\\\*.chs c:\\dev\\fmk\af\cl-af\\svi\\\*.chs ..\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE
-	echo "kraj .."
 
 commit:
-	echo "svn commit"
-	/sclib/commit.sh $(MODVER) h:\\cs\\FMK\\binary\\$(MODUL).zip
-	echo "kraj .."
+	/sclib/commit.sh $(MODUL) h:\\cs\\FMK\\binary\\$(MODUL).zip
+	/sclib/commit.sh $(MODUL) h:\\cs\\FMK\\binary\\sfx\\$(MODUL).exe
 clean:
 	rm -f *.obj *.OBJ
 	rm -f $(OBJS) I$(MODULH).OBJ *.bak *.BAK
 
-
-sfx:
-	/cygdrive/z/bat/SFXMA.BAT fin
-
 7exe:
-	/sclib/7exe.sh h:\\cs\\fmk\\binary\\$(MODUL).exe ..\\chs\\\*.chs \\dev\\fmk\\af\\cl-af\\svi\\\*.chs ..\\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE
+	/sclib/7exe.sh h:\\cs\\fmk\\binary\\sfx\\$(MODUL).exe ..\\chs\\\*.chs \\dev\\fmk\\af\\cl-af\\svi\\\*.chs ..\\template\\\*.txt $(EXEDOSDEST)\\$(MODUL).EXE
 	
 

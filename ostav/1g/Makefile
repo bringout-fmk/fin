@@ -5,7 +5,7 @@ include /sclib/Makefile_clipper
 
 SRCDOSROOT=c:\\dev\\fmk\\fin\\ostav\\1g\\
 
-PRGS=ios.prg ostav.prg
+PRGS=ios.prg ostav.prg ost_ut.prg
 
 CS=
 ASMS=

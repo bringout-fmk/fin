@@ -41,7 +41,7 @@
  
 function Ostav()
 *{
-private opc[9],Izbor,gNLOst:=0
+private opc[10],Izbor,gNLOst:=0
 O_PARAMS
 private cSection:="1",cHistory:=" "; aHistory:={}
 RPar("li",@gnLOst)
@@ -56,6 +56,7 @@ opc[6]:="6. ios"
 opc[7]:="7. kartice grupisane po brojevima veze"
 opc[8]:="8. kompenzacija"
 opc[9]:="9. asistent otvorenih stavki"
+opc[10]:="10. ponistavanje asistenta"
 
 Izbor:=1
 DO WHILE .T.
@@ -67,6 +68,8 @@ DO WHILE .T.
    h[6]:=""
    h[7]:=""
    h[8]:=""
+   h[9]:=""
+   h[10]:=""
    Izbor:=Menu("OtvS",opc,Izbor,.f.)
    DO CASE
       CASE izbor==0
@@ -91,6 +94,8 @@ DO WHILE .T.
            Kompenzacija()
       CASE izbor==9
            GenAz()
+      CASE izbor==10
+      	   OStUndo()
    ENDCASE
 ENDDO
 

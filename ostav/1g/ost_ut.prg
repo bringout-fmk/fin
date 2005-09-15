@@ -19,7 +19,7 @@ dDatDo:=DATE()
 cPartn:=SPACE(6)
 cKonto:="2120"
 cVNal:=PADR("61;",40)
-cDp:="2"
+cDp:="1"
 
 O_SUBAN
 select suban
@@ -54,7 +54,7 @@ Box(,5,60)
 	@ m_x+1,m_y+21 SAY "do" GET dDatDo 
 	@ m_x+2,m_y+2 SAY "Konto   " GET cKonto VALID P_KontoFin(@cKonto) PICT "@!"
   	@ m_x+3,m_y+2 SAY "Partner (prazno-svi)" GET cPartn VALID EMPTY(cPartn) .or. P_Firma(@cPartn) PICT "@!"
-  	@ m_x+4,m_y+2 SAY "Konto duguje / potrazuje" GET cDp WHEN {|| cDp:=iif(cKonto='54','1','2'), .t.} VALID cDp$"12 "
+  	@ m_x+4,m_y+2 SAY "Konto duguje / potrazuje" GET cDp WHEN {|| cDp:=iif(cKonto='54','2','1'), .t.} VALID cDp$"12 "
   	@ m_x+5,m_y+2 SAY "Vrste naloga" GET cVNal 
   	read
 BoxC()
@@ -116,14 +116,14 @@ do while !EOF() .and. field->idkonto=cIdKonto .and. field->datdok <= dDatDo .and
 		do case
 			case cDugPot == "1"
 				// varijanta duguje
-				if (field->d_p == "2")
+				if (field->d_p == "1")
 					skip
 				endif
 				
 			case cDugPot == "2"
 				// varijanta potrazuje
 				// uplate
-				if (field->d_p == "1")
+				if (field->d_p == "2")
 					skip
 				endif
 		endcase

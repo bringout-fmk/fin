@@ -88,12 +88,12 @@ cKupac:=""
 
 Box(, 3, 70)
 
-do while !EOF() .and. field->idkonto=cIdKonto .and. field->datdok <= dDatDo
+do while !EOF() .and. field->idkonto=cIdKonto .and. field->datdok <= dDatDo .and. if(!Empty(cIdPartn), field->idpartner=cIdPartn, .t.)
 	// uzmi broj prvog naloga
 	cBrNal := field->brnal
 	cTipNal := field->idvn
 	cKupac := field->idpartner
-	
+
 	select partn
 	hseek cKupac
 	select suban
@@ -156,6 +156,8 @@ do while !EOF() .and. field->idkonto=cIdKonto .and. field->datdok <= dDatDo
 enddo
 
 BoxC()
+
+MsgBeep("Opcija zavrsena!#Pogledajte rezultate...")
 
 return
 *}

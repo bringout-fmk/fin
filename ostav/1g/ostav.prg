@@ -41,65 +41,34 @@
  
 function Ostav()
 *{
-private opc[10],Izbor,gNLOst:=0
-O_PARAMS
-private cSection:="1",cHistory:=" "; aHistory:={}
-RPar("li",@gnLOst)
-select params; use
+private izbor:=1
+private opc:={}
+private opcexe:={}
 
-opc[1]:="1. rucno zatvaranje                    "
-opc[2]:="2. automatsko zatvaranje"
-opc[3]:="3. kartica"
-opc[4]:="4. kartica konto/konto2"
-opc[5]:="5. specifikacija"
-opc[6]:="6. ios"
-opc[7]:="7. kartice grupisane po brojevima veze"
-opc[8]:="8. kompenzacija"
-opc[9]:="9. asistent otvorenih stavki"
-opc[10]:="10. ponistavanje asistenta"
+AADD(opc, "1. rucno zatvaranje                    ")
+AADD(opcexe, {|| RucnoZat()})
+AADD(opc, "2. automatsko zatvaranje")
+AADD(opcexe, {|| AutoZat()})
+AADD(opc, "3. kartica")
+AADD(opcexe, {|| SubKart(.t.)})
+AADD(opc, "4. kartica konto/konto2")
+AADD(opcexe, {|| SubKart2(.t.)})
+AADD(opc, "5. specifikacija")
+AADD(opcexe, {|| SpecOtSt()})
+AADD(opc, "6. ios")
+AADD(opcexe, {|| IOS()})
+AADD(opc, "7. kartice grupisane po brojevima veze")
+AADD(opcexe, {|| StKart(.t.)})
+AADD(opc, "8. kompenzacija")
+AADD(opcexe, {|| Kompenzacija()})
+AADD(opc, "9. asistent otvorenih stavki")
+AADD(opcexe, {|| GenAz()})
+AADD(opc, "U. OASIST - undo")
+AADD(opcexe, {|| OStUndo()})
 
 Izbor:=1
-DO WHILE .T.
-   h[1]:="editovanje broja, datuma dokumenta, direktno zatvaranje stavke"
-   h[2]:=""
-   h[3]:=""
-   h[4]:=""
-   h[5]:=""
-   h[6]:=""
-   h[7]:=""
-   h[8]:=""
-   h[9]:=""
-   h[10]:=""
-   Izbor:=Menu("OtvS",opc,Izbor,.f.)
-   DO CASE
-      CASE izbor==0
-        exit
-      CASE izbor==1
-         RucnoZat()
-      CASE izbor==2
-         AutoZat()
-      CASE izbor==3
-         SubKart(.t.)
-      CASE izbor==4
-         SubKart2(.t.)
-      CASE izbor==5
-         SpecOtSt()  // o.stavke specifikacija
-      CASE izbor==6
-         IOS()
-//      CASE izbor==7
-//         PrBrRacOp()
-      CASE izbor==7
-           StKart(.t.)
-      CASE izbor==8
-           Kompenzacija()
-      CASE izbor==9
-           GenAz()
-      CASE izbor==10
-      	   OStUndo()
-   ENDCASE
-ENDDO
+Menu_SC("oas")
 
-closeret
 return
 *}
 

@@ -44,6 +44,7 @@ function Ostav()
 private izbor:=1
 private opc:={}
 private opcexe:={}
+private gnLost:=0
 
 AADD(opc, "1. rucno zatvaranje                    ")
 AADD(opcexe, {|| RucnoZat()})

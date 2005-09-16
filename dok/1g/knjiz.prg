@@ -659,6 +659,9 @@ case Ch==K_ALT_F5
      endif
      return DE_CONT
 
+  case Ch==K_F9
+  	SrediRbr()
+	return DE_REFRESH
   case Ch==K_CTRL_T
      if Pitanje(,"Zelite izbrisati ovu stavku ?","D")=="D"
       delete

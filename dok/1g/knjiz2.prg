@@ -130,6 +130,44 @@ LOCAL nRec:=0
 RETURN (NIL)
 *}
 
+function ProvDuplePartnere(cIdP, cIdK, cDp, lAsist, lSumirano)
+*{
+select pripr
+go top
+nCnt := 0
+nSuma := 0
+altd()
+
+do while !EOF()
+	if field->idpartner == cIdP .and. field->idkonto == cIdK .and. field->d_p == cDp
+		++ nCnt
+		nSuma += field->iznosbhd
+	endif
+	skip
+enddo
+
+if nCnt>0 .and. Pitanje(,"Spojiti duple uplate za partnera?","D")=="D"
+	go top
+	do while !EOF()
+		if field->idpartner == cIdP .and. field->idkonto == cIdK .and. field->d_p == cDp
+			delete
+		endif
+		skip
+	enddo
+	lSumirano := .t.
+else
+	lAsist := .f.
+	return 0
+endif
+
+if lSumirano
+//	SrediRbr()
+endif
+
+
+return nSuma
+*}
+
 
 /*! \fn KonsultOS()
  *  \brief Sredjivanje otvorenih stavki pri knjizenju, poziv na polju strane valute<a+O>
@@ -142,18 +180,33 @@ local nNaz:=1
 local nRec:=RECNO()
 
 if !IzvrsenIn(,,"OASIST", .t. )
-  MsgBeep("Ovaj modul nije registrovan za koristenje !")
-  return
+	MsgBeep("Ovaj modul nije registrovan za koristenje !")
+  	return
 endif
 
 if readvar()<>"_IZNOSDEM"
-  MsgBeep("Morate se pozicionirati na polje strane valute !")
-  return
+  	MsgBeep("Morate se pozicionirati na polje strane valute !")
+  	return
 endif
+
+lAsist := .t.
+lSumirano := .f.
+nZbir := 0
+nZbir := ProvDuplePartnere(_idpartner, _idkonto, _d_p, @lAsist, @lSumirano)
+
+if nZbir>0 .and. !lAsist
+	MsgBeep("Na dokumentu postoje dvije ili vise uplata#za istog kupca. Asistent onemogucen!")
+	return (NIL)
+endif
+
 
 cIdFirma:=gFirma
 cIdPartner:=_idpartner
-nIznos:=_iznosbhd
+if (nZbir <> 0)
+	nIznos:=_iznosbhd + nZbir
+else
+	nIznos:=_iznosbhd
+endif
 cDugPot:=_d_p
 cOpis:=_Opis
 
@@ -180,15 +233,6 @@ ENDIF
 
 select SUBAN
 set order to 1 // IdFirma+IdKonto+IdPartner+dtos(DatDok)+BrNal+RBr
-
-//GO TOP
-//COUNT TO nPomBS FOR cIdfirma+cIdkonto+cIdpartner == Idfirma+Idkonto+Idpartner .and. otvst != "9"
-
-//IF nPomBS==0
-//  Msg("Nema otvorenih stavki!",4)
-//  SELECT (F_PRIPR); GO (nRec)
-//  RETURN (NIL)
-//ENDIF
 
 GO TOP
 
@@ -433,9 +477,29 @@ select (F_PRIPR)
 if !fgenerisano
    go nRec
 endif
+
 RETURN (NIL)
 *}
 
+
+function SrediRbr()
+*{
+if Pitanje(,"Srediti redne brojeve?","D")=="N"
+	return
+endif
+select pripr
+go top
+i:=1
+do while !EOF()
+	Scatter()
+	_rbr := STR(i,4)
+	Gather()
+	++i
+	skip
+enddo
+
+return
+*}
 
 
 /*! \fn EdKonsROS()

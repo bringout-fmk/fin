@@ -36,6 +36,9 @@ endif
 // pokreni undo opciju
 OStRunUndo(dDatOd, dDatDo, cPartn, cKonto, cDp, cVNal)
 
+if Pitanje(,"Pokrenuti opciju automatskog zatvaranja stavki?","D")=="D"
+	AutoZat(.t., cKonto, cPartn)
+endif
 
 return
 *}
@@ -163,9 +166,16 @@ return
 *}
 
 
+/*! \fn OStAfterAzur(cIdPart, cIdKonto, cDp)
+ *  \brief Pokrece asistenta otvorenih stavki poslije azuriranja naloga
+ */
+function OStAfterAzur(aPartList, cIdPart, cIdKonto, cDp)
+*{
 
 
 
 
+return
+*}
 
 

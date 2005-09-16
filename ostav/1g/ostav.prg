@@ -317,8 +317,7 @@ RETURN
 /*! \fn AutoZat() 
  *  \brief Zatvaranje stavki automatski
  */
- 
-function AutoZat()
+function AutoZat(lAuto, cKto, cPtn)
 *{
 cSecur:=SecurR(KLevel,"OSTAVKE")
 if ImaSlovo("X",cSecur)
@@ -331,6 +330,16 @@ if ImaSlovo("D",cSecur)
    return
 endif
 
+if lAuto == nil
+	lAuto := .f.
+endif
+if cPtn == nil
+	cPtn := ""
+endif
+if cKto == nil
+	cKto := ""
+endif
+
 if Logirati(goModul:oDataBase:cName,"OSTAV","AUTOZAT")
 	lLogAZat:=.t.
 else
@@ -339,12 +348,23 @@ endif
 
 cIdFirma:=gFirma
 cIdKonto:=space(7)
+cIdPart:=SPACE(6)
+
+if lAuto
+	cIdKonto:=cKto
+	cIdPart:=cPtn
+	cPobSt := "D"
+endif
+
 qqPartner:=SPACE(60)
 picD:="@Z "+FormPicL("9 "+gPicBHD,18)
 picDEM:="@Z "+FormPicL("9 "+gPicDEM,9)
 
 O_PARTN
 O_KONTO
+
+if !lAuto
+
 Box("AZST",6,65,.f.)
 set cursor on
 
@@ -357,6 +377,7 @@ set cursor on
   @ m_x+3,m_y+2 SAY "Firma: " GET cIdFirma valid {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
  endif
  @ m_x+4,m_y+2 SAY "Konto: " GET cIdKonto  valid P_KontoFin(@cIdKonto)
+ @ m_x+5,m_y+2 SAY "Partner (prazno-svi): " GET cIdPart  valid P_Firma(@cIdPart)
  @ m_x+6,m_y+2 SAY "Pobrisati stare markere zatv.stavki: " GET cPobSt pict "@!" valid cPobSt $ "DN"
 
 
@@ -365,6 +386,7 @@ set cursor on
 
 BoxC()
 
+endif
 cIdFirma:=left(cIdFirma,2)
 
 O_SUBAN
@@ -377,8 +399,12 @@ EOF CRET
 if cPobSt=="D" .and. Pitanje(,"Zelite li zaista pobrisati markere ??","N")=="D"
 	MsgO("Brisem markere ...")
 	DO WHILESC !eof() .AND. idfirma==cidfirma .and. cIdKonto=IdKonto // konto
-
-   // partner, brdok
+	    if !Empty(cIdPart)
+	    	if (cIdPart <> idpartner)
+			skip
+			loop
+		endif
+	    endif
             REPLACE OtvSt WITH " "
             SKIP
 	ENDDO
@@ -394,6 +420,12 @@ seek cidfirma+cidkonto
 EOF CRET
 DO WHILESC !eof() .AND. idfirma==cidfirma .and. cIdKonto=IdKonto // konto
 
+   if !Empty(cIdPart)
+   	if (cIdPart <> idpartner)
+		skip
+		loop
+	endif
+   endif
    cIdPartner=IdPartner; cBrDok=BrDok
    cOtvSt:=" "
    nDugBHD:=nPotBHD:=0

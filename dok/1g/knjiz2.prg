@@ -130,12 +130,19 @@ LOCAL nRec:=0
 RETURN (NIL)
 *}
 
+
+
 function ProvDuplePartnere(cIdP, cIdK, cDp, lAsist, lSumirano)
 *{
 select pripr
 go top
 nCnt := 0
 nSuma := 0
+if fNovi
+	nTot := 0
+else
+	nTot := 1
+endif
 altd()
 
 do while !EOF()
@@ -146,7 +153,7 @@ do while !EOF()
 	skip
 enddo
 
-if nCnt>0 .and. Pitanje(,"Spojiti duple uplate za partnera?","D")=="D"
+if (nCnt > nTot) .and. Pitanje(,"Spojiti duple uplate za partnera?","D")=="D"
 	go top
 	do while !EOF()
 		if field->idpartner == cIdP .and. field->idkonto == cIdK .and. field->d_p == cDp
@@ -157,13 +164,8 @@ if nCnt>0 .and. Pitanje(,"Spojiti duple uplate za partnera?","D")=="D"
 	lSumirano := .t.
 else
 	lAsist := .f.
-	return 0
+	return nSuma
 endif
-
-if lSumirano
-//	SrediRbr()
-endif
-
 
 return nSuma
 *}
@@ -203,7 +205,11 @@ endif
 cIdFirma:=gFirma
 cIdPartner:=_idpartner
 if (nZbir <> 0)
-	nIznos:=_iznosbhd + nZbir
+	if fNovi	
+		nIznos:=_iznosbhd + nZbir
+	else
+		nIznos:=nZbir
+	endif
 else
 	nIznos:=_iznosbhd
 endif
@@ -331,12 +337,6 @@ DO WHILE !EOF() .and. idfirma==cidfirma .AND. cIdKonto==IdKonto .and. cIdPartner
           replace datzpr with aFaktura[3]
           replace brdok with cbrdok
           
-	  //if iznosbhd>0
-             // replace d_p with "1"
-          //else
-	     // replace d_p with "2", iznosbhd with -iznosbhd
-          // endif
-          
 	  if (cDugPot == "2")
 	  	replace d_p with "1"
 	  else
@@ -368,7 +368,6 @@ set cursor on
 @ m_x+14,m_y+1 SAY '<F10>   Asistent'
 @ m_x+15,m_y+1 SAY ""; ?? "  IZNOS Koji zatvaramo: "+IF(cDugPot=="1","duguje","potrazuje")+" "+ALLTRIM(STR(nIznos))
 
-
 private cPomBrDok:=SPACE(10)
 
 select ostav
@@ -394,9 +393,10 @@ do while !eof()
 enddo
 
 fGenerisano:=.f.
-IF  fm3 .and. Pitanje("","Izgenerisati stavke u nalogu za knjizenje ?","D")=="D"  // napraviti stavke?
+IF fm3 .and. Pitanje("","Izgenerisati stavke u nalogu za knjizenje ?","D")=="D"  // napraviti stavke?
 
-  SELECT (F_OSTAV); go top
+  SELECT (F_OSTAV)
+  go top
 
   select ostav
 
@@ -407,7 +407,15 @@ IF  fm3 .and. Pitanje("","Izgenerisati stavke u nalogu za knjizenje ?","D")=="D"
       if fgenerisano
          APPEND BLANK
       else
-        if !fnovi; go nRec; else; append blank; endif
+        if !fnovi
+		if lSumirano
+			append blank
+		else
+			go nRec
+		endif
+ 	else
+		append blank
+	endif
         // prvi put
         fGenerisano:=.t.
       endif
@@ -482,11 +490,23 @@ RETURN (NIL)
 *}
 
 
-function SrediRbr()
+function SrediRbr(lSilent)
 *{
-if Pitanje(,"Srediti redne brojeve?","D")=="N"
-	return
+local nArr
+
+if (lSilent == nil)
+	lSilent := .f.
 endif
+
+if !lSilent
+	if Pitanje(,"Srediti redne brojeve?","D")=="N"
+		return
+	endif
+endif
+
+nArr:=SELECT()
+nRec:=RecNo()
+
 select pripr
 go top
 i:=1
@@ -497,6 +517,10 @@ do while !EOF()
 	++i
 	skip
 enddo
+go top
+
+select (nArr)
+go nRec
 
 return
 *}

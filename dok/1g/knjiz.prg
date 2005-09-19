@@ -772,7 +772,8 @@ case Ch==K_ALT_F5
            @ m_x+19,m_y+35 SAY nPot PICTURE '9 999 999 999.99'
            @ m_x+19,m_y+56 SAY nDug-nPot PICTURE '9 999 999 999.99'
            inkey(10)
-           select PRIPR
+	   select PRIPR
+	   //SrediRbr(.t.)
            APPEND BLANK
            Gather()
            if lLogKnjiz

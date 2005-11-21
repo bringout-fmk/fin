@@ -649,8 +649,6 @@ if (nArea==-1 .or. nArea==(F_PSUBAN))
 	
 	CREATE_INDEX("1","IdFirma+IdVn+BrNal",PRIVPATH+"PSUBAN")
 	CREATE_INDEX("2","idFirma+IdVN+BrNal+IdKonto",PRIVPATH+"PSUBAN")
-	CREATE_INDEX("1","idFirma+IdVN+BrNal+Rbr",PRIVPATH+"PRIPR")
-	CREATE_INDEX("2","idFirma+IdVN+BrNal+IdKonto",PRIVPATH+"PRIPR")
 endif
 
 
@@ -660,6 +658,9 @@ if (nArea==-1 .or. nArea==(F_PRIPR))
 	if !FILE(PRIVPATH+"PRIPR.DBF")
         	DBcreate2(PRIVPATH+"PRIPR.DBF",aDbf)
 	endif
+
+	CREATE_INDEX("1","idFirma+IdVN+BrNal+Rbr",PRIVPATH+"PRIPR")
+	CREATE_INDEX("2","idFirma+IdVN+BrNal+IdKonto",PRIVPATH+"PRIPR")
 endif
 
 
@@ -764,8 +765,6 @@ endif
 if (nArea==-1 .or. nArea==(F_IOS))
 	//IOS.DBF
 
-	cImeDbf:=DbfName(F_IOS,.t.)
-        
 	aDbf:={}
         AADD(aDBf,{ "IDFIRMA"             , "C" ,   2 ,  0 })
         AADD(aDBf,{ "IDKONTO"             , "C" ,   7 ,  0 })
@@ -773,8 +772,8 @@ if (nArea==-1 .or. nArea==(F_IOS))
         AADD(aDBf,{ "IZNOSBHD"            , "N" ,  17 ,  2 })
         AADD(aDBf,{ "IZNOSDEM"            , "N" ,  15 ,  2 })
 	
-	if !FILE(cImeDBF)        
-        	DBcreate2(cImeDBF,aDbf)
+	if !FILE(PRIVPATH+"IOS.DBF")        
+        	DBcreate2(PRIVPATH+"IOS",aDbf)
 	endif
 
 	CREATE_INDEX("1","IdFirma+IdKonto+IdPartner",PRIVPATH+"IOS") // IOS

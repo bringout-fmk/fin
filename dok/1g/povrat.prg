@@ -367,7 +367,9 @@ cIDVN:="88"
 cBrNal:="0001"
 dDatDok:=date()
 cRascl:="D"
-lRJRascl:=.f.
+private lRJRascl:=.f.
+
+altd()
 
 do while .t.
 	@ m_x+1,m_y+6 SAY "PREKNJIZENJE SUBANALITICKIH KONTA"
@@ -417,20 +419,22 @@ do while .t.
  
  	aUsl1:=Parsiraj(qqKonto,"IdKonto")
  	aUsl2:=Parsiraj(qqPartner,"IdPartner")
+	if gRJ=="D" 
+		if cRascl=="D"
+			lRJRascl := .t.
+		endif
+	endif
 	if gRJ=="D"
  		aUsl3:=Parsiraj(qqIdRj,"IdRj")
 	endif
 	if aUsl1<>NIL .and. aUsl2<>NIL
 		exit
 	endif
+	
 	if gRJ=="D" .and. aUsl3<>NIL
 		exit
 	endif
-	if gRJ=="D" 
-		if cRascl=="D"
-			lRJRascl := .t.
-		endif
-	endif
+	
 enddo
 BoxC()
 
@@ -506,6 +510,7 @@ do whileSC !eof()
  	nKp:=0
  	nKd2:=0
  	nKp2:=0
+	altd()
  	do whileSC !eof() .and.  cSin==LEFT(idkonto, 3)
      		cIdKonto:=IdKonto
      		cIdPartner:=IdPartner

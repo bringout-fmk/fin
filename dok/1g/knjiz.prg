@@ -403,7 +403,7 @@ if cDatVal=="D"
 	@  m_x+8,col()+2 SAY "Valuta" GET _DatVal
 endif
 
-@  m_x+11,m_y+2  SAY "Opis :"   get  _Opis  WHEN {|| USTipke(),.t.} VALID {|| BosTipke(),.t.} PICT "@S40"
+@ m_x+11, m_y+2  SAY "Opis :" GET _Opis WHEN {|| USTipke(),.t.} VALID {|| BosTipke(),.t.} PICT "@S20"
 
 if fk1=="D"
 	@  m_x+11,col()+2 SAY "K1" GET _k1 pict "@!" 

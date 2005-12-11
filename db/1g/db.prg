@@ -103,7 +103,7 @@ else
 	lLogAzur:=.f.
 endif
 
-if lAuto==NIL
+if (lAuto==NIL)
 	lAuto:=.f.
 endif
 
@@ -140,12 +140,14 @@ if !fAzur
 endif
 
 if lLogAzur
-	EventLog(nUser,goModul:oDataBase:cName,"DOK","AZUR",nil,nil,nil,nil,"","",pripr->idfirma+"-"+pripr->idvn+"-"+pripr->brnal,Date(),Date(),"","Azuriranje dokumenta - poceo !")
+	EventLog(nUser, goModul:oDataBase:cName, "DOK", "AZUR", nil, nil, nil, nil, "", "", pripr->idfirma+"-"+pripr->idvn+"-"+pripr->brnal, Date(), Date(), "", "Azuriranje dokumenta - poceo !")
 
 endif
 
 Box(,5,60)
-select PSUBAN; set order to 1; go top
+select PSUBAN
+set order to 1
+go top
 
 fIzgenerisi:=.f.
 if reccount2()>9999 .and. !lAuto
@@ -168,6 +170,7 @@ IF "." $ cNal
   ENDDO
   LOOP
 ENDIF
+
 @ m_x+1,m_y+2 SAY "Azuriram nalog: "+IdFirma+"-"+idvn+"-"+brnal
 nSaldo:=0
 
@@ -338,9 +341,8 @@ if round(nSaldo,4)==0  .or. gRavnot=="N"
   enddo
 
 if lLogAzur
-	EventLog(nUser,goModul:oDataBase:cName,"DOK","AZUR",nSaldo,nil,nil,nil,"","",cEvIdFirma+cEvVrBrNal,dDatNaloga,dDatValute,"","Azuriranje dokumenta - zavrsio !!!")
+	EventLog(nUser, goModul:oDataBase:cName, "DOK", "AZUR", nSaldo, nil, nil, nil, "", "", cEvIdFirma+cEvVrBrNal, dDatNaloga, dDatValute, "", "Azuriranje dokumenta - zavrsio !!!")
 endif
-
 
 
   // nalog je uravnotezen, moze se izbrisati iz PRIPR
@@ -364,12 +366,17 @@ enddo
 BoxC()
 
 
-select PRIPR; __dbpack()
+select PRIPR
+__dbpack()
 
-select PSUBAN; zap
-select PANAL; zap
-select PSINT; zap
-select PNALOG; zap
+select PSUBAN
+zap
+select PANAL
+zap
+select PSINT
+zap
+select PNALOG
+zap
 
 closeret
 return

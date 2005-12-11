@@ -305,11 +305,6 @@ endif
 AADD(opc, "------------------------------------")
 AADD(opcexe, {|| nil})
 
-if IsTigra()
-	//AADD(opc, "T. generacija stanja partnera")
-	//AADD(opcexe, {|| GeneracijaStPartnera()})
-endif
-
 AADD(opc, "X. parametri")
 if (ImaPravoPristupa(goModul:oDataBase:cName,"PARAM","PARAMETRI"))
 	AADD(opcexe, {|| Pars()})

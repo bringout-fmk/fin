@@ -4,20 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/rpt/1g/bilans.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: bilans.prg,v $
- * Revision 1.4  2004/01/13 19:07:56  sasavranic
- * appsrv konverzija
- *
- * Revision 1.3  2003/01/27 00:43:52  mirsad
- * ispravke BUG-ova
- *
- * Revision 1.2  2002/06/20 11:31:07  sasa
- * no message
- *
- *
  */
  
 
@@ -99,9 +85,6 @@ DO WHILE .T.
    ENDCASE
 ENDDO
 
-#ifndef CAX
-closeret
-#endif
 
 return
 *}
@@ -176,13 +159,10 @@ ENDIF
 
 O_SUBAN
 O_KONTO
-#ifndef CAX
 O_BBKLAS
-#endif
 
-#ifndef CAX
-select BBKLAS; ZAP
-#endif
+select BBKLAS
+ZAP
 
 private cFilter:=""
 
@@ -196,30 +176,12 @@ if aUsl1<>".t."
  cFilter+=iif(empty(cFilter),"",".and.")+ aUsl1
 endif
 if !(empty(dDatOd) .and. empty(dDatDo))
-#ifdef CAX
- cFilter+=iif(empty(cFilter),"",".and.")+"Datdok>="+aofVarToString(dDatOd)+".and.DatDok<="+aofVarToString(dDatDo)
-#else
  cFilter+=iif(empty(cFilter),"",".and.")+"DATDOK>=CTOD('"+dtoc(dDatOd)+"') .and. DATDOK<=CTOD('"+dtoc(dDatDo)+"')"
-#endif
 endif
 
 if !empty(cFilter) .and. LEN(cIdFirma)==2
-#ifdef CAX
-  //aofSetFilter(cFilter)
-  AX_SetServerAOF(cFilter,.f.)
-
-#else
   set filter to &cFilter
-#endif
 endif
-
-#ifdef PROBA
-  @ 20,1 SAY cFilter
-#ifdef CAX
-  msg("Opt level je :"+str(AX_GetAOFoptlevel(),2))
-#endif
-  altd()
-#endif
 
 if LEN(cIdFirma)<2
   SELECT SUBAN
@@ -399,7 +361,6 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
   ENDDO  // klasa konto
 
-#ifndef CAX
    SELECT BBKLAS
    APPEND BLANK
    REPLACE IdKlasa WITH cKlKonto,;
@@ -411,7 +372,6 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
            KumPPot WITH P3KP,;
            SalPDug WITH D3S,;
            SalPPot WITH P3S
-#endif
    SELECT SUBAN
    IF cPodKlas=="D"
     ? th5
@@ -432,7 +392,10 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
 ENDDO
 
-IF prow()>59+gpStranica;FF;ZaglSan();ENDIF
+IF prow()>59+gpStranica
+  FF
+  ZaglSan()
+ENDIF
 
 ? th5
 @ prow()+1,6 SAY "UKUPNO:"
@@ -450,7 +413,6 @@ ENDIF
 
 if prow()>55+gpStranica; FF; ELSE; ?;?; endif
 
-#ifndef CAX
 ?? "REKAPITULACIJA PO KLASAMA NA DAN:"; @ PROW(),PCOL()+2 SAY DATE()
 ? M6
 ? M7
@@ -497,7 +459,6 @@ if prow()>59+gpStranica; FF; endif
 @ prow(),PCOL()+1 SAY  nSalPDug   PICTURE PicD
 @ prow(),PCOL()+1 SAY  nSalPPot   PICTURE PicD
 ? M10
-#endif
 
 FF
 
@@ -858,9 +819,7 @@ FF
 
 END PRINT
 
-#ifndef CAX
 closeret
-#endif
 return
 *}
 
@@ -1227,9 +1186,7 @@ endif
 FF
 
 END PRINT
-#ifndef CAX
 closeret
-#endif
 return
 *}
 
@@ -1545,9 +1502,7 @@ ENDDO
 FF
 
 END PRINT
-#ifndef CAX
 closeret
-#endif
 return
 *}
 

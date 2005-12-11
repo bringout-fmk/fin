@@ -4,38 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/db/1g/db.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.9 $
- * $Log: db.prg,v $
- * Revision 1.9  2004/01/13 19:07:54  sasavranic
- * appsrv konverzija
- *
- * Revision 1.8  2002/11/17 13:06:59  sasa
- * no message
- *
- * Revision 1.7  2002/11/17 11:01:33  sasa
- * no message
- *
- * Revision 1.6  2002/11/16 23:23:25  sasa
- * korekcija koda
- *
- * Revision 1.5  2002/08/05 11:03:58  ernad
- *
- *
- * Fin/SQLLog funkcije, debug bug RJ/KUMPATH
- *
- * Revision 1.4  2002/07/30 17:40:59  ernad
- * SqlLog funkcije - Fin modul
- *
- * Revision 1.3  2002/06/19 12:11:35  sasa
- * no message
- *
- * Revision 1.2  2002/06/17 11:05:39  ernad
- *
- *
- * gaDBFs ... treci clan: KUMPATH -> P_KUMPATH
- *
  *
  */
 
@@ -64,8 +32,6 @@ use
 return NIL
 *}
 
-
-#ifdef C52
 
 
 /*! \fn OKumul(nArea,cStaza,cIme,nIndexa,cDefault)
@@ -118,67 +84,6 @@ use  (cPath)
 return NIL
 *}
 
-#else
-
-
-/*! \fn OKumul(nArea,cStaza,cIme,nIndexa,cDefault)
- *  \brief Kopira podatke sa mreze radi brzine pregleda dokumenata, sluzi samo za pregled, specificna za AX verziju programa
- *  \param nArea    - podrucje
- *  \param cStaza  
- *  \param cIme 
- *  \param nIndexa
- *  \param cDefault
- */
-
-function OKumul(nArea,cStaza,cIme,nIndexa,cDefault)
-*{
-//CAX verzija
-local cPath,cScreen
-
-if cDefault==NIL
-  cDefault:="0"
-endif
-
-select (nArea)
-
-if used()
-	return
-endif
-// CAX - samo jednom otvori
-
-if gKesiraj $ "CD"
-  cPath:=strtran(cStaza,LEFT(cStaza,3),gKesiraj+":\")
-
-  DirMak2(cPath)  // napravi odrediçni direktorij
-
-  if cDefault!="0"
-    if !file( cPath+cIme+".DBF") .or. Pitanje(,"Osvjeziti podatke za "+cIme, cDefault )=="D"
-     save screen to cScr
-     cls
-     ? "Molim sacekajte prenos podataka na vas racunar "
-     ? "radi brzeg pregleda podataka"
-     ?
-     ? "Ovaj racunar NE KORISTITE za unos novih podataka !"
-     ?
-     close all
-     Copysve(cIme+"*.DB?",cStaza,cPath)
-     Copysve(cIme+"*.CDX",cStaza,cPath)
-     ?
-     ? "pritisni nesto za nastavak ..."
-     inkey(10)
-     restore screen from cScr
-   endif
-  endif
-
-else
-  cPath:=cStaza
-endif
-cPath:=cPath+cIme
-use  (cPath)
-return NIL
-*}
-
-#endif
 
 
 
@@ -249,47 +154,6 @@ if reccount2()>9999 .and. !lAuto
   endif
 endif
 
-#ifdef CAX
-
-
-// kod AX-a mora ovo biti odradjeno prije transakcije
-if !( SUBAN->(flock()) .and. ANAL->(flock()) .and.  SINT->(flock()) .and.  NALOG->(flock())  )
-  Beep(4)
-  BoxC()
-  Msg("Azuriranje NE moze vrsiti vise korisnika istovremeno !")
-  select suban
-  dbunlockall()
-  select anal
-  dbunlockall()
-  select sint
-  dbunlockall()
-  select nalog
-  dbunlockall()
-  closeret
-endif
-
-
-#xcommand sc_BEGIN TRANSACTION           ;
-     =>  if reccount()<=501 ; dbCommitAll(); Ax_Transaction( 1 ) ; endif
-
-
-#xcommand sc_COMMIT TRANSACTION         ;
-      => if AX_Transaction()          ;
-       ;  dbCommitAll()                 ;
-       ;  AX_Transaction( 2 )           ;
-       ; end
-
-#xcommand sc_ROLLBACK TRANSACTION       ;
-      => if AX_Transaction()         ;
-       ;  dbCommitAll()                ;
-       ;  AX_Transaction( 3 )           ;
-       ; end
-
-bErrHan:=ERRORBLOCK({|oError| TPSErrHandler(oError)})
-BEGIN SEQUENCE
-sc_BEGIN TRANSACTION
-
-#endif
 
 do while !eof()
 // prodji kroz PSUBAN i vidi da li je nalog zatvoren
@@ -325,11 +189,6 @@ do while !eof() .and. cNal==IdFirma+IdVn+BrNal
           PreuzSezSPK("P")
         ELSE
           Boxc()
-#ifdef CAX
-          MsgBeep("Prekidam transakciju  -1 ?!")
-          sc_ROLLBACK TRANSACTION
-          BREAK
-#else
           select PSUBAN
 	  zapp()
           select PANAL
@@ -337,7 +196,6 @@ do while !eof() .and. cNal==IdFirma+IdVn+BrNal
           select PSINT
 	  zapp()
           closeret
-#endif
         ENDIF
       endif
     endif
@@ -350,16 +208,13 @@ do while !eof() .and. cNal==IdFirma+IdVn+BrNal
           PreuzSezSPK("K")
         ELSE
           Boxc()
-#ifdef CAX
-          MsgBeep("Prekidam transakciju -2 ?!")
-          sc_ROLLBACK TRANSACTION
-          BREAK
-#else
-          select PSUBAN; zapp()
-          select PANAL; zapp()
-          select PSINT; zapp()
+          select PSUBAN
+          zapp()
+          select PANAL
+          zapp()
+          select PSINT
+          zapp()
           closeret
-#endif
         ENDIF
       endif
     endif
@@ -381,30 +236,13 @@ endif
 // nalog je uravnotezen, azuriraj ga !
 if round(nSaldo,4)==0  .or. gRavnot=="N" 
 
-#ifndef CAX
-  // kod AX-a mora ovo biti odradjeno prije transakcije
-  if !( SUBAN->(flock()) .and. ANAL->(flock()) .and.  SINT->(flock()) .and.  NALOG->(flock())  )
-    Beep(4)
-    BoxC()
-    Msg("Azuriranje NE moze vrsiti vise korisnika istovremeno !")
-    closeret
-  endif
-#endif
-
-
   @ m_x+3,m_y+2 SAY "NALOZI         "
   select  SUBAN; SET ORDER TO 4  //"4","idFirma+IdVN+BrNal+Rbr"
   seek cNal
   if found()
   	BoxC()
   	Msg("Vec postoji u suban ? "+IdFirma+"-"+IdVn+"-"+BrNal+ "  !")
-#ifdef CAX
-  	MsgBeep("Prekidam transakciju ?! -4 ")
- 	sc_ROLLBACK TRANSACTION
-  	BREAK
-#ELSE
   	closeret
-#ENDIF
   endif
 
 
@@ -413,13 +251,7 @@ if round(nSaldo,4)==0  .or. gRavnot=="N"
   if found()
   	BoxC()
 	Msg("Vec postoji proknjizen nalog "+IdFirma+"-"+IdVn+"-"+BrNal+ "  !")
-#ifdef CAX
-  MsgBeep("Prekidam transakciju ?! -5 ")
-  sc_ROLLBACK TRANSACTION
-  BREAK
-#ELSE
-  closeret
-#ENDIF
+        closeret
   endif // found()
 
   select PNALOG
@@ -532,20 +364,6 @@ enddo
 BoxC()
 
 
-#IFDEF CAX
-sc_COMMIT TRANSACTION
-
-select suban; dbunlockall()
-select anal; dbunlockall()
-select sint; dbunlockall()
-select nalog; dbunlockall()
-
-RECOVER USING oError
-END SEQUENCE
-ERRORBLOCK(bErrHan)
-#ENDIF
-
-
 select PRIPR; __dbpack()
 
 select PSUBAN; zap
@@ -557,24 +375,6 @@ closeret
 return
 *}
 
-
-#ifdef CAX
-
-/*! \fn TpsErrHandler(oError)
- *  \brief
- *  \param oError
- */
- 
-function TpsErrHandler(oError)
-*{
-MsgBeep("Prekidam transakciju - TPS ERR HND ???")
-sc_ROLLBACK TRANSACTION
-BoxC()
-BREAK oError
-return
-*}
-
-#endif
 
 
 /*! \fn Dupli(cIdFirma,cIdVn,cBrNal)

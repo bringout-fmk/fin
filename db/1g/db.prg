@@ -127,11 +127,17 @@ O_PNALOG
 
 fAzur:=.t.
 select PSUBAN
-if reccount2()==0; fAzur:=.f.; endif
+if reccount2()==0
+  fAzur:=.f.
+endif
 select PANAL
-if reccount2()==0; fAzur:=.f.; endif
+if reccount2()==0
+  fAzur:=.f.
+endif
 select PSINT
-if reccount2()==0; fAzur:=.f.; endif
+if reccount2()==0
+  fAzur:=.f.
+endif
 
 if !fAzur
   Beep(3)
@@ -203,7 +209,8 @@ do while !eof() .and. cNal==IdFirma+IdVn+BrNal
       endif
     endif
     if !empty(psuban->idkonto)
-      select konto; hseek psuban->idkonto
+      select konto
+      hseek psuban->idkonto
       if !found() .and. !fizgenerisi
         Beep(1)
         Msg("Stavka br."+psuban->rbr+": Nepostojeca sifra konta!")
@@ -238,6 +245,14 @@ endif
 
 // nalog je uravnotezen, azuriraj ga !
 if round(nSaldo,4)==0  .or. gRavnot=="N" 
+
+if !( SUBAN->(flock()) .and. ANAL->(flock()) .and.  SINT->(flock()) .and.  NALOG->(flock())  ) 
+ 	    Beep(4) 
+ 	    BoxC() 
+ 	    Msg("Azuriranje NE moze vrsiti vise korisnika istovremeno !") 
+ 	    closeret 
+endif 
+
 
   @ m_x+3,m_y+2 SAY "NALOZI         "
   select  SUBAN; SET ORDER TO 4  //"4","idFirma+IdVN+BrNal+Rbr"
@@ -288,7 +303,8 @@ if round(nSaldo,4)==0  .or. gRavnot=="N"
   enddo
 
   @ m_x+3,m_y+2 SAY "SINTETIKA       "
-  select PSINT; seek cNal
+  select PSINT
+  seek cNal
   do while !eof() .and. cNal==IdFirma+IdVn+BrNal
     Scatter()
     select SINT

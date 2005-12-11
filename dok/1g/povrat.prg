@@ -4,26 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/dok/1g/povrat.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: povrat.prg,v $
- * Revision 1.6  2004/05/06 09:10:35  sasavranic
- * no message
- *
- * Revision 1.5  2004/05/04 14:35:05  sasavranic
- * Na opciji preknjizenja dodao uslov za RJ, ako je gRJ="D"
- *
- * Revision 1.4  2004/03/26 10:13:50  mersedahmetbegovic
- * u opciji preknjizenje dodata mogucnosti i po saldu T
- *
- * Revision 1.3  2002/11/17 13:07:38  sasa
- * no message
- *
- * Revision 1.2  2002/06/19 13:46:23  sasa
- * no message
- *
- *
  */
 
 /*! \file fmk/fin/dok/1g/povrat.prg
@@ -39,7 +19,9 @@ function Povrat(lStorno)
 *{
 local nRec
 
-if lStorno==NIL; lStorno:=.f.; endif
+if lStorno==NIL 
+  lStorno:=.f.
+endif
 
 cSecur:=SecurR(KLevel,"Povrat")
 if ImaSlovo("X",cSecur)
@@ -52,7 +34,7 @@ if ImaSlovo("D",cSecur)
    closeret
 endif
 
-if Logirati(goModul:oDataBase:cName,"DOK","POVRAT")
+if Logirati(goModul:oDataBase:cName, "DOK", "POVRAT" )
 	lLogPovrat:=.t.
 else
 	lLogPovrat:=.f.
@@ -64,8 +46,11 @@ O_ANAL
 O_SINT
 O_NALOG
 
-SELECT SUBAN; set order to 4
-cIdFirma:=cIdFirma2:=gFirma
+SELECT SUBAN
+set order to 4
+
+cIdFirma:=gFirma
+cIdFirma2:=gFirma
 cIdVN:=cIdVN2:=space(2)
 cBrNal:=cBrNal2:=space(4)
 
@@ -138,8 +123,12 @@ if cBrNal="."
       endif
       append ncnl;  Gather2()
       select suban
-      skip; nRec:=recno(); skip -1
+      skip
+      nRec:=recno()
+      skip -1
+
       if !lStorno; dbdelete2(); endif
+
       go nRec
     enddo
     MsgC()
@@ -295,7 +284,7 @@ use
 MsgC()
 
 if lLogPovrat
-	EventLog(nUser,goModul:oDataBase:cName,"DOK","POVRAT",nil,nil,nil,nil,"","",cIdFirma+"-"+cIdVn+"-"+cBrNal,Date(),Date(),"","Povrat naloga u pripremu")
+	EventLog(nUser, goModul:oDataBase:cName, "DOK", "POVRAT", nil, nil, nil, nil, "", "", cIdFirma+"-"+cIdVn+"-"+cBrNal, Date(), Date(), "", "Povrat naloga u pripremu")
 endif
 
 closeret

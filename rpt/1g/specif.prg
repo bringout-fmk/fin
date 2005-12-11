@@ -4,50 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/rpt/1g/specif.prg,v $
- * $Author: ahmedvila $ 
- * $Revision: 1.13 $
- * $Log: specif.prg,v $
- * Revision 1.13  2004/04/29 13:16:32  ahmedvila
- * Na izvjestaj "Otvorene stavke preko/do odredjenog broja dana" uveo novi uslov za broj veze
- *
- * Revision 1.12  2004/03/15 13:49:50  sasavranic
- * no message
- *
- * Revision 1.11  2004/03/11 16:44:48  sasavranic
- * no message
- *
- * Revision 1.10  2004/03/02 18:37:27  sasavranic
- * no message
- *
- * Revision 1.9  2004/02/16 14:12:00  sasavranic
- * Na specifikaciji po suban kontima napravio rasclanjenje po RJ FUNK FOND
- *
- * Revision 1.8  2004/02/12 12:10:36  sasavranic
- * Opcina Budzet - na specifikaciji po suban kontima dodao rasclaniti po RJ/FUNK/FOND
- *
- * Revision 1.7  2004/01/13 19:07:57  sasavranic
- * appsrv konverzija
- *
- * Revision 1.6  2003/12/12 12:09:06  sasavranic
- * izbacena stara funkcija specif()
- *
- * Revision 1.5  2003/12/06 10:00:19  sasavranic
- * dodat uslov po opcini
- *
- * Revision 1.4  2003/05/16 15:28:03  mirsad
- * Izvj-specif-"Pregled novih dug/pot" moze se dobiti sa partnerima sortiranim
- * po nazivu, a mogu se i izdvojiti po uslovu za mjesto partnera;
- * pri racunanju kolone "sadasnje stanje" mijesao iznose domace i pomocne
- * valute u varijanti prikaza iznosa u domacoj valuti
- *
- * Revision 1.3  2002/06/21 07:35:40  sasa
- * no message
- *
- * Revision 1.2  2002/06/20 14:14:17  sasa
- * no message
- *
- *
  */
 
 
@@ -2856,20 +2812,11 @@ dNaDan:=DATE()
 cOpcine:=SPACE(20)
 cValuta:="1"
 
-// Default rocni intervali za user Tigra
-if IsTigra()
-	cSaRokom:="D"
-	nDoDana1 :=  4
-	nDoDana2 :=  8
-	nDoDana3 := 16
-	nDoDana4 := 20
-else
-	cSaRokom:="N"
-	nDoDana1 :=  8
-	nDoDana2 := 15
-	nDoDana3 := 30
-	nDoDana4 := 60
-endif
+cSaRokom:="N"
+nDoDana1 :=  8
+nDoDana2 := 15
+nDoDana3 := 30
+nDoDana4 := 60
 
 PICPIC:="999999.99"
 
@@ -2901,13 +2848,6 @@ endif
 read
 ESC_BCR
 Boxc()
-
-if IsTigra()
-	private lGenPartnSt
-	private nSldMinIzn
-	private cPosId := ""
-	GenPartnSt(@lGenPartnSt, @nSldMinIzn, @cPosId)
-endif
 
 if "." $ cIdPartner
 	cIdPartner:=StrTran(cIdPartner,".","")
@@ -3356,7 +3296,7 @@ if !fPrviProlaz  // bilo je stavki
 			endif
 			
 			// Priprema za prenos na HH ureðaj
-			if IsTigra() .and. lGenPartnSt
+			if lGenPartnSt
 				AzurFinOstav(cPosId, cIdPartner, Ocitaj(F_PARTN, cIdPartner, "naz"), (anInterVV[1,1,1]-anInterVV[1,2,1]), (anInterVV[2,1,1]-anInterVV[2,2,1]), (anInterVV[3,1,1]-anInterVV[3,2,1]), (anInterVV[4,1,1]-anInterVV[4,2,1]), (anInterVV[5,1,1] - anInterVV[5,2,1]), nSldMinIzn)
 			endif
 

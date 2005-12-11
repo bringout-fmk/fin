@@ -3,17 +3,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/rpt/1g/rpt_dug.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.5 $
- * $Log: rpt_dug.prg,v $
- * Revision 1.5  2004/02/09 11:09:37  sasavranic
- * Ispravljen uslov za opcinu na "F. pregled dugovanja partnera"
- *
- * Revision 1.4  2004/01/13 19:07:57  sasavranic
- * appsrv konverzija
- *
- *
  */
 
 
@@ -59,18 +48,10 @@ cOpcine:=SPACE(20)
 cSaRokom:="D"
 cValuta:="1"
 
-// Default rocni intervali za user Tigra
-if IsTigra()
-	nDoDana1 :=  4
-	nDoDana2 :=  8
-	nDoDana3 := 16
-	nDoDana4 := 20
-else
-	nDoDana1 :=  8
-	nDoDana2 := 15
-	nDoDana3 := 30
-	nDoDana4 := 60
-endif
+nDoDana1 :=  8
+nDoDana2 := 15
+nDoDana3 := 30
+nDoDana4 := 60
 
 PICPIC:="9999999999.99"
 

@@ -4,20 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/gendok/1g/prenos.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: prenos.prg,v $
- * Revision 1.4  2004/01/13 19:07:55  sasavranic
- * appsrv konverzija
- *
- * Revision 1.3  2003/01/03 14:07:26  sasa
- * ispravka pocetnog stanja
- *
- * Revision 1.2  2002/06/19 13:53:25  sasa
- * no message
- *
- *
  */
  
 /*! \file fmk/fin/gendok/1g/prenos.prg
@@ -258,7 +244,7 @@ do while !eof()
              do while !eof() .and. cIdFirma==IdFirma .and. cIdKonto==IdKonto .and. IdPartner==cIdPartner ;
                       .and. BrDok==cBrDok
 
-              if EMPTY(datVal)
+              if EMPTY(dDatVal)
 
 		// konto kupaca
 		if ( LEFT(IdKonto, 1) == cKlDuguje ) .and. (d_p=="1") 

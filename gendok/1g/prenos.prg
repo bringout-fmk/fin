@@ -49,9 +49,13 @@ ENDIF
 O_PKONTO
 P_PKonto()
 
-Box(,8,60)
+cKlDuguje := "2"
+cKlPotraz := "5"
+
+Box(,11,60)
   nMjesta:=3
   ddatDo:=date()
+  
   @ m_x+1,m_y+2 SAY "Navedite koje grupacije konta se isto ponasaju:"
   @ m_x+3,m_y+2 SAY "Grupisem konte na (broj mjesta)" GET nMjesta pict "9"
   @ m_x+5,m_y+2 SAY "Datum do kojeg se promet prenosi" GET dDatDo
@@ -61,7 +65,12 @@ if fk2=="D"; @ m_x+7,col()+2 SAY "K2 (9 svi) :" GET cK2; endif
 if fk3=="D"; @ m_x+8,m_y+2   SAY "K3 ("+ck3+" svi):" GET cK3; endif
 if fk4=="D"; @ m_x+8,col()+1 SAY "K4 (99 svi):" GET cK4; endif
 
-  read; ESC_BCR
+  @ m_x+9, m_y+2 SAY "Klasa konta duguje " GET cKlDuguje PICT "9"
+  @ m_x+9, m_y+2 SAY "Klasa konta potraz " GET cKlPotraz PICT "9"
+  
+  read
+  ESC_BCR
+  
 BoxC()
 
 if ck1=="9"; ck1:=""; endif
@@ -159,11 +168,14 @@ select suban; go top
 
 lVodeSeRJ := FIELDPOS("IDRJ") > 0
 
+
 Postotak(1,RECCOUNT2(),"Generacija pocetnog stanja")
 nProslo:=0
 
 GO TOP
 // idfirma, idkonto, idpartner, datdok
+
+dDatVal := CTOD("")
 
 // ----------------------------------- petlja 1
 do while !eof()
@@ -185,15 +197,12 @@ do while !eof()
       select suban
 
       if cTipPr=="4"    // mijenjam sort za ovu varijantu
-        altd()
         SET ORDER TO TAG "SUBSUB"
         SEEK cIdFirma+cIdKonto
       elseif cTipPr=="5"    // mijenjam sort za ovu varijantu
-        altd()
         SET ORDER TO TAG "SUBSUB5"
         SEEK cIdFirma+cIdKonto
       elseif cTipPr=="6"    // mijenjam sort za ovu varijantu
-        altd()
         SET ORDER TO TAG "SUBSUB6"
         SEEK cIdFirma+cIdKonto
       elseif lPrenos4 .or. lPrenos5 .or. lPrenos6   // standardni sort
@@ -238,16 +247,42 @@ do while !eof()
            cSUBk1:=k1; cSUBk2:=k2; cSUBk3:=k3; cSUBk4:=k4
 
            if cTipPr=="1"
-             cBrDok:=Brdok; nDin:=0; nDem:=0
+             cBrDok:=Brdok
+	     nDin:=0
+	     nDem:=0
              cOtvSt:=otvSt // pretpostavlja se da sve stavke jednog
                            // dokumenta imaju isti znak - otvoren ili zatvoren
              cTekucaRJ:=""
              // ----------------------------------- petlja 5
+	     dDatVal:=CTOD("")
              do while !eof() .and. cIdFirma==IdFirma .and. cIdKonto==IdKonto .and. IdPartner==cIdPartner ;
                       .and. BrDok==cBrDok
 
-               nDin+=iif(d_p=="1",iznosbhd,-iznosbhd)
-               nDem+=iif(d_p=="1",iznosdem,-iznosdem)
+              if EMPTY(datVal)
+
+		// konto kupaca
+		if ( LEFT(IdKonto, 1) == cKlDuguje ) .and. (d_p=="1") 
+			if EMPTY(DatVal)
+				dDatVal:=datdok
+			else
+				dDatVal:=datval
+			endif
+		endif
+
+		// konto dobavljaca
+		if ( LEFT(IdKonto, 1) == cKlPotraz ) .and. (d_p=="2") 
+			if EMPTY(DatVal)
+				dDatVal:=datdok
+			else
+				dDatVal:=datval
+			endif
+		endif
+
+	       		
+	      endif
+	       
+	       nDin+=iif(d_p=="1",iznosbhd, -iznosbhd)
+               nDem+=iif(d_p=="1",iznosdem, -iznosdem)
                IF lVodeSeRJ .and. EMPTY(cTekucaRJ)
                  cTekucaRJ:=IDRJ
                ENDIF
@@ -268,7 +303,8 @@ do while !eof()
                         idkonto with cIdkonto,;
                         idpartner with cidpartner,;
                         brdok  with cBrDok,;
-                        datdok with dDatDo+1
+                        datdok with dDatDo+1 ,;
+			datval with dDatVal
                if !(cFilter==".t.")
                  REPLACE  k1 WITH cSUBk1,;
                           k2 WITH cSUBk2,;

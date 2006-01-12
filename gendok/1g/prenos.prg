@@ -52,7 +52,7 @@ if fk3=="D"; @ m_x+8,m_y+2   SAY "K3 ("+ck3+" svi):" GET cK3; endif
 if fk4=="D"; @ m_x+8,col()+1 SAY "K4 (99 svi):" GET cK4; endif
 
   @ m_x+9, m_y+2 SAY "Klasa konta duguje " GET cKlDuguje PICT "9"
-  @ m_x+9, m_y+2 SAY "Klasa konta potraz " GET cKlPotraz PICT "9"
+  @ m_x+10, m_y+2 SAY "Klasa konta potraz " GET cKlPotraz PICT "9"
   
   read
   ESC_BCR

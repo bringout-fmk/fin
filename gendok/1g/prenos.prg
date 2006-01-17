@@ -241,14 +241,13 @@ do while !eof()
              cTekucaRJ:=""
              // ----------------------------------- petlja 5
 	     dDatVal:=CTOD("")
-             do while !eof() .and. cIdFirma==IdFirma .and. cIdKonto==IdKonto .and. IdPartner==cIdPartner ;
-                      .and. BrDok==cBrDok
+             do while !eof() .and. cIdFirma==IdFirma .and. cIdKonto==IdKonto .and. IdPartner==cIdPartner .and. BrDok==cBrDok
 
               if EMPTY(dDatVal)
 
 		// konto kupaca
 		if ( LEFT(IdKonto, 1) == cKlDuguje ) .and. (d_p=="1") 
-			if EMPTY(DatVal)
+			if EMPTY(DatVal) .and. !(idvn == "09")
 				dDatVal:=datdok
 			else
 				dDatVal:=datval

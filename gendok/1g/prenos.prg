@@ -247,10 +247,18 @@ do while !eof()
 
 		// konto kupaca
 		if ( LEFT(IdKonto, 1) == cKlDuguje ) .and. (d_p=="1") 
-			if EMPTY(DatVal) .and. !(idvn == "09")
-				dDatVal:=datdok
+			if IsVindija()
+				if EMPTY(DatVal) .and. !(idvn == "09") 
+					dDatVal:=datdok
+				else
+					dDatVal:=datval
+				endif
 			else
-				dDatVal:=datval
+				if EMPTY(DatVal) 
+					dDatVal:=datdok
+				else
+					dDatVal:=datval
+				endif
 			endif
 		endif
 

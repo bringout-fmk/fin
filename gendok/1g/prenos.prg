@@ -307,7 +307,7 @@ do while !eof()
                           k4 WITH cSUBk4
                endif
 
-	       if cTipPr == "3"
+	       if cTipPr == "1"
                  if LEFT(IdKonto, 1) == cKlPotraz 
 		    // konto dobavljaca
                     replace d_p with "2", iznosbhd with -nDin,iznosdem with -nDem
@@ -317,7 +317,7 @@ do while !eof()
 		 endif
 		 
 	       else
-	         // cTipPr <> "3" 
+	         // cTipPr <> "1" 
                  if ndin >= 0
                     replace d_p with "1",iznosbhd with nDin,iznosdem with nDem
                  else

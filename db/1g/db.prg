@@ -7,7 +7,6 @@
  *
  */
 
-
 /*! \file fmk/fin/db/1g/db.prg
  *  \brief Funkcije za rad sa tabelama
  */

@@ -4,35 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/ostav/1g/ostav.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.9 $
- * $Log: ostav.prg,v $
- * Revision 1.9  2004/03/02 18:37:27  sasavranic
- * no message
- *
- * Revision 1.8  2004/01/19 09:05:16  sasavranic
- * Na komenzaciji uvedena polja za fax #32# i #33#
- *
- * Revision 1.7  2004/01/13 19:07:56  sasavranic
- * appsrv konverzija
- *
- * Revision 1.6  2004/01/10 09:58:47  sasavranic
- * no message
- *
- * Revision 1.5  2003/07/26 14:08:05  mirsad
- * nove šifre za ispis na kompenzaciji: adrese i žiro-raèun za pomoænu valutu
- *
- * Revision 1.4  2002/11/17 11:02:25  sasa
- * no message
- *
- * Revision 1.3  2002/09/25 12:55:53  sasa
- * Dodato aPov7 i aDuz7 varijable za telefon
- *
- * Revision 1.2  2002/06/20 07:46:43  sasa
- * no message
- *
- *
  */
  
 /*! \fn Ostav()
@@ -426,7 +397,8 @@ DO WHILESC !eof() .AND. idfirma==cidfirma .and. cIdKonto=IdKonto // konto
 		loop
 	endif
    endif
-   cIdPartner=IdPartner; cBrDok=BrDok
+   cIdPartner=IdPartner
+   cBrDok=BrDok
    cOtvSt:=" "
    nDugBHD:=nPotBHD:=0
    DO WHILESC !eof() .AND. idfirma==cidfirma .AND. cIdKonto=IdKonto .AND. cIdPartner=IdPartner .AND. cBrDok==BrDok
@@ -441,10 +413,10 @@ DO WHILESC !eof() .AND. idfirma==cidfirma .and. cIdKonto=IdKonto // konto
       SKIP
    ENDDO // partner, brdok
 
-   IF ABS(round(nDugBHD-nPotBHD,3))<=gnLOSt .AND. cOtvSt=="1"
+   IF ABS(round(nDugBHD-nPotBHD,3)) <= gnLOSt .AND. cOtvSt=="1"
       SEEK cIdFirma+cIdKonto+cIdPartner+cBrDok
       @ m_x+1,m_y+12 SAY ++nC  // brojac zatvaranja
-      DO WHILESC !eof() .AND. cIdKonto=IdKonto .and. cIdPartner=IdPartner .and. cBrDok=BrDok
+      DO WHILESC !eof() .AND. cIdKonto=IdKonto .and. cIdPartner == IdPartner .and. cBrDok=BrDok
             REPLACE OtvSt WITH "9"
             SKIP
       ENDDO
@@ -1165,14 +1137,17 @@ if fStrana
  @ prow(),110 SAY "Str:"+str(++nStr,3)
 endif
 
-SELECT PARTN; HSEEK cIdFirma
+SELECT PARTN
+HSEEK cIdFirma
 ? "FIRMA:",cIdFirma,"-",gNFirma
 
-SELECT KONTO; HSEEK cIdKonto
+SELECT KONTO
+HSEEK cIdKonto
 
 ? "KONTO  :",cIdKonto,naz
 
-SELECT PARTN; HSEEK cIdPartner
+SELECT PARTN
+HSEEK cIdPartner
 ? "PARTNER:", cIdPartner,TRIM(naz)," ",TRIM(naz2)," ",TRIM(mjesto)
 
 select suban
@@ -1269,7 +1244,10 @@ DO WHILESC !EOF() .and. idfirma==cidfirma .AND. cIdKonto==IdKonto .and. cIdPartn
          skip
 enddo // partner
 
-IF prow()>62+gPStranica; FF; ZagBRVeze(); ENDIF
+IF prow() > 62+gPStranica
+  FF
+  ZagBRVeze()
+ENDIF
 
 ? m
 ? "UKUPNO:"

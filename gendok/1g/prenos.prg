@@ -18,7 +18,9 @@ function PrenosFin()
 *{
 private fK1:=fk2:=fk3:=fk4:="N"
 O_PARAMS
-Private cSection:="1",cHistory:=" ",aHistory:={}
+Private cSection:="1"
+private cHistory:=" "
+private aHistory:={}
 RPar("k1",@fk1)
 RPar("k2",@fk2)
 RPar("k3",@fk3)
@@ -248,7 +250,7 @@ do while !eof()
 		// konto kupaca
 		if ( LEFT(IdKonto, 1) == cKlDuguje ) .and. (d_p=="1") 
 			if IsVindija()
-				if EMPTY(DatVal) .and. !(idvn == "09") 
+				if EMPTY(DatVal) .and. !(IsVindija() .and. idvn == "09") 
 					dDatVal:=datdok
 				else
 					dDatVal:=datval
@@ -304,11 +306,25 @@ do while !eof()
                           k3 WITH cSUBk3,;
                           k4 WITH cSUBk4
                endif
-               if ndin>=0
-                  replace d_p with "1",iznosbhd with nDin,iznosdem with nDem
-               else
-                 replace d_p with "2",iznosbhd with -nDin, iznosdem with -nDem
-               endif // ndin
+
+	       if cTipPr == "3"
+                 if LEFT(IdKonto, 1) == cKlPotraz 
+		    // konto dobavljaca
+                    replace d_p with "2", iznosbhd with -nDin,iznosdem with -nDem
+		 else
+		    // konto kupca
+                    replace d_p with "1", iznosbhd with nDin,iznosdem with nDem
+		 endif
+		 
+	       else
+	         // cTipPr <> "3" 
+                 if ndin >= 0
+                    replace d_p with "1",iznosbhd with nDin,iznosdem with nDem
+                 else
+                    replace d_p with "2",iznosbhd with -nDin, iznosdem with -nDem
+                 endif 
+	       endif
+	       
                IF lVodeSeRj
                  REPLACE IDRJ WITH cTekucaRJ
                ENDIF

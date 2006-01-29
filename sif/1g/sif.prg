@@ -4,37 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/sif/1g/sif.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.11 $
- * $Log: sif.prg,v $
- * Revision 1.11  2004/05/27 09:27:10  sasavranic
- * Koristenje zajednickog sifranika valuta
- *
- * Revision 1.10  2004/03/23 15:48:20  sasavranic
- * no message
- *
- * Revision 1.9  2004/03/02 18:37:27  sasavranic
- * no message
- *
- * Revision 1.8  2004/01/13 19:07:57  sasavranic
- * appsrv konverzija
- *
- * Revision 1.7  2003/04/12 06:48:12  mirsad
- * napravljen sistem kontiranja LD->FIN
- *
- * Revision 1.6  2003/01/08 03:12:53  mirsad
- * specificnosti za rama glas - pogonsko
- *
- * Revision 1.5  2002/12/14 10:17:58  sasa
- * ispravljena greska sa nepostojecim alijasom KONTO
- *
- * Revision 1.4  2002/11/17 11:03:49  sasa
- * korekcija koda
- *
- * Revision 1.3  2002/06/21 08:46:08  sasa
- * no message
- *
  *
  */
 

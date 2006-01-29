@@ -4,51 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/db/2g/db.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.15 $
- * $Log: db.prg,v $
- * Revision 1.15  2004/01/19 09:05:16  sasavranic
- * Na komenzaciji uvedena polja za fax #32# i #33#
- *
- * Revision 1.14  2004/01/13 19:07:54  sasavranic
- * appsrv konverzija
- *
- * Revision 1.13  2004/01/07 14:04:56  sasavranic
- * Pri razdvajanju sezona kopira i komp.txt
- *
- * Revision 1.12  2003/04/12 06:42:15  mirsad
- * napravljen sistem kontiranja LD->FIN
- *
- * Revision 1.11  2002/11/21 14:46:36  mirsad
- * security
- *
- * Revision 1.10  2002/11/18 12:12:58  mirsad
- * dorade i korekcije-security
- *
- * Revision 1.9  2002/08/05 11:03:58  ernad
- *
- *
- * Fin/SQLLog funkcije, debug bug RJ/KUMPATH
- *
- * Revision 1.8  2002/07/30 17:40:59  ernad
- * SqlLog funkcije - Fin modul
- *
- * Revision 1.7  2002/06/26 09:40:13  sasa
- * no message
- *
- * Revision 1.6  2002/06/19 12:16:02  sasa
- * no message
- *
- * Revision 1.5  2002/06/17 11:05:39  ernad
- *
- *
- * gaDBFs ... treci clan: KUMPATH -> P_KUMPATH
- *
- * Revision 1.4  2002/06/17 09:22:39  ernad
- * headeri, podesavanje Makefile
- *
- *
  */
  
 

@@ -4,26 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/razdb/1g/faktfin.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.6 $
- * $Log: faktfin.prg,v $
- * Revision 1.6  2004/01/13 19:07:56  sasavranic
- * appsrv konverzija
- *
- * Revision 1.5  2003/09/08 08:41:43  ernad
- * porezi u ugostiteljstvu
- *
- * Revision 1.4  2003/04/17 11:29:29  mirsad
- * Za varijantu prenosa FAKT->FIN po sastavnicama (kontiranje NV, koristi Cago) sada se porezi mogu dobiti i za varijantu obracuna u ugostiteljstvu "T" tj. uzimajuci u obzir stvarnu razliku u cijeni.
- *
- * Revision 1.3  2003/01/11 14:34:03  mirsad
- * ukinuo f-ju SezRad()
- *
- * Revision 1.2  2002/06/20 10:03:56  sasa
- * no message
- *
- *
  */
  
 
@@ -48,7 +28,6 @@ gKalkKum:=""
 gDzokerF1:=""
 
 cOdradjeno:="D"
-altd()
 if file(EXEPATH+'scshell.ini')
         //cBrojLok:=R_IniRead ( 'TekucaLokacija','Broj',  "",EXEPATH+'scshell.INI' )
         cOdradjeno:=R_IniRead ( 'ShemePromjena',alltrim(strtran(strtran(cDirPriv,"\","_"),":","_")),  "N" ,EXEPATH+'scshell.INI' )

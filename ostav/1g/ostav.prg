@@ -1321,7 +1321,8 @@ if !IzvrsenIn(,,"KOMPEN", .t. )
 endif
 
 
-O_KONTO ; O_PARTN
+O_KONTO 
+O_PARTN
 
 dDatOd:=dDatDo:=ctod("")
 private qqKonto:=qqKonto2:=qqPartner:=""
@@ -1578,8 +1579,10 @@ do while .t.
 
      enddo // konto
 
-     nKonD+=nDugBHD;  nKonP+=nPotBHD
-     nKonD2+=nDugDEM; nKonP2+=nPotDEM
+     nKonD+=nDugBHD
+     nKonP+=nPotBHD
+     nKonD2+=nDugDEM
+     nKonP2+=nPotDEM
 
   if nProlaz=0
      exit
@@ -1720,7 +1723,8 @@ IF ! ( (Ch==K_CTRL_T .or. Ch==K_ENTER) .and. reccount2()==0 )
       IF ALIAS()=="TEMP12"
         SELECT TEMP60; GO TOP
       ELSEIF ALIAS()=="TEMP60"
-        SELECT TEMP12; GO TOP
+        SELECT TEMP12
+	GO TOP
       ENDIF
      nVrati := DE_ABORT
 

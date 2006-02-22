@@ -1765,9 +1765,11 @@ LOCAL a1:={}, a2:={}, GetList:={}
    READ
  BoxC()
 
+ altd()
  WPar("ip",cIdPov)
  WPar("bk",cBrKomp)
- select params; use
+ select params
+ use
 
   START PRINT RET
   gp10cpi()
@@ -1851,8 +1853,13 @@ LOCAL a1:={}, a2:={}, GetList:={}
 
       ELSE
         ?
+	altd()
         DO WHILE .t.
-          nPom:=AT("#",cLin)
+          nPom:=AT("#", cLin)
+	  nPom2:=AT("#%", cLin)
+	  if nPom == nPom2 
+	  	nPom := 0
+	  endif
           IF nPom>0
             cPom:=SUBSTR(cLin,nPom,4)
             IF SUBSTR(cPom,2,2)=="LS"             // uslov za saldo

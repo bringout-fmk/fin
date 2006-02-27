@@ -90,7 +90,7 @@ return
 *}
 
 
-static function fill_sbb_tbl(cKonto, cPartner, cNaziv, nPsDug, nPsPot, nKumDug, nKumPot, nSldDug, nSldPot)
+static function fill_ssbb_tbl(cKonto, cNaziv, nFDug, nFPot, nFSaldo)
 *{
 local nArr
 nArr:=SELECT()
@@ -98,7 +98,27 @@ nArr:=SELECT()
 O_R_EXP
 append blank
 replace field->konto with cKonto
-replace field->partner with cPartner
+//replace field->partner with cPartner
+replace field->naziv with cNaziv
+replace field->duguje with nFDug
+replace field->potrazuje with nFPot
+replace field->saldo with nFSaldo
+
+select (nArr)
+
+return
+*}
+
+
+static function fill_sbb_tbl(cKonto, cNaziv, nPsDug, nPsPot, nKumDug, nKumPot, nSldDug, nSldPot)
+*{
+local nArr
+nArr:=SELECT()
+
+O_R_EXP
+append blank
+replace field->konto with cKonto
+//replace field->partner with cPartner
 replace field->naziv with cNaziv
 replace field->psdug with nPsDug
 replace field->pspot with nPsPot
@@ -113,18 +133,24 @@ return
 *}
 
 // vraca matricu sa sub.bb poljima
-static function get_sbb_fields()
+static function get_sbb_fields(lBBSkraceni)
 *{
 aFields := {}
 AADD(aFields, {"konto", "C", 7, 0})
-AADD(aFields, {"partner", "C", 6, 0})
+//AADD(aFields, {"partner", "C", 6, 0})
 AADD(aFields, {"naziv", "C", 40, 0})
-AADD(aFields, {"psdug", "N", 15, 2})
-AADD(aFields, {"pspot", "N", 15, 2})
-AADD(aFields, {"kumdug", "N", 15, 2})
-AADD(aFields, {"kumpot", "N", 15, 2})
-AADD(aFields, {"slddug", "N", 15, 2})
-AADD(aFields, {"sldpot", "N", 15, 2})
+if lBBSkraceni
+  AADD(aFields, {"duguje", "N", 15, 2})
+  AADD(aFields, {"potrazuje", "N", 15, 2})
+  AADD(aFields, {"saldo", "N", 15, 2})
+else
+  AADD(aFields, {"psdug", "N", 15, 2})
+  AADD(aFields, {"pspot", "N", 15, 2})
+  AADD(aFields, {"kumdug", "N", 15, 2})
+  AADD(aFields, {"kumpot", "N", 15, 2})
+  AADD(aFields, {"slddug", "N", 15, 2})
+  AADD(aFields, {"sldpot", "N", 15, 2})
+endif
 
 return aFields
 *}
@@ -146,8 +172,9 @@ private cFormat:="2"
 private cPodKlas:="N"
 private cNule:="D"
 private cExpRptDN:="N"
+private cBBSkrDN:="N"
 
-Box("sanb",11,60)
+Box("sanb",12,60)
 set cursor on
 
 do while .t.
@@ -170,7 +197,7 @@ do while .t.
  	ENDIF
  	
  	@ m_x+11,m_y+2 SAY "Export izvjestaja u dbf (D/N)? " GET cExpRptDN valid cExpRptDN $"DN" pict "@!"
-	
+ 	@ m_x+12,m_y+2 SAY "Export skraceni bruto bilans (D/N)? " GET cBBSkrDN valid cBBSkrDN $"DN" pict "@!"
 	READ
 	ESC_BCR
  	
@@ -210,9 +237,10 @@ ELSE
 ENDIF
 
 private lExpRpt := (cExpRptDN == "D")
+private lBBSkraceni := (cBBSkrDN == "D")
 
 if lExpRpt
-	aExpFields := get_sbb_fields()
+	aExpFields := get_sbb_fields(lBBSkraceni)
 	t_exp_create(aExpFields)
 	cLaunch := exp_report()
 endif
@@ -358,9 +386,13 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
                D1PS+=D0PS;P1PS+=P0PS;D1TP+=D0TP;P1TP+=P0TP;D1KP+=D0KP;P1KP+=P0KP
              endif
 
-  	     if lExpRpt .and. !EMPTY(cIdPartner)
-	       fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, D0PS, D0KP, P0KP, D0S, P0S)
-	     endif
+  	     //if lExpRpt .and. !EMPTY(cIdPartner)
+	       //if lBBSkraceni
+	         //fill_ssbb_tbl(cIdKonto, cIdPartner, partn->naz, D0KP, P0KP, D0KP - P0KP)
+	       //else
+	         //fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, D0PS, D0KP, P0KP, D0S, P0S)
+	       //endif
+	     //endif
 	     
          ENDDO // konto
 
@@ -401,8 +433,12 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
          D2PS+=D1PS;P2PS+=P1PS;D2TP+=D1TP;P2TP+=P1TP;D2KP+=D1KP;P2KP+=P1KP
 
 	 if lExpRpt
-	     fill_sbb_tbl(cIdKonto, "", konto->naz, D1PS, P1PS, D1KP, P1KP, D1S, P1S)
-         endif
+	   if lBBSkraceni
+	     fill_ssbb_tbl(cIdKonto, konto->naz, D1KP, P1KP, D1KP - P1KP)
+	   else
+	     fill_sbb_tbl(cIdKonto, konto->naz, D1PS, P1PS, D1KP, P1KP, D1S, P1S)
+           endif
+	 endif
 	 
       ENDDO  // sin konto
 
@@ -435,7 +471,11 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
       D3PS+=D2PS;P3PS+=P2PS;D3TP+=D2TP;P3TP+=P2TP;D3KP+=D2KP;P3KP+=P2KP
 
       if lExpRpt
-        fill_sbb_tbl(cSinKonto, "", konto->naz, D2PS, P2PS, D2KP, P2KP, D2S, P2S)
+       if lBBSkraceni
+        fill_ssbb_tbl(cSinKonto, konto->naz, D2KP, P2KP, D2KP - P2KP)
+       else
+        fill_sbb_tbl(cSinKonto, konto->naz, D2PS, P2PS, D2KP, P2KP, D2S, P2S)
+       endif
       endif
 	
   ENDDO  // klasa konto
@@ -470,7 +510,11 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
    D4PS+=D3PS;P4PS+=P3PS;D4TP+=D3TP;P4TP+=P3TP;D4KP+=D3KP;P4KP+=P3KP
 
    if lExpRpt
-     fill_sbb_tbl(cKlKonto, "", konto->naz, D3PS, P3PS, D3KP, P3KP, D3S, P3S)
+    if lBBSkraceni
+     fill_ssbb_tbl(cKlKonto, konto->naz, D3KP, P3KP, D3KP - P3KP)
+    else
+     fill_sbb_tbl(cKlKonto, konto->naz, D3PS, P3PS, D3KP, P3KP, D3S, P3S)
+    endif
    endif
 	
 ENDDO
@@ -495,7 +539,11 @@ ENDIF
 ? th5
 
 if lExpRpt
-   fill_sbb_tbl("UKUPNO", "", "", D4PS, P4PS, D4KP, P4KP, D4S, P4S)
+ if lBBSkraceni
+   fill_ssbb_tbl("UKUPNO", "", D4KP, P4KP, D4KP - P4KP)
+ else
+   fill_sbb_tbl("UKUPNO", "", D4PS, P4PS, D4KP, P4KP, D4S, P4S)
+ endif
 endif
 
 if prow()>55+gpStranica; FF; ELSE; ?;?; endif

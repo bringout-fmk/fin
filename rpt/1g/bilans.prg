@@ -19,15 +19,15 @@ function Bilans()
 *{
 cSecur:=SecurR(KLevel,"BBilans")
 if ImaSlovo("X",cSecur)
-   MsgBeep("Opcija nedostupna !")
-   closeret
+	MsgBeep("Opcija nedostupna !")
+   	closeret
 endif
 
 
 IF gVar1=="0"
- private opc[5],Izbor
+	private opc[5],Izbor
 ELSE
- private opc[4],Izbor
+	private opc[4],Izbor
 ENDIF
 
 cTip:=ValDomaca()
@@ -90,6 +90,44 @@ return
 *}
 
 
+static function fill_sbb_tbl(cKonto, cPartner, cNaziv, nPsDug, nPsPot, nKumDug, nKumPot, nSldDug, nSldPot)
+*{
+local nArr
+nArr:=SELECT()
+
+O_R_EXP
+append blank
+replace field->konto with cKonto
+replace field->partner with cPartner
+replace field->naziv with cNaziv
+replace field->psdug with nPsDug
+replace field->pspot with nPsPot
+replace field->kumdug with nKumDug
+replace field->kumpot with nKumPot
+replace field->slddug with nSldDug
+replace field->sldpot with nSldPot
+
+select (nArr)
+
+return
+*}
+
+// vraca matricu sa sub.bb poljima
+static function get_sbb_fields()
+*{
+aFields := {}
+AADD(aFields, {"konto", "C", 7, 0})
+AADD(aFields, {"partner", "C", 6, 0})
+AADD(aFields, {"naziv", "C", 40, 0})
+AADD(aFields, {"psdug", "N", 15, 2})
+AADD(aFields, {"pspot", "N", 15, 2})
+AADD(aFields, {"kumdug", "N", 15, 2})
+AADD(aFields, {"kumpot", "N", 15, 2})
+AADD(aFields, {"slddug", "N", 15, 2})
+AADD(aFields, {"sldpot", "N", 15, 2})
+
+return aFields
+*}
 
 /*! \fn SubAnBB()
  *  \brief Subanaliticki bruto bilans
@@ -104,41 +142,55 @@ O_PARTN
 
 qqKonto:=space(100)
 dDatOd:=dDatDo:=ctod("")
-private cFormat:="2",cPodKlas:="N",cNule:="D"
-Box("sanb",9,60)
+private cFormat:="2"
+private cPodKlas:="N"
+private cNule:="D"
+private cExpRptDN:="N"
+
+Box("sanb",11,60)
 set cursor on
 
 do while .t.
- @ m_x+1,m_y+2 SAY "SUBANALITICKI BRUTO BILANS"
- if gNW=="D"
-   @ m_x+2,m_y+2 SAY "Firma "; ?? gFirma,"-",gNFirma
- else
-  @ m_x+2,m_y+2 SAY "Firma: " GET cIdFirma valid {|| EMPTY(cIdFirma).or.P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
- endif
- @ m_x+3,m_y+2 SAY "Konto " GET qqKonto    pict "@!S50"
- @ m_x+4,m_y+2 SAY "Od datuma :" get dDatOD
- @ m_x+4,col()+2 SAY "do" GET dDatDo
- @ m_x+6,m_y+2 SAY "Format izvjestaja A3/A4 (1/2)" GET cFormat
- @ m_x+7,m_y+2 SAY "Klase unutar glavnog izvjestaja (D/N)" GET cPodKlas VALID cPodKlas$"DN" PICT "@!"
- @ m_x+8,m_y+2 SAY "Prikaz stavki sa saldom 0 D/N " GET cNule valid cnule $"DN" pict "@!"
- cIdRJ:=""
- IF gRJ=="D"
-   cIdRJ:="999999"
-   @ m_x+9,m_y+2 SAY "Radna jedinica (999999-sve): " GET cIdRj
- ENDIF
- READ;ESC_BCR
- aUsl1:=Parsiraj(qqKonto,"IdKonto")
- if aUsl1<>NIL; exit; endif
+	@ m_x+1,m_y+2 SAY "SUBANALITICKI BRUTO BILANS"
+ 	if gNW=="D"
+   		@ m_x+2,m_y+2 SAY "Firma "; ?? gFirma,"-",gNFirma
+ 	else
+  		@ m_x+2,m_y+2 SAY "Firma: " GET cIdFirma valid {|| EMPTY(cIdFirma).or.P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
+ 	endif
+ 	@ m_x+3,m_y+2 SAY "Konto " GET qqKonto    pict "@!S50"
+ 	@ m_x+4,m_y+2 SAY "Od datuma :" get dDatOD
+ 	@ m_x+4,col()+2 SAY "do" GET dDatDo
+ 	@ m_x+6,m_y+2 SAY "Format izvjestaja A3/A4 (1/2)" GET cFormat
+ 	@ m_x+7,m_y+2 SAY "Klase unutar glavnog izvjestaja (D/N)" GET cPodKlas VALID cPodKlas$"DN" PICT "@!"
+ 	@ m_x+8,m_y+2 SAY "Prikaz stavki sa saldom 0 D/N " GET cNule valid cnule $"DN" pict "@!"
+ 	cIdRJ:=""
+ 	IF gRJ=="D"
+   		cIdRJ:="999999"
+   		@ m_x+9,m_y+2 SAY "Radna jedinica (999999-sve): " GET cIdRj
+ 	ENDIF
+ 	
+ 	@ m_x+11,m_y+2 SAY "Export izvještaja u dbf (D/N)? " GET cExpRptDN valid cExpRptDN $"DN" pict "@!"
+	
+	READ
+	ESC_BCR
+ 	
+	aUsl1:=Parsiraj(qqKonto,"IdKonto")
+ 	if aUsl1<>NIL
+		exit
+	endif
 enddo
 
 BoxC()
 
-cidfirma:=trim(cidfirma)
+cIdFirma:=trim(cIdFirma)
 
-if cIdRj=="999999"; cidrj:=""; endif
-if gRJ=="D" .and. "." $ cidrj
-  cidrj:=trim(strtran(cidrj,".",""))
-  // odsjeci ako je tacka. prakticno "01. " -> sve koje pocinju sa  "01"
+if cIdRj=="999999"
+	cIdRj:=""
+endif
+
+if gRJ=="D" .and. "." $ cIdRj
+	cIdRj:=trim(strtran(cIdRj,".",""))
+  	// odsjeci ako je tacka. prakticno "01. " -> sve koje pocinju sa  "01"
 endif
 
 IF cFormat=="1"
@@ -157,6 +209,16 @@ ELSE
  th5:= "---- ------- -------- -------------------------------------- ----------------- --------------- --------------- --------------- --------------- ---------------"
 ENDIF
 
+private lExpRpt := (cExpRptDN == "D")
+
+if lExpRpt
+	aExpFields := get_sbb_fields()
+	t_exp_create(aExpFields)
+	cLaunch := exp_report()
+endif
+
+O_KONTO
+O_PARTN
 O_SUBAN
 O_KONTO
 O_BBKLAS
@@ -284,12 +346,22 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
                @ prow(),PCOL()+1 SAY D0KP PICTURE PicD
                @ prow(),PCOL()+1 SAY P0KP PICTURE PicD
                D0S:=D0KP-P0KP
-               IF D0S>=0; P0S:=0; else; P0S:=-D0S; D0S:=0; endif
+               IF D0S>=0
+	       	P0S:=0
+	       else
+	        P0S:=-D0S
+		D0S:=0
+	       endif
                @ prow(),PCOL()+1 SAY D0S PICTURE PicD
                @ prow(),PCOL()+1 SAY P0S PICTURE PicD
 
                D1PS+=D0PS;P1PS+=P0PS;D1TP+=D0TP;P1TP+=P0TP;D1KP+=D0KP;P1KP+=P0KP
              endif
+
+  	     if lExpRpt .and. !EMPTY(cIdPartner)
+	       fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, D0PS, D0KP, P0KP, D0S, P0S)
+	     endif
+	     
          ENDDO // konto
 
          IF prow()>59+gpStranica;FF;ZaglSan();ENDIF
@@ -328,6 +400,10 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
          SELECT SUBAN
          D2PS+=D1PS;P2PS+=P1PS;D2TP+=D1TP;P2TP+=P1TP;D2KP+=D1KP;P2KP+=P1KP
 
+	 if lExpRpt
+	     fill_sbb_tbl(cIdKonto, "", konto->naz, D1PS, P1PS, D1KP, P1KP, D1S, P1S)
+         endif
+	 
       ENDDO  // sin konto
 
       IF prow()>61+gpStranica; FF ;ZaglSan();ENDIF
@@ -358,7 +434,10 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
       D3PS+=D2PS;P3PS+=P2PS;D3TP+=D2TP;P3TP+=P2TP;D3KP+=D2KP;P3KP+=P2KP
 
-
+      if lExpRpt
+        fill_sbb_tbl(cSinKonto, "", konto->naz, D2PS, P2PS, D2KP, P2KP, D2S, P2S)
+      endif
+	
   ENDDO  // klasa konto
 
    SELECT BBKLAS
@@ -390,6 +469,10 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
    ENDIF
    D4PS+=D3PS;P4PS+=P3PS;D4TP+=D3TP;P4TP+=P3TP;D4KP+=D3KP;P4KP+=P3KP
 
+   if lExpRpt
+     fill_sbb_tbl(cKlKonto, "", konto->naz, D3PS, P3PS, D3KP, P3KP, D3S, P3S)
+   endif
+	
 ENDDO
 
 IF prow()>59+gpStranica
@@ -410,6 +493,10 @@ ENDIF
 @ prow(),PCOL()+1 SAY D4S PICTURE PicD
 @ prow(),PCOL()+1 SAY P4S PICTURE PicD
 ? th5
+
+if lExpRpt
+   fill_sbb_tbl("UKUPNO", "", "", D4PS, P4PS, D4KP, P4KP, D4S, P4S)
+endif
 
 if prow()>55+gpStranica; FF; ELSE; ?;?; endif
 
@@ -463,6 +550,10 @@ if prow()>59+gpStranica; FF; endif
 FF
 
 END PRINT
+
+if lExpRpt
+	tbl_export(cLaunch)
+endif
 
 RETURN
 *}

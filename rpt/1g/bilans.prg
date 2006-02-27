@@ -169,7 +169,7 @@ do while .t.
    		@ m_x+9,m_y+2 SAY "Radna jedinica (999999-sve): " GET cIdRj
  	ENDIF
  	
- 	@ m_x+11,m_y+2 SAY "Export izvještaja u dbf (D/N)? " GET cExpRptDN valid cExpRptDN $"DN" pict "@!"
+ 	@ m_x+11,m_y+2 SAY "Export izvjestaja u dbf (D/N)? " GET cExpRptDN valid cExpRptDN $"DN" pict "@!"
 	
 	READ
 	ESC_BCR

@@ -802,6 +802,42 @@ return
 *}
 
 
+
+static function fill_ss_tbl(cKonto, cPartner, cNaziv, nFDug, nFPot, nFSaldo)
+*{
+local nArr
+nArr:=SELECT()
+
+O_R_EXP
+append blank
+replace field->konto with cKonto
+replace field->partner with cPartner
+replace field->naziv with cNaziv
+replace field->duguje with nFDug
+replace field->potrazuje with nFPot
+replace field->saldo with nFSaldo
+
+select (nArr)
+
+return
+*}
+
+// vraca matricu sa sub.bb poljima
+static function get_ss_fields()
+*{
+aFields := {}
+AADD(aFields, {"konto", "C", 7, 0})
+AADD(aFields, {"partner", "C", 6, 0})
+AADD(aFields, {"naziv", "C", 40, 0})
+AADD(aFields, {"duguje", "N", 15, 2})
+AADD(aFields, {"potrazuje", "N", 15, 2})
+AADD(aFields, {"saldo", "N", 15, 2})
+
+return aFields
+*}
+
+
+
 /*! \fn SpecPoKP()
  *  \brief Specifikacija subanalitickih konta 
  */
@@ -815,6 +851,7 @@ local nCOpis:=0
 local cLTreci:=""
 local cIzr1
 local cIzr2
+local cExpRptDN:="N"
 private cSkVar:="N"
 private fK1:=fk2:=fk3:=fk4:="N"
 private cRasclaniti:="N"
@@ -909,6 +946,8 @@ Box("",18,65)
  	
 		endif
 		UpitK1k4(13)
+ 		@ m_x+18,m_y+2 SAY "Export izvjestaja u dbf (D/N) ?" GET cExpRptDN pict "@!" valid cExpRptDN $ "DN"
+		
 		READ
 		ESC_BCR
  		O_PARAMS
@@ -937,6 +976,14 @@ Box("",18,65)
 	enddo
 BoxC()
 
+lExpRpt := (cExpRptDN == "D")
+
+if lExpRpt
+	aSSFields := get_ss_fields()
+	t_exp_create(aSSFields)
+	cLaunch := exp_report()
+endif
+
 IF gDUFRJ!="D"
 	cIdFirma:=left(cIdFirma,2)
 ENDIF
@@ -945,6 +992,7 @@ IF cRasclaniti=="D"
   	O_RJ
 ENDIF
 
+O_PARTN
 O_KONTO
 O_SUBAN
 
@@ -1183,7 +1231,12 @@ do whileSC !eof()
       				@ prow(),pcol()+1 SAY nD-nP pict pic
       				@ prow(),pcol()+1 SAY nD2-nP2 pict pic
      			endif
-     			nKd+=nD
+     			
+			if lExpRpt
+				fill_ss_tbl(cIdKonto, cIdPartner, IF(EMPTY(cIdPartner), konto->naz, partn->naz), nD, nP, nD-nP)
+			endif
+			
+			nKd+=nD
 			nKp+=nP  // ukupno  za klasu
      			nKd2+=nD2
 			nKp2+=nP2  // ukupno  za klasu
@@ -1256,9 +1309,18 @@ else
   	@ prow(),pcol()+1 SAY nUd2-nUP2 pict pic
 endif
 
+if lExpRpt
+	fill_ss_tbl("UKUPNO", "", "", nUD, nUP, nUD-nUP)
+endif
+
 ? m
 FF
 END PRINT
+
+if lExpRpt
+	tbl_export(cLaunch)
+endif
+
 closeret
 return
 *}

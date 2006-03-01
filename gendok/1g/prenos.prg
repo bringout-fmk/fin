@@ -16,16 +16,22 @@
  
 function PrenosFin()
 *{
+local cStranaBitna
+local lStranaBitna
+
 private fK1:=fk2:=fk3:=fk4:="N"
 O_PARAMS
 Private cSection:="1"
 private cHistory:=" "
 private aHistory:={}
+
+
 RPar("k1",@fk1)
 RPar("k2",@fk2)
 RPar("k3",@fk3)
 RPar("k4",@fk4)
-select params; use
+select params 
+use
 
 private cK1:=cK2:="9"
 private cK3:=cK4:="99"
@@ -37,10 +43,11 @@ ENDIF
 O_PKONTO
 P_PKonto()
 
+cStranaBitna:= "N"
 cKlDuguje := "2"
 cKlPotraz := "5"
 
-Box(,11,60)
+Box(, 12, 60)
   nMjesta:=3
   ddatDo:=date()
   
@@ -56,10 +63,16 @@ if fk4=="D"; @ m_x+8,col()+1 SAY "K4 (99 svi):" GET cK4; endif
   @ m_x+9, m_y+2 SAY "Klasa konta duguje " GET cKlDuguje PICT "9"
   @ m_x+10, m_y+2 SAY "Klasa konta potraz " GET cKlPotraz PICT "9"
   
+  @ m_x+12, m_y+2 SAY "Saldo strane valute je bitan ?" GET cStranaBitna ;
+  	PICT "@!" ;
+	VALID cStranaBitna $ "DN"
+  
   read
   ESC_BCR
   
 BoxC()
+
+lStranaBitna := (cStranaBitna == "D")
 
 if ck1=="9"; ck1:=""; endif
 if ck2=="9"; ck2:=""; endif
@@ -211,7 +224,11 @@ do while !eof()
         endif
 
         if ctippr=="3"
-            cSUBk1:=k1; cSUBk2:=k2; cSUBk3:=k3; cSUBk4:=k4
+            cSUBk1:=k1
+	    cSUBk2:=k2
+	    cSUBk3:=k3
+	    cSUBk4:=k4
+
             if Otvst==" "
               Scatter()
               select pripr
@@ -276,8 +293,9 @@ do while !eof()
 	       		
 	      endif
 	       
-	       nDin+=iif(d_p=="1",iznosbhd, -iznosbhd)
-               nDem+=iif(d_p=="1",iznosdem, -iznosdem)
+	       nDin+=iif(d_p=="1", iznosbhd, -iznosbhd)
+               nDem+=iif(d_p=="1", iznosdem, -iznosdem)
+	       
                IF lVodeSeRJ .and. EMPTY(cTekucaRJ)
                  cTekucaRJ:=IDRJ
                ENDIF
@@ -288,7 +306,7 @@ do while !eof()
              // ----------------------------------- petlja 5
 
              //if cOtvSt=="9"
-              if round(nDin,3)<>0  // ako saldo nije 0
+              if round(nDin, 3) <> 0  // ako saldo nije 0
                select pripr
                append blank
                replace  idfirma with cidfirma,;
@@ -300,6 +318,7 @@ do while !eof()
                         brdok  with cBrDok,;
                         datdok with dDatDo+1 ,;
 			datval with dDatVal
+			
                if !(cFilter==".t.")
                  REPLACE  k1 WITH cSUBk1,;
                           k2 WITH cSUBk2,;
@@ -342,15 +361,15 @@ do while !eof()
              do while !eof() .and. cIdFirma==IdFirma .and. cIdKonto==IdKonto .and. IdPartner==cIdPartner ;
                       .and. cIDRJ==IDRJ .and. cFunk==FUNK .and. cFond==FOND
 
-               nDin+=iif(d_p=="1",iznosbhd,-iznosbhd)
-               nDem+=iif(d_p=="1",iznosdem,-iznosdem)
+               nDin+=iif(d_p=="1",iznosbhd, -iznosbhd)
+               nDem+=iif(d_p=="1",iznosdem, -iznosdem)
                Postotak(2,++nProslo)
                skip 1
 
              enddo // brdok
              // ----------------------------------- petlja 6
 
-              if round(nDin,3)<>0  // ako saldo nije 0
+              if round(nDin, 3) <> 0  // ako saldo nije 0
                select pripr
                append blank
                replace  idfirma with cidfirma,;
@@ -363,6 +382,7 @@ do while !eof()
                         funk with cFunk,;
                         fond with cFond,;
                         datdok with dDatDo+1
+			
                if !(cFilter==".t.")
                  REPLACE  k1 WITH cSUBk1,;
                           k2 WITH cSUBk2,;
@@ -479,7 +499,7 @@ do while !eof()
         endif    // tippr=="3"
 
         if cTipPr=="2"  // sabirem po konto+partner
-          if (round(nDin,2) <> 0) .or. (round(nDem,2) <>0)
+          if (round(nDin,2) <> 0) .or. ((round(nDem, 2) <> 0 ) .and. lStranaBitna)
             select pripr
             append blank
             replace rbr with  str(++nRbr,4),;
@@ -495,7 +515,8 @@ do while !eof()
                        k3 WITH cSUBk3,;
                        k4 WITH cSUBk4
             endif
-            if ndin>=0
+	    
+            if nDin >= 0
                replace d_p with "1",;
                        iznosbhd with nDin,;
                        iznosdem with nDem
@@ -504,6 +525,7 @@ do while !eof()
                        iznosbhd with -nDin,;
                        iznosdem with -nDem
             endif // ndin
+	    
             select suban
           endif // <> 0
         endif
@@ -512,7 +534,7 @@ do while !eof()
       // ----------------------------------- petlja 3
 
       if cTipPr=="0"  // sabirem po konto bez obzira na partnera
-       if (round(nDin,2) <> 0) .or. (round(nDem,2) <> 0)
+       if (round(nDin,2) <> 0) .or. (round( nDem, 2 ) <> 0  .and. lStranaBitna)
         select pripr
         append blank
         replace rbr with  str(++nRbr,4),;
@@ -647,7 +669,9 @@ LOCAL aNiz:={}
  GO TOP
  DO WHILE !EOF()
    Scatter(); _konto2:=_idkonto; _nslog:=RECNO()
-   SELECT TEMP77; APPEND BLANK; Gather()
+   SELECT TEMP77
+   APPEND BLANK
+   Gather()
    SELECT F_SUBAN
    SKIP 1
  ENDDO

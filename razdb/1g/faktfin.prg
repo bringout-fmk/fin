@@ -50,14 +50,21 @@ if empty(gKalkKum) .or. cOdradjeno="N"
   Wpar("a3",@gKalkKum)
 endif
 
-
+cIdRjFakt:="10"
 cIdFakt:="10"
 dDAtOd:=date()
 dDatDo:=date()
 qqDok:=space(30)
-cSetPAr:="N"
+cSetPAr := "N"
+cSetIdRj := "N"
+
 Box(,10,60)
- @ m_x+1,m_y+2 SAY "Vrsta dokumenta u fakt:" GET cIdFakt
+ @ m_x+1,m_y+2 SAY "RJ u fakt:" GET cIdRjFakt
+ @ m_x+1,col()+2 SAY "postaviti IdRj u FIN ?" GET cSetIdRj ;
+ 	PICT "@!" ;
+	VALID (cSetIdRj $ "DN")
+	
+ @ m_x+2,m_y+2 SAY "Vrsta dokumenta u fakt:" GET cIdFakt
  @ m_x+3,m_y+2 SAY "Dokumenti u periodu:" GET dDAtOd
  @ m_x+3,col()+2 SAY "do" GET dDatDo
  @ m_x+5,m_y+2 SAY "Broj dokumenta" GET qqDok
@@ -118,10 +125,11 @@ zap
 
 aUsl:=Parsiraj(qqDok,"Brdok","C")
 
-private cFilter:="DatDok>="+cm2str(dDatOd)+".and.DatDok<="+cm2str(dDatDo)+".and. idtipdok=="+cm2str(cIdFakt)
+private cFilter:="DatDok>="+cm2str(dDatOd)+".and.DatDok<="+cm2str(dDatDo)+".and. idtipdok=="+cm2str(cIdFakt) + ".and. IdFirma=="+cm2str(cIdRjFakt)
 if aUsl<>".t."
   cFilter+=".and."+aUsl
 endif
+
 
 select fakt
 set filter to &cFilter
@@ -175,7 +183,7 @@ do whilesc !eof()
         select FINMAT
         append blank
         cIdVD := fakt->IdTipdok
-        replace IdFirma   with fakt->IdFirma,;
+        replace IdFirma   with gFirma,;
                 IdTarifa  with roba->IdTarifa,;
                 IdPartner with cIdPartner,;
                 IdVD      with cIdVD,;
@@ -195,6 +203,10 @@ do whilesc !eof()
                 idroba    with fakt->idroba,;
                 Kolicina  with fakt->Kolicina
 
+	if (cSetIdRj == "D")
+		replace IdRj with cIdRjFakt
+	endif
+	
          IF cIDVD=="11" .and. lNCPoSast .and.;
             TARIFA->mpp<>0 .and. FIELDPOS("POREZ3")>0
            REPLACE porez3 WITH PorezMP("MPP")

@@ -4,13 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/db/2g/mnu_adm.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.5 $
- * $Log: mnu_adm.prg,v $
- * Revision 1.5  2004/01/13 19:07:55  sasavranic
- * appsrv konverzija
- *
  *
  */
 
@@ -20,7 +13,7 @@
  */
 
 /*! \fn MnuAdminDB()
- *  \brief Administrativni menij
+ *  \brief Administrativni meni
  */
 
 function MnuAdminDB()

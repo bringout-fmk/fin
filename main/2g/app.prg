@@ -4,87 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/main/2g/app.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.26 $
- * $Log: app.prg,v $
- * Revision 1.26  2004/05/27 09:27:10  sasavranic
- * Koristenje zajednickog sifranika valuta
- *
- * Revision 1.25  2004/04/27 11:02:37  sasavranic
- * PartnSt prenos - bugix
- *
- * Revision 1.24  2004/01/29 12:53:45  sasavranic
- * Ispravljena greska za SECUR.DBF
- *
- * Revision 1.23  2004/01/19 09:05:16  sasavranic
- * Na komenzaciji uvedena polja za fax #32# i #33#
- *
- * Revision 1.22  2004/01/13 19:07:55  sasavranic
- * appsrv konverzija
- *
- * Revision 1.21  2003/10/13 12:36:33  sasavranic
- * no message
- *
- * Revision 1.20  2003/10/04 12:34:40  sasavranic
- * uveden security sistem
- *
- * Revision 1.19  2003/09/08 08:41:43  ernad
- * porezi u ugostiteljstvu
- *
- * Revision 1.18  2003/07/24 10:31:05  sasa
- * prenos stanja partnera na HH
- *
- * Revision 1.17  2003/04/12 06:46:19  mirsad
- * ispravka: gBrojac sada je PUBLIC varijabla
- *
- * Revision 1.16  2002/11/22 09:32:12  mirsad
- * Login za security prebacen u SCLIB
- *
- * Revision 1.15  2002/11/18 12:12:58  mirsad
- * dorade i korekcije-security
- *
- * Revision 1.14  2002/11/18 04:28:38  mirsad
- * dorade-security
- *
- * Revision 1.13  2002/11/17 11:01:57  sasa
- * no message
- *
- * Revision 1.12  2002/11/16 23:24:30  sasa
- * korekcija koda
- *
- * Revision 1.11  2002/11/15 18:46:39  sasa
- * korekcija koda
- *
- * Revision 1.10  2002/11/15 16:45:25  sasa
- * korekcija koda
- *
- * Revision 1.9  2002/11/15 10:28:27  mirsad
- * ispravke
- *
- * Revision 1.8  2002/11/14 15:17:22  mirsad
- * doradjivanje u toku
- *
- * Revision 1.7  2002/09/26 08:02:15  sasa
- * Ispravka bug-a izbor:=1
- *
- * Revision 1.6  2002/08/05 11:03:58  ernad
- *
- *
- * Fin/SQLLog funkcije, debug bug RJ/KUMPATH
- *
- * Revision 1.5  2002/07/30 17:40:59  ernad
- * SqlLog funkcije - Fin modul
- *
- * Revision 1.4  2002/07/03 07:31:12  ernad
- *
- *
- * planika, debug na terenu
- *
- * Revision 1.3  2002/06/20 07:09:16  sasa
- * no message
- *
- *
  */
  
 
@@ -239,6 +158,8 @@ method mMenuStandard()
 private Izbor:=1
 private opc:={}
 private opcexe:={}
+
+say_fmk_ver()
 
 AADD(opc, "1. unos/ispravka dokumenta                   ")
 if (ImaPravoPristupa(goModul:oDataBase:cName,"DOK","KNJIZNALOGA"))

@@ -210,16 +210,18 @@ do while !eof()
 enddo
 select anal
 //CREATE_INDEX("ANALi1","IdFirma+IdKonto+dtos(DatNal)","ANAL")
-hseek cidfirma+cidkonto
+hseek cIdfirma+cIdkonto
 nDugSt:=nPotSt:=0
-do while !eof() .and. idfirma==cidfirma .and. idkonto==cidkonto .and. datnal<dDatDok
-   if cdindem=="1"
+do while !eof() .and. idfirma==cIdfirma .and. idkonto==cIdkonto .and. datnal<=dDatDok
+
+   if cDindem=="1"
      nDugSt+=dugbhd
      nPotSt+=potbhd
    else
      nDugSt+=dugdem
      nPotSt+=potdem
    endif
+   
    skip
 enddo
 ? m
@@ -295,7 +297,7 @@ return
  
 function Slovima(nIzn,cDinDem)
 *{
-local npom; cRez:=""
+local nPom; cRez:=""
 fI:=.f.
 
 if nIzn<0

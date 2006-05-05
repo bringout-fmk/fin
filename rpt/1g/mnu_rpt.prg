@@ -45,6 +45,8 @@ AADD(opc,"5. dnevnik naloga")
 AADD(opcexe,{|| DnevnikNaloga()})
 AADD(opc,"6. ostali izvjestaji")
 AADD(opcexe,{|| Ostalo()})
+AADD(opc,"7. blagajnicki nalog")
+AADD(opcexe,{|| blag_azur()})
 
 Menu_SC("izvj")
 

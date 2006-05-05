@@ -254,37 +254,38 @@ end print
 closeret
 
 
-PROC PZagBlag(nDug,nPot,m,cBrDok,pici,cDinDem,dDatDok)
-    // zavrsetak prethodne stranice:
-    // -----------------------------
-    ? m
-      @ prow()+1,10 SAY "Promet blagajne, prenos:"
-      @ prow(),ncol1 SAY PADL(TRANSFORM(ndug,pici),14)
-      @ prow(),pcol()+1 SAY PADL(TRANSFORM(npot,pici),14)
-    ? m
-    FF
-    // sljedeca stranica:
-    // ------------------
-    F12CPI
-    ?? space(12)
-    if cdindem=="1"
+function PZagBlag(nDug,nPot,m,cBrDok,pici,cDinDem,dDatDok)
+// zavrsetak prethodne stranice:
+// -----------------------------
+? m
+@ prow()+1,10 SAY "Promet blagajne, prenos:"
+@ prow(),ncol1 SAY PADL(TRANSFORM(ndug,pici),14)
+@ prow(),pcol()+1 SAY PADL(TRANSFORM(npot,pici),14)
+? m
+FF
+// sljedeca stranica:
+// ------------------
+F12CPI
+?? space(12)
+if cDinDem=="1"
       ?? "("+ValDomaca()+")"
-    else
+else
       ?? "DEVIZNI ("+ValPomocna()+")"
-    endif
-    ?? " BLAGAJNICKI IZVJESTAJ OD ", dDatDok
-    ?? space(8),"Broj:",cBrDok
-    ?
-    ?
-    ? "    ------- ------------------------- --------------------- -------------- ---------------"
-    ? "    * Redni*       Temeljnica        *        OPIS         *    ULAZ      *    IZLAZ     *"
-    ? "    * broj *                         *                     *              *              *"
-    ? "    *      *            *            *                     *              *              *"
-    ? m
-      @ prow()+1,10 SAY "Promet blagajne, donos:"
-      @ prow(),ncol1 SAY PADL(TRANSFORM(ndug,pici),14)
-      @ prow(),pcol()+1 SAY PADL(TRANSFORM(npot,pici),14)
-    ? m
+endif
+?? " BLAGAJNICKI IZVJESTAJ OD ", dDatDok
+?? space(8),"Broj:",cBrDok
+?
+?
+? "    ------- ------------------------- --------------------- -------------- ---------------"
+? "    * Redni*       Temeljnica        *        OPIS         *    ULAZ      *    IZLAZ     *"
+? "    * broj *                         *                     *              *              *"
+? "    *      *            *            *                     *              *              *"
+? m
+@ prow()+1,10 SAY "Promet blagajne, donos:"
+@ prow(),ncol1 SAY PADL(TRANSFORM(ndug,pici),14)
+@ prow(),pcol()+1 SAY PADL(TRANSFORM(npot,pici),14)
+? m
+
 return
 *}
 
@@ -427,3 +428,266 @@ return cRez
 *}
 
 
+// stampa blagajne na osnovu azuriranog dokumenta
+function blag_azur()
+*{
+local nRbr:=0
+local nCOpis:=0
+local cOpis:=""
+private pici:=FormPicL("9,"+gPicDEM,12)
+private cLine := ""
+
+lSumiraj := ( IzFMKINI("BLAGAJNA","DBISumirajPoBrojuVeze","N",PRIVPATH)=="D" )
+
+O_PARTN
+O_KONTO
+O_ANAL
+O_SUBAN
+
+cDinDem:="1"
+
+Box(,4,60)
+	@ m_x+1,m_y+2 SAY ValDomaca()+"/"+ValPomocna()+" blagajnicki izvjestaj (1/2):" GET cDinDem
+ 	read
+ 	if cDinDem=="1"
+   		cIdKonto:=padr("2020",7)
+   		pici:=FormPicL("9,"+gPicBHD,12)
+ 	else
+   		cIdKonto:=padr("2050",7)
+ 	endif
+
+ 	dDatdok:=datdok
+	cIdFirma := gFirma
+	cTipDok := SPACE(2)
+	cBrDok := SPACE(4)
+	
+	@ m_x+2,m_Y+2 SAY "Dokument:" GET cIdFirma VALID !EMPTY(cIdFirma)
+	@ m_x+2,m_Y+15 SAY "-" GET cTipDok VALID !EMPTY(cTipDok)
+	@ m_x+2,m_Y+20 SAY "-" GET cBrDok VALID !EMPTY(cBrDok)
+	@ m_x+3,m_Y+2 SAY "Datum:" GET dDatDok
+ 	@ m_x+4,m_Y+2 SAY "Konto blagajne:" GET cIdKonto valid P_Konto(@cIdKonto)
+ 	read
+BoxC()
+
+if LastKey()==K_ESC
+	return
+endif
+
+SELECT SUBAN
+set order to tag "4"
+hseek cIdFirma+cTipDok+cBrDok
+
+// nisam pronasao dokument
+if !FOUND()
+	MsgBeep("Dokument " + cIdFirma + "-" + cTipDok + "-" + cBrDok + " ne postoji!")
+	return
+endif
+
+start print cret
+
+
+nRbr:=0
+nDug:=0
+nPot:=0
+nCol1:=20
+
+// setuj liniju reporta
+set_line(@cLine)
+
+// stampaj zaglavlje reporta
+st_bl_zagl(cLine, cDinDem, cIdFirma, cTipDok, cBrDok, dDatDok)
+
+do while !eof() .and. field->idfirma == cIdFirma .and. field->idvn == cTipDok .and. field->brnal == cBrDok
+
+	IF PROW() > 49+gPStranica
+    		PZagBlag(nDug,nPot,cLine,cBrDok,pici,cDinDem,dDatDok)
+  	ENDIF
+  	IF lSumiraj
+    		nPomD:=nPomP:=0
+    		cBrDok2:=brdok
+    		cOpis:=""
+    		nStavki:=0
+    		DO WHILE !EOF() .and. brdok==cBrDok2
+      			if idkonto<>cIdKonto
+        			skip 1
+        			loop
+      			else
+        			if nPomD<>0 .and. d_p=="2" .or. nPomP<>0 .and. d_p=="1"
+          				// ovo se moze desiti ako su iste 
+					// temeljnice za naplatu i isplatu
+          				exit
+        			endif
+      			endif
+      			if cDinDem=="1"  // dinari !!!!
+        			if d_p=="1"
+          				nPomD+=iznosbhd
+        			else
+          				nPomP+=iznosbhd
+        			endif
+      			else
+        			if d_p=="1"
+          				nPomD+=iznosdem
+        			else
+          				nPomP+=iznosdem
+        			endif
+      			endif
+      			IF !EMPTY(opis)
+        			cOpis += opis
+        			++nStavki
+      			ENDIF
+      			skip 1
+    		ENDDO
+    		IF PROW() > 49+gPStranica-nStavki
+      			PZagBlag(nDug,nPot,m,cBrDok,pici,cDinDem,dDatDok)
+    		ENDIF
+		
+    		? "    *", str(++nRbr, 3) + ". *"
+    		
+		if nPomD<>0
+      			?? " " + cBrDok2 + " *" + space(12) + "*"
+    		else
+      			?? space(12) + "* " + padr(cBrDok2, 11) + "*"
+    		endif
+		
+    		nCOpis:=pcol()+1
+    		?? " "+PADR(cOpis,20)
+    		nCol1:=pcol()+1
+    		@ prow(),pcol()+1 SAY PADL(TRANSFORM(nPomD,pici),14)
+    		@ prow(),pcol()+1 SAY PADL(TRANSFORM(nPomP,pici),14)
+    		nDug += nPomD
+    		nPot += nPomP
+    		OstatakOpisa(cOpis,nCOpis)
+	ELSE
+    	if idkonto <> cIdkonto
+      		skip
+      		loop
+    	endif
+    	? "    *",str(++nRbr,3)+". *"
+    	if d_p=="1"
+      		?? " "+brdok+" *"+space(12)+"*"
+    	else
+      		?? space(12)+"* "+padr(brdok,11)+"*"
+    	endif
+    	nCOpis:=pcol()+1
+    	?? " "+PADR(cOpis:=ALLTRIM(opis),20)
+    	nCol1:=pcol()+1
+    	if cDinDem=="1"  // dinari !!!!
+		if d_p=="1"
+        		@ prow(),pcol()+1 SAY PADL(TRANSFORM(iznosbhd,pici),14)
+        		@ prow(),pcol()+1 SAY PADL(TRANSFORM(0,pici),14)
+        		nDug+=iznosbhd
+      		else
+        		@ prow(),pcol()+1 SAY PADL(TRANSFORM(0,pici),14)
+       	 		@ prow(),pcol()+1 SAY PADL(TRANSFORM(iznosbhd,pici),14)
+        		nPot+=iznosbhd
+      		endif
+	else
+		if d_p=="1"
+        		@ prow(),pcol()+1 SAY PADL(TRANSFORM(iznosdem,pici),14)
+        		@ prow(),pcol()+1 SAY PADL(TRANSFORM(0,pici),14)
+        		nDug+=iznosdem
+      		else
+        		@ prow(),pcol()+1 SAY PADL(TRANSFORM(0,pici),14)
+        		@ prow(),pcol()+1 SAY PADL(TRANSFORM(iznosdem,pici),14)
+        		nPot+=iznosdem
+      		endif
+	endif
+    	OstatakOpisa(cOpis,nCOpis)
+    	skip 1
+	ENDIF
+enddo
+
+// procesljaj staro stanje
+select anal
+hseek cIdfirma+cIdkonto
+
+nDugSt:=0
+nPotSt:=0
+
+do while !eof() .and. idfirma==cIdfirma .and. idkonto==cIdkonto .and. datnal<dDatDok
+	if cDinDem=="1"
+     		nDugSt+=dugbhd
+     		nPotSt+=potbhd
+   	else
+     		nDugSt+=dugdem
+     		nPotSt+=potdem
+   	endif
+   	skip
+enddo
+
+? cLine
+@ prow()+1,10 SAY "Promet blagajne:"
+@ prow(),ncol1 SAY PADL(TRANSFORM(nDug,pici),14)
+@ prow(),pcol()+1 SAY PADL(TRANSFORM(nPot,pici),14)
+? cLine
+@ prow()+1,10 SAY "Saldo od "+dtoc(dDatDok-1)+":"
+@ prow(),ncol1 SAY PADL(TRANSFORM(nDugst-nPotst,pici),14)
+? cLine
+@ prow()+1,10 SAY "Ukupan primitak:"
+@ prow(),ncol1 SAY PADL(TRANSFORM(nDugSt-nPotSt+nDug,pici),14)
+@ prow()+1,10 SAY "Izdatak:"
+@ prow(),ncol1 SAY PADL(TRANSFORM(nPot,pici),14)
+? cLine
+@ prow()+1,10 SAY "Saldo na dan:"
+@ prow(),ncol1 SAY PADL(TRANSFORM(nDugSt-nPotSt+nDug-nPot,pici),14)
+? cLine
+@ prow()+1,10 SAY "Slovima:"
+@ prow(),pcol()+1 SAY Slovima(round(ndugst-npotst+ndug-npot,2),iif(cdindem=="1",ValDomaca(),ValPomocna()))
+? cLine
+?
+?
+
+@ prow()+1,25 SAY "  ___________________            ______________________"
+@ prow()+1,25 SAY "     Blagajna                           Kontrola       "
+
+FF
+
+end print
+
+closeret
+return
+
+// setovanje linije za izvjestaj
+static function set_line(cLine)
+local cRazmak := SPACE(1)
+cLine := ""
+cLine += SPACE(4)
+cLine += REPLICATE("-", 7)
+cLine += cRazmak
+cLine += REPLICATE("-", 25)
+cLine += cRazmak
+cLine += REPLICATE("-", 21)
+cLine += cRazmak
+cLine += REPLICATE("-", 14)
+cLine += cRazmak
+cLine += REPLICATE("-", 15)
+
+return
+
+
+// stampa zaglavlja blagajne
+function st_bl_zagl(cLine, cDinDem, cIdFirma, cTipDok, cBrDok, dDatDok )
+
+F12CPI
+
+?? space(12)
+
+if cDinDem=="1"
+  	?? "("+ValDomaca()+")"
+else
+  	?? "DEVIZNI ("+ValPomocna()+")"
+endif
+
+?? " BLAGAJNICKI IZVJESTAJ OD ", dDatDok
+?? space(8),"Broj:",cBrDok
+? SPACE(20)
+?? "na osnovu dokumenta: " + cIdFirma + "-" + cTipDok + "-" + cBrDok
+?
+?
+? cLine
+? "    * Redni*       Temeljnica        *        OPIS         *    ULAZ      *    IZLAZ     *"
+? "    * broj *                         *                     *              *              *"
+? "    *      *            *            *                     *              *              *"
+? cLine
+
+return

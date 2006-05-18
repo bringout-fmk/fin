@@ -24,7 +24,6 @@
 static cTekucaRj:=""
 *;
 
-
 /* ukinuto!!!
 *string FmkIni_KumPath_TekucaRj;
 
@@ -329,9 +328,10 @@ endif
 if (IsRamaGlas())
 	@  m_x+8,m_y+2   SAY "Vezni broj (racun/r.nalog):"  get _BrDok valid BrDokOK()
 else
-	@  m_x+8,m_y+2   SAY "Vezni broj:"  get _BrDok
+	@  m_x+8,m_y+2   SAY "Vezni broj:" GET _BrDok
 endif
-@  m_x+8,m_y+COL()+2  SAY "Datum:"   get  _DatDok
+
+@  m_x+8,m_y+COL()+2  SAY "Datum:" GET _DatDok VALID chk_sezona() 
 
 if cDatVal=="D"
 	@  m_x+8,col()+2 SAY "Valuta" GET _DatVal
@@ -407,6 +407,21 @@ _Rbr:=STR(nRbr,4)
 
 return 1
 *}
+
+// provjeri datum dokumenta na osnovu tek.sezona i upozori
+static function chk_sezona()
+local nYearDok
+local nYearSez
+
+nYearSez := VAL(goModul:oDataBase:cSezona)
+nYearDok := YEAR(_datdok)
+
+if nYearSez <> nYearDok
+	MsgBeep("Upozorenje!##Datum dokumenta " + DToC(_datDok) + "#Tekuca sezona " + goModul:oDataBase:cSezona)
+endif
+
+return .t.
+
 
 
 /*! \fn MinKtoLen(cIdKonto)

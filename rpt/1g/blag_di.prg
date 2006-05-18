@@ -464,6 +464,12 @@ Box(,4,60)
 	@ m_x+2,m_Y+2 SAY "Dokument:" GET cIdFirma VALID !EMPTY(cIdFirma)
 	@ m_x+2,m_Y+15 SAY "-" GET cTipDok VALID !EMPTY(cTipDok)
 	@ m_x+2,m_Y+20 SAY "-" GET cBrDok VALID !EMPTY(cBrDok)
+	
+	read
+
+	// precesljaj dokument radi konta i datuma, pa ponudi
+	dat_kto_blag(@dDatDok, @cIdKonto, cIdFirma, cTipDok, cBrDok)
+	
 	@ m_x+3,m_Y+2 SAY "Datum:" GET dDatDok
  	@ m_x+4,m_Y+2 SAY "Konto blagajne:" GET cIdKonto valid P_Konto(@cIdKonto)
  	read
@@ -646,6 +652,37 @@ end print
 
 closeret
 return
+
+
+// vrati konto naloga
+static function dat_kto_blag(dDatum, cKonto, cFirma, cIdVn, cBrNal)
+local nLenKto
+local cTmpKto
+select suban
+set order to tag "4"
+hseek cFirma+cIdVn+cBrNal
+
+// nisam pronasao dokument
+if !FOUND()
+	MsgBeep("Dokument " + cFirma + "-" + cIdVn + "-" + cBrNal + " ne postoji!")
+	return
+endif
+
+do while !EOF() .and. suban->(idfirma + idvn + brnal) == cFirma + cIdVn + cBrNal
+	nTmpKto := field->idkonto
+	nLenKto := LEN(ALLTRIM(nTmpKto))
+	if nLenKto > 4
+		if LEFT(nTmpKto, 4) == "2020"
+			cKonto := nTmpKto
+			dDatum := field->datdok
+			exit
+		endif
+	endif
+	skip
+enddo
+
+return
+
 
 // setovanje linije za izvjestaj
 static function set_line(cLine)

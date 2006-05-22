@@ -4,22 +4,6 @@
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
  * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/main/1g/e.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.6 $
- * $Log: e.prg,v $
- * Revision 1.6  2003/01/18 12:08:50  ernad
- * no message
- *
- * Revision 1.5  2002/07/04 19:04:08  ernad
- *
- *
- * ciscenje sifrarnik fakt
- *
- * Revision 1.4  2002/06/20 07:08:39  sasa
- * no message
- *
- *
  */
 
 /*! \file fmk/fin/main/1g/e.prg

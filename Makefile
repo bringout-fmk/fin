@@ -1,5 +1,4 @@
-
-all: 
+liball: 
 	rm -f main/1g/e.obj
 	make -C main/2g
 	make -C db/1g
@@ -24,7 +23,7 @@ all:
 	make -C 1g
 	
 
-clean:
+cleanall:
 	cd 1g; make clean
 	cd main/2g; make clean
 	cd db/1g; make clean
@@ -52,3 +51,5 @@ zip:
 commit:
 	cd 1g; make commit
 
+
+fin:    cleanall  liball

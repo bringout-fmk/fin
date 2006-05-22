@@ -1,29 +1,10 @@
 VERZIJA=CDX
 MODUL=fin_1rpt
 
-include /sclib/Makefile_clipper
-
 SRCDOSROOT=c:\\dev\\fmk\\fin\\rpt\\1g\\
 
 PRGS=bilans.prg kartas.prg kartica.prg mnu_rpt.prg ostalo.prg proizv.prg specif.prg mnu_spec.prg rpt_dug.prg blag_di.prg
-
 CS=
 ASMS=
 
-OBJS=$(OBJPRGS) $(OBJCS) $(OBJASMS)
-
-all: $(OBJS)
-	rm -f $(MODUL).lib 
-	$(LIBEXE) $(MODUL) $(LIBCMD) ,,
-	cp $(MODUL).lib $(LIB_DEST)
-	
-clean:
-	rm -f *~
-	rm -f *.xref
-	rm -f *.xrefs
-	rm -f *.html
-	rm -f *.OBJ *.obj
-	rm -f xref_files
-	rm -f $(OBJS) *.bak *.BAK
-
-
+include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper

@@ -20,11 +20,10 @@ liball:
 	make -C ostav/1g
 	make -C param/1g
 	make -C ut/1g
-	make -C 1g
+	make -C 1g exe
 	
 
 cleanall:
-	cd 1g; make clean
 	cd main/2g; make clean
 	cd db/1g; make clean
 	cd db/2g; make clean
@@ -43,13 +42,5 @@ cleanall:
 	cd ostav/1g; make clean
 	cd param/1g; make clean
 	cd ut/1g; make clean
-	make -C 1g  clean
-
-zip:
-	cd 1g; make zip; make 7exe
-
-commit:
-	cd 1g; make commit
-
 
 fin:    cleanall  liball

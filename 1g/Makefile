@@ -2,6 +2,7 @@ VERZIJA=CDX
 MODUL=FIN
 
 PRGS=e.prg
+EXE_PRGS=e.prg
 
 FMK_LIBS=fmk_roba.lib fmk_rab.lib fmk_svi.lib fmk_pi.lib fmk_evn.lib fmk_sec.lib fmk_mes.lib partnst.lib fmk_exp.lib fmk_lok.lib 
 
@@ -11,6 +12,13 @@ MODUL_LIBS=fin_1bud.lib fin_1db.lib fin_1dok.lib fin_1gen.lib fin_1ost.lib fin_1
 
 #fin_s1ti.lib
 
+
 include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper
 
+LIBEXE:=@echo pokrenute make exe  !
+CPLIB:=@echo pokrenuti make exe !
+RMLIB:=@echo pokrenuti make exe !
+e.obj : $(SC_BUILD_HOME_DIR)/sclib/sc.ch $(SC_BUILD_HOME_DIR)/sclib/std_cdx.ch ../fin.ch
 
+
+lib: exe

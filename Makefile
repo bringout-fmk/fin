@@ -1,5 +1,4 @@
 liball: 
-	rm -f main/1g/e.obj
 	make -C main/2g
 	make -C db/1g
 	make -C db/2g
@@ -14,9 +13,7 @@ liball:
 	make -C sql/1g
 	make -C sql/2g
 	make -C budzet/1g
-	#make -C dnal/1g
 	make -C gendok/1g
-	#make -C komp/1g
 	make -C ostav/1g
 	make -C param/1g
 	make -C ut/1g

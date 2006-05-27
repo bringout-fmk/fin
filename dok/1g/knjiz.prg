@@ -9,29 +9,15 @@
 
 #define DABLAGAS lBlagAsis.and._IDVN==cBlagIDVN
 
-
-/*! \file fmk/fin/dok/1g/knjiz.prg
- *  \brief Knjizenje naloga
- */
-
-/*! \fn Knjiz()
- *  \brief Knjizenje naloga
- */
-
-*string
 static cTekucaRj:=""
-*;
 
-/* ukinuto!!!
-*string FmkIni_KumPath_TekucaRj;
+// FmkIni_KumPath_TekucaRj - Tekuca radna jedinica
+// Koristi se u slucaju da u Db unosimo podatke za odredjenu radnu jedinicu
+// da ne bi svaki puta ukucavali tu Rj ovaj parametar nam je nudi kao tekucu vrijednost.
 
-
-/*! \var *string FmkIni_KumPath_TekucaRj
- *  \brief Tekuca radna jedinica
- *  \kada Koristi se u slucaju da u Db unosimo podatke za odredjenu radnu jedinicu; da ne bi svaki puta ukucavali tu Rj ovaj parametar nam je nudi kao tekucu vrijednost.
- *
-*/
-
+// ---------------------------------------------
+// Unos fin naloga
+// ---------------------------------------------
 function Knjiz()
 local izbor
 private opc[4]
@@ -92,12 +78,13 @@ if gNW=="N"
      case izbor == 3
          Azur()
      case izbor == 4
-       if KursLis=="1"  // prva vrijednost
+       // prva vrijednost
+       if KursLis=="1"  
          KursLis:="2"
        else
          KursLis:="1"
        endif
-       opc[4]:="4. kurs "+KursLis
+       opc[4]:= "4. kurs " + KursLis
    endcase
 
  enddo
@@ -114,7 +101,6 @@ return
  */
  
 function KnjNal()
-*{
 O_Edit()
 ImeKol:={ ;
           {"F.",            {|| IdFirma }, "IdFirma" } ,;
@@ -156,7 +142,6 @@ ObjDbedit("PNal", 20, 77, {|| EdPRIPR()},"","Priprema...", , , , ,3)
 BoxC()
 closeret
 return
-*}
 
 
 /*! \fn WRbr()
@@ -375,7 +360,6 @@ if DABLAGAS
 else
     	@  m_x+13,m_y+2  SAY "Konto  :" get _IdKonto    pict "@!" valid  Partija(@_IdKonto) .and. P_Konto(@_IdKonto,13,20) .and. BrDokOK() .and. MinKtoLen(_IdKonto)
 endif
-altd()
 
 @  m_x+14,m_y+2  SAY "Partner:" get _IdPartner  pict "@!" valid {|| if(empty(_idpartner),Reci(14,20,SPACE(25)),), empty(_IdPartner) .or. P_Firma(@_IdPartner,14,20)} when {|| iif(ChkKtoMark(_idkonto),.t.,.f.)}
 @  m_x+16,m_y+2  SAY "Duguje/Potrazuje (1/2):" get _D_P valid V_DP()
@@ -416,7 +400,6 @@ if nYearSez <> nYearDok
 endif
 
 return .t.
-
 
 
 /*! \fn MinKtoLen(cIdKonto)
@@ -498,13 +481,10 @@ return .t.
 *}
 
 
-
-/*! \fn V_DP()
- *  \brief Ispis duguje/potrazuje u domacoj i pomocnoj valuti 
- */
- 
+// -----------------------------------------------------
+// Ispis duguje/potrazuje u domacoj i pomocnoj valuti 
+// -----------------------------------------------------
 function V_DP()
-*{
 SetPos(m_x+16,m_y+30)
 if _D_P=="1"
 	?? "   DUGUJE"
@@ -522,7 +502,6 @@ endif
 ?? " "+ValPomocna()
 
 return _D_P $ "12"
-*}
 
 
 
@@ -739,9 +718,7 @@ case Ch==K_ALT_F5
         return DE_REFRESH
 
    case Ch==K_CTRL_P
-#ifndef CAX
      close all
-#endif
      StNal()
      O_Edit()
      return DE_REFRESH
@@ -753,33 +730,23 @@ case Ch==K_ALT_F5
        return DE_CONT
      endif
 
-     // stampaj
-     #ifndef CAX
      close all
-     #endif
      StNal(.t.)
 
      // pa azuriraj
-     #ifndef CAX
      close all
-     #endif
      Azur(.t.)
      O_Edit()
      return DE_REFRESH
 
 
    case Ch==K_ALT_A
-#ifndef CAX
-     close all
-#endif
      Azur()
      O_Edit()
      return DE_REFRESH
 
    case Ch==K_ALT_B
-#ifndef CAX
      close all
-#endif
      Blagajna()
      O_Edit()
      return DE_REFRESH

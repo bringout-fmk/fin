@@ -1,7 +1,7 @@
 VERZIJA=CDX
 MODUL=FIN
 
-PRGS=../main/1g/e.prg
+PRGS=e.prg
 
 FMK_LIBS=fmk_roba.lib fmk_rab.lib fmk_svi.lib fmk_pi.lib fmk_evn.lib fmk_sec.lib fmk_mes.lib partnst.lib fmk_exp.lib fmk_lok.lib 
 

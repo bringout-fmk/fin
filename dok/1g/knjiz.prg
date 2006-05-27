@@ -2,14 +2,12 @@
 
 /*
  * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
+ *                          Copyright Sigma-com software 2000-2006 
  * ----------------------------------------------------------------
  *
  */
 
 #define DABLAGAS lBlagAsis.and._IDVN==cBlagIDVN
-
-
 
 
 /*! \file fmk/fin/dok/1g/knjiz.prg
@@ -32,20 +30,18 @@ static cTekucaRj:=""
  *  \brief Tekuca radna jedinica
  *  \kada Koristi se u slucaju da u Db unosimo podatke za odredjenu radnu jedinicu; da ne bi svaki puta ukucavali tu Rj ovaj parametar nam je nudi kao tekucu vrijednost.
  *
- */
 */
 
 function Knjiz()
-*{
 local izbor
 private opc[4]
 
-cSecur:=SecurR(KLevel,"Priprema")
+cSecur:= SecurR(KLevel, "Priprema")
 if ImaSlovo("X",cSecur)
    MsgBeep("Opcija nedostupna !")
    closeret
 endif
-cSecur:=SecurR(KLevel,"SGLEDAJ")
+cSecur:=SecurR(KLevel, "SGLEDAJ")
 if ImaSlovo("D",cSecur)
    MsgBeep("Opcija nedostupna !")
    closeret
@@ -53,7 +49,7 @@ endif
 
 cTekucaRj:=GetTekucaRJ()
 
-lBlagAsis := ( IzFMKINI("BLAGAJNA","Asistent","N",PRIVPATH) == "D" )
+lBlagAsis := (IzFMKINI("BLAGAJNA","Asistent","N",PRIVPATH) == "D" )
 cBlagIDVN := IzFMKINI("BLAGAJNA","SifraNaloga","66",PRIVPATH)
 lAutoPomUDom := ( IzFMKINI("AutomatskoPretvaranjeIznosa","PomocnaUDomacu","N",PRIVPATH)=="D" )
 
@@ -156,7 +152,7 @@ Box(,20,77)
 @ m_x+19,m_y+2 SAY "<c-A>  Ispravka Naloga³ <c-P> Stampa Naloga    ³ <a-A> Azuriranje           "
 @ m_x+20,m_y+2 SAY "<c-F9> Brisi pripremu ³ <F5>  KZB, <a-F5> PrDat³ <a-B> Blagajna,<F10> Ostalo"
 
-ObjDbedit("PNal",20,77,{|| EdPRIPR()},"","Priprema...", , , , ,3)
+ObjDbedit("PNal", 20, 77, {|| EdPRIPR()},"","Priprema...", , , , ,3)
 BoxC()
 closeret
 return
@@ -166,7 +162,6 @@ return
 /*! \fn WRbr()
  *  \brief Sredjivaje rednog broja u pripremi 
  */
- 
 function WRbr()
 scatter()
 if val(_rbr)<2

@@ -1,6 +1,7 @@
 VERZIJA=CDX
 MODUL=FIN
 
+EOBJCOPY=echo nemam sta kopirati
 PRGS=e.prg
 EXE_PRGS=e.prg
 

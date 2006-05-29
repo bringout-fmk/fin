@@ -3,7 +3,7 @@ MODUL=fi_1ma
 
 SRCDOSROOT=c:\\dev\\fmk\\fin\\main\\1g\\
 
-PRGS=e.prg
+PRGS=
 CS=
 ASMS=
 

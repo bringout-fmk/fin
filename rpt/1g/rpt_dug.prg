@@ -397,7 +397,7 @@ function ZaglDuznici(fStrana, lSvi)
 *{
 local nArr
 nArr:=SELECT()
-
+?
 P_COND2
 
 IF lSvi==NIL

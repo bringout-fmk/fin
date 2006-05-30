@@ -93,6 +93,7 @@ dDo:=DATE()
   ENDDO
 
   START PRINT CRET
+   ?
    P_10CPI
    ?? gnFirma+PADL("Iznosi prikazani u valuti: "+cBBV,60)
    IF cTip<>cBBV
@@ -229,6 +230,7 @@ dDo:=DATE()
   ENDDO
 
   START PRINT CRET
+   ?
    P_10CPI
    ?? gnFirma+PADL("Iznosi prikazani u valuti: "+cBBV,60)
    IF cTip<>cBBV

@@ -204,7 +204,9 @@ if fkum  // stampa starog naloga - naloga iz kumulativa - datoteka anal
  START PRINT CRET
 
 else
- cIdFirma:=idfirma; cidvn:=idvn; cBrNal:=brnal
+ cIdFirma:=idfirma
+ cidvn:=idvn
+ cBrNal:=brnal
  seek cidfirma+cidvn+cbrNal
  START PRINT RET
 endif
@@ -311,8 +313,9 @@ return
  */
  
 function Zagl12()
-*{
 local nArr
+
+?
 P_COND
 F10CPI
 ?? gTS+":",gNFirma
@@ -338,5 +341,4 @@ P_NRED; ?? "    *        *                                                      
 P_NRED; ?? "*BR *        *                                                     * DUGUJE  "+ValDomaca()+"    * POTRAZUJE  "+ValDomaca()+" *"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"  * POT. "+ValPomocna()+" *")
 P_NRED; ?? m
 return
-*}
 

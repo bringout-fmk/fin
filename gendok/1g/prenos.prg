@@ -163,9 +163,10 @@ endif
 zap; set order to 0
 
 start print cret
-
+?
 ? "Prolazim kroz bazu...."
-select suban; go top
+select suban
+go top
 
 lVodeSeRJ := FIELDPOS("IDRJ") > 0
 

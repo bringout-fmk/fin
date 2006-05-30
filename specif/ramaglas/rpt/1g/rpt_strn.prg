@@ -141,7 +141,7 @@ nUkRezTros:=nUkTros-nUkDirTros
 // ------------------------------------------------
 
 START PRINT CRET
-
+?
 for i:=1 to LEN(aIzvj)
 	cBrDok:=aIzvj[i,1]
 	for j:=2 to LEN(aIzvj[i])

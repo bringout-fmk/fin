@@ -613,7 +613,7 @@ RETURN
  */
  
 function ZaglSan()
-*{
+?
 P_COND2
 ?? "FIN: SUBANALITI¬KI BRUTO BILANS U VALUTI '"+TRIM(cBBV)+"'"
 if !(empty(dDatod) .and. empty(dDatDo))
@@ -967,7 +967,7 @@ return
  */
  
 function BrBil_21()
-*{
+?
 P_COND2
 ?? "FIN: ANALITI¬KI BRUTO BILANS U VALUTI '"+TRIM(cBBV)+"'"
 if !(empty(dDatod) .and. empty(dDatDo))
@@ -1336,7 +1336,7 @@ return
  */
 
 function BrBil_31()
-*{
+?
 P_COND2
 ?? "FIN: SINTETICKI BRUTO BILANS U VALUTI '"+TRIM(cBBV)+"'"
 if !(empty(dDatod) .and. empty(dDatDo))
@@ -1651,7 +1651,7 @@ return
  */
 
 function BrBil_41()
-*{
+?
 P_COND2
 ?? "FIN.P:BRUTO BILANS PO GRUPAMA KONTA U VALUTI '"+TRIM(cBBV)+"'"
 if !(empty(dDatod) .and. empty(dDatDo))

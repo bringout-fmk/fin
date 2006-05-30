@@ -11,9 +11,6 @@ SCLIB_LIBS=sc1g_arh.lib sc1g_ba.lib sc1g_cui.lib sc1g_db.lib sc1g_os.lib sc1g_os
 
 MODUL_LIBS=fin_1bud.lib fin_1db.lib fin_1dok.lib fin_1gen.lib fin_1ost.lib fin_1par.lib fin_1rdb.lib fin_1rof.lib fin_1rpt.lib fin_1sif.lib fin_1ut.lib fin_2db.lib fin_2m.lib fin_1rpm.lib fin_s1je.lib  fin_1sql.lib fin_2sql.lib fin_1rrg.lib
 
-#fin_s1ti.lib
-
-
 include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper
 
 LIBEXE:=@echo pokrenute make exe  !

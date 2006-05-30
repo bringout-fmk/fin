@@ -1661,7 +1661,7 @@ return
  */
  
 function ZaglSif2(fStrana)
-*{
+?
 if cDinDem=="3"  .or. cKumul=="2"
   P_COND2
 else
@@ -1766,7 +1766,6 @@ endif
 ? m
 
 RETURN
-*}
 
 
 

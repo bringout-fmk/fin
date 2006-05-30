@@ -64,7 +64,9 @@ m:="---- --- --- ----- -------- ---------------- ----------------"+IF(gVar1=="0"
 if fieldpos("SIFRA")<>0
   m+=" ------"
 endif
-if cInteg=="D"; m:=m+" ---  --- ----"; endif
+if cInteg=="D"
+ m:=m+" ---  --- ----"
+endif
 
 nRBr:=0
 
@@ -76,6 +78,7 @@ picDEM:="@Z "+FormPicL(gPicDEM,12)
 DO WHILE !EOF()
 
    IF prow()==0
+      ?
       IF gVar1=="0"
        P_COND
       ELSE

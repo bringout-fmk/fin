@@ -172,6 +172,7 @@ set filter to &cFiltB
 
 START PRINT CRET
 P_INI
+?
 F10CPI
 
 select budzet
@@ -1178,6 +1179,7 @@ SET ORDER TO 1
 GO TOP
 
 INI
+?
 F10CPI
 
 // ispis izvjestaja

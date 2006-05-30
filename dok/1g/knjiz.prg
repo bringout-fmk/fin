@@ -853,8 +853,6 @@ DO WHILE !EOF()
 
    if !fizgenerisi
      START PRINT CRET
-
-   // SELECT PRIPR    // priprema je selektovana
    endif
 
    StSubNal("1",lAuto)
@@ -891,13 +889,14 @@ return
  */
  
 function Zagl11()
-*{
+
 local nArr, lDnevnik:=.f.
 if "DNEVNIKN"==PADR(UPPER(PROCNAME(1)),8) .or.;
    "DNEVNIKN"==PADR(UPPER(PROCNAME(2)),8)
    lDnevnik:=.t.
 endif
-if gNW=="N".and.gVar1=="0"
+?
+if gNW=="N" .and. gVar1=="0"
  P_COND2
 else
  P_COND
@@ -1649,35 +1648,36 @@ return
  */
  
 function StSubNal(cInd,lAuto)
-*{
 LOCAL nArr:=SELECT(), aRez:={}, aOpis:={}
 
-   IF lAuto=NIL; lAuto:=.f.; ENDIF
+IF lAuto=NIL; lAuto:=.f.; ENDIF
 
-   lJerry := ( IzFMKIni("FIN","JednovalutniNalogJerry","N",KUMPATH) == "D" )
+lJerry := ( IzFMKIni("FIN","JednovalutniNalogJerry","N",KUMPATH) == "D" )
 
-   PicBHD:="@Z "+FormPicL(gPicBHD,15)
-   PicDEM:="@Z "+FormPicL(gPicDEM,10)
-   IF gNW=="N"
+PicBHD:="@Z "+FormPicL(gPicBHD,15)
+PicDEM:="@Z "+FormPicL(gPicDEM,10)
+
+IF gNW=="N"
      M:=IF(cInd=="3","------ ---------- --- ","")+"---- ------- ------ ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" -- ------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
-   ELSE
+ELSE
      M:=IF(cInd=="3","------ ---------- --- ","")+"---- ------- ------ ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
-   ENDIF
+ENDIF
 
-   IF cInd $ "1#2"
+IF cInd $ "1#2"
      nUkDugBHD:=nUkPotBHD:=nUkDugDEM:=nUkPotDEM:=0
      nStr:=0
 //     nUkDug:=nUkPot:=0
-   ENDIF
+ENDIF
 
    b2:={|| cIdFirma==IdFirma .AND. cIdVN==IdVN .AND. cBrNal==BrNal}
    // cVN:=VN; cFirma:=Firma1+Firma2
    cIdFirma:=IdFirma; cIdVN:=IdVN; cBrNal:=BrNal
 
-   IF cInd $ "1#2" .and. !lAuto
+IF cInd $ "1#2" .and. !lAuto
      Zagl11()
-   ENDIF
-   DO WHILE !eof() .and. eval(b2)
+ENDIF
+
+DO WHILE !eof() .and. eval(b2)
       if !lAuto
        if prow()>61+IF(cInd=="3",-7,0)+gPStranica
          if cInd=="3"

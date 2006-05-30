@@ -246,6 +246,7 @@ return
 function ZaglSpK()
 *{
 local nDSP:=0
+?
 P_COND
 ?? "FIN.P: SPECIFIKACIJA OTVORENIH STAVKI  ZA KONTO ",cIdKonto
 if !(empty(dDatOd) .and. empty(dDatDo))
@@ -1112,9 +1113,8 @@ return .t.
  *  \param fStrana
  *  \param lEx
  */
- 
 function ZagKStSif(fStrana,lEx)
-*{
+?
 IF gVar1=="0"
   IF lEx
     P_COND
@@ -1271,7 +1271,7 @@ END PRINT
  */
  
 function ZagBRVeze()
-*{
+?
 IF gVar1=="0"
  P_COND
 ELSE
@@ -1452,8 +1452,6 @@ if !found() // nema na 1200
 endif
 
 NFOUND CRET
-
-// START PRINT CRET
 
 nSviD:=nSviP:=nSviD2:=nSviP2:=0
 
@@ -1772,7 +1770,8 @@ LOCAL a1:={}, a2:={}, GetList:={}
  use
 
   START PRINT RET
-  gp10cpi()
+  ?
+  P_10CPI
 
   SELECT (F_PARTN)
   HSEEK cIdPov
@@ -2597,6 +2596,7 @@ enddo
 
 go top
 START PRINT CRET
+
 StampaTabele(aKol,,,0,,;
     ,"Rezultati asistenta otvorenih stavki za: "+idkonto+"/"+idpartner+" na datum:"+dtoc(Date()))
 END PRINT

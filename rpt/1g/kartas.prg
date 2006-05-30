@@ -262,7 +262,7 @@ return
  */
  
 function SinKZagl()
-*{
+?
 P_COND
 ?? "FIN.P: SINTETICKA KARTICA  NA DAN: "; ?? DATE()
 if !(empty(dDatOd) .and. empty(dDatDo))
@@ -296,7 +296,6 @@ ENDIF
 ?  m
 
 RETURN
-*}
 
 
 
@@ -682,11 +681,7 @@ ELSE
   HSEEK cIdFirma
 ENDIF
 
-#ifndef CAX
-EOF RET
-#else
 EOF CRET
-#endif
 
 nStr:=0
 
@@ -852,6 +847,7 @@ return
 
 function AnalKZagl()
 *{
+?
 P_COND
 ?? "FIN.P: ANALITICKA KARTICA  NA DAN: "; ?? DATE()
 if !(empty(dDatOd) .and. empty(dDatDo))

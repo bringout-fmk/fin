@@ -90,7 +90,7 @@ BoxC()
 SELECT PRIPR
 
 start print cret
-
+?
 F12CPI
 ?? space(12)
 if cdindem=="1"
@@ -255,6 +255,7 @@ closeret
 
 
 function PZagBlag(nDug,nPot,m,cBrDok,pici,cDinDem,dDatDok)
+
 // zavrsetak prethodne stranice:
 // -----------------------------
 ? m
@@ -704,7 +705,7 @@ return
 
 // stampa zaglavlja blagajne
 function st_bl_zagl(cLine, cDinDem, cIdFirma, cTipDok, cBrDok, dDatDok )
-
+?
 F12CPI
 
 ?? space(12)

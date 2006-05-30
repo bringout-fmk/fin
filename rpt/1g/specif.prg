@@ -229,7 +229,7 @@ return
  */
 
 function ZaglDPK()
-*{
+?
 P_COND
 ?? "FIN.P: SPECIFIKACIJA "
 @ prow(),pcol()+2 SAY ""
@@ -291,7 +291,6 @@ endif
 
 SELECT SUBAN
 RETURN
-*}
 
 
 
@@ -376,7 +375,7 @@ IF IzFMKIni("FAKT","VrstePlacanja","N",SIFPATH)=="D"
 ENDIF
 
 O_SUBAN ; set order to 3
-//KUMPATH+"SUBANi3","IdFirma+IdKonto+IdPartner+BrDok+dtos(DatDok)",KUMPATH+"SUBAN")
+//"IdFirma+IdKonto+IdPartner+BrDok+dtos(DatDok)"
 hseek cIdFirma+cIdKonto
 
 EOF CRET
@@ -553,8 +552,8 @@ return
  */
  
 function ZaglSpBrDana()
-*{
 local cPom
+?
 P_COND
 ?? "FIN: SPECIFIKACIJA PARTNERA SA NEPLAENIM RA¬UNIMA "+iif(cViseManje=">","PREKO ","DO ")+STR(nDana,3)+" DANA  NA DAN "; ?? dDatum
 if !empty(dDatumOd)
@@ -773,7 +772,7 @@ return
  */
  
 static function Zagl5()
-*{
+?
 P_COND
 ?? "FIN.P:SPECIFIKACIJA ANALITI¬KIH KONTA  ZA",ALLTRIM(iif(cTip=="1",ValDomaca(),ValPomocna()))
 if !(empty(dDatOd) .and. empty(dDatDo))
@@ -1567,7 +1566,7 @@ return nil
  */
  
 static function Zagl6(cSkVar)
-*{
+?
 B_ON
 P_COND
 ?? "FIN: SPECIFIKACIJA SUBANALITICKIH KONTA  ZA "
@@ -1625,7 +1624,6 @@ else
 endif
 ? m
 return
-*}
 
 /*! \fn SpecKK2(lOtvSt)
  *  \brief Specifikacija konto/konto2 partner
@@ -1868,9 +1866,8 @@ return
 /*! \fn Zagl7()
  *  \brief Zaglavlje specifikacije konto/konto2
  */
- 
 static function Zagl7()
-*{
+?
 P_COND
 ?? "FIN: SPECIFIKACIJA SUBANALITIKE ",qqkonto,"-",qqkonto2," ZA "
 if cDinDem=="1"
@@ -2044,7 +2041,7 @@ return
  *  \brief Zaglavlje specifikacije po kontima
  */
 function ZglSpSifK()
-*{
+?
 P_COND
 ?? "FIN: SPECIFIKACIJA PARTNERA :"
 @ prow(),pcol()+2 SAY "PO KONTIMA NA DAN :"
@@ -2067,7 +2064,6 @@ endif
 
 SELECT SUBAN
 RETURN
-*}
 
 
 
@@ -2213,7 +2209,7 @@ return
  *  \brief Zaglavlje specifikacije otvorenih stavki partnera po kontima
  */
 function ZglSpOstP()
-*{
+?
 P_COND
 ?? "FIN: SPECIFIKACIJA OTVORENIH STAVKI PARTNERA :"
 @ prow(),pcol()+2 SAY "PO KONTIMA NA DAN :"
@@ -2480,7 +2476,7 @@ return
  *  \param
  */
 function Zagl9()
-*{
+?
 P_COND
 ?? space(47)
 
@@ -2756,6 +2752,7 @@ private cIdKonto := SPACE (7), cIdFirma := SPACE (LEN (gFirma)), ;
   START PRINT CRET
 
   INI
+  ?
   F10CPI
   ?? SPACE (5) + "Firma:", gNFirma
   ? PADC ("PARTNERI BEZ PROMETA", 80)
@@ -3531,7 +3528,7 @@ return
  */
  
 function ZSpecPoDosp(fStrana,lSvi)
-*{
+?
 IF cPoRn=="D"
 	IF gVar1=="0"
     		P_COND2
@@ -3893,9 +3890,9 @@ LOCAL GetList:={}
   AADD(aKol, { RIGHT(cPom7777,4)+" I STARIJE" , {|| &cPom7777.    }, .t., "N", 14, 2, 1, ++nKol } )
 
 
-  // çtampanje izvjeçtaja
+  // stampanje izvjestaja
   // --------------------
-
+  ?
   IF gPrinter=="L"
     gPO_Land()
   ENDIF

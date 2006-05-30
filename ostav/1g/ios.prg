@@ -129,6 +129,7 @@ EOF CRET
 
 
 start print cret
+?
 
 B:=0
 nDugBHD:=nUkDugBHD:=nDugDEM:=nUkDugDEM:=0
@@ -323,7 +324,6 @@ FF
 end print
 closeret
 return 1
-*}
 
 
 
@@ -463,10 +463,10 @@ return
  */
  
 function ZagIOSS(cDinDem)
-*{
 local nRbr,nCOpis:=0
 
-@ prow(),58 SAY "OBRAZAC: I O S"
+?
+@ prow(), 58 SAY "OBRAZAC: I O S"
 @ prow()+1,1 SAY cIdFirma
 SELECT PARTN; HSEEK cIdFirma
 @ prow(),5 SAY naz
@@ -740,7 +740,6 @@ FF
 
 SELECT IOS
 RETURN
-*}
 
 
 

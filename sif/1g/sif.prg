@@ -507,7 +507,7 @@ SET FILTER TO &aUsl1
 
 START PRINT CRET
 
-
+?
 B_ON
 ? "K O N T N I    P L A N"
 ? "----------------------"
@@ -1198,7 +1198,7 @@ LOCAL nRec:=RECNO()
     RETURN DE_CONT
   ENDIF
   START PRINT CRET
-
+  ?
 
    GO TOP
 
@@ -1332,7 +1332,8 @@ LOCAL nRec:=RECNO()
     RETURN DE_CONT
   ENDIF
   START PRINT CRET
-   GO TOP
+  ?
+  GO TOP
 
    // ---------------------------------------------------------------------
    // -?-

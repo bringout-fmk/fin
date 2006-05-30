@@ -178,9 +178,8 @@ RETURN cVrati
  *  \brief Zaglavlje pregleda promjena na racunu
  *  \param cI
  */
- 
 function ZagPPR(cI)
-*{
+
 ? cNazivFirme
   ? PADL("Str."+ALLTRIM(STR(++nStranica)),80)
   ? PADC( StrKZN("PREGLED PROMJENA NA RA¬UNU","8",gKodnaS) , 80 )

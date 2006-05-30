@@ -23,7 +23,6 @@ set order to tag "1"
 go top
 
 START PRINT CRET
-
 if !EMPTY(cPartner)
 	seek cPartner	
 endif

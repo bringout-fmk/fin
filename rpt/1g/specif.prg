@@ -2832,6 +2832,7 @@ RETURN cVrati
 function SpecPoDosp(lKartica)
 *{
 local nCol1:=72,cSvi:="N"
+local lPrikSldNula:=.f.
 private cIdPartner
 
 IF lKartica==NIL
@@ -2870,6 +2871,7 @@ cIdPartner:=space(6)
 dNaDan:=DATE()
 cOpcine:=SPACE(20)
 cValuta:="1"
+cPrikNule:="N"
 
 cSaRokom:="N"
 nDoDana1 :=  8
@@ -2901,12 +2903,17 @@ IF cPoRN=="N"
 	@ m_x+13,m_y+2 SAY "Prikaz iznosa (format)" GET PICPIC PICT "@!"
 ENDIF
 @ m_x+14,m_y+2 SAY "Uslov po opcini (prazno - nista)" GET cOpcine
+@ m_x+15,m_y+2 SAY "Prikaz stavki kojima je saldo 0 (D/N)?" GET cPrikNule VALID cPrikNule $ "DN" PICT "@!"
 if cPoRN=="N"
 	@ m_x+16,m_y+2 SAY "Prikaz izvjestaja u (1)KM (2)EURO" GET cValuta VALID cValuta$"12"
 endif
 read
 ESC_BCR
 Boxc()
+
+if cPrikNule == "D"
+	lPrikSldNula := .t.
+endif
 
 if "." $ cIdPartner
 	cIdPartner:=StrTran(cIdPartner,".","")
@@ -3082,6 +3089,13 @@ DO WHILE !EOF()
     		fPrviProlaz:=.t.
   	ENDIF
   	cIdPartner:=IDPARTNER
+
+	// provjeri saldo partnera
+	if !lPrikSldNula .and. saldo_nula(cIdPartner)
+		skip
+		loop
+	endif
+
 	// a sada provjeri opcine
 	// nadji partnera
 	if !EMPTY(cOpcine)
@@ -3519,6 +3533,35 @@ use
 CLOSERET
 return
 *}
+
+
+// provjeri da li je saldo partnera 0, vraca .t. ili .f.
+function saldo_nula(cIdPartn)
+local nPRecNo
+local nLRecNo
+local nDug:=0
+local nPot:=0
+
+nPRecNo := RecNo()
+
+do while !EOF() .and. idpartner == cIdPartn
+	nDug += dug
+	nPot += pot
+	skip
+enddo
+
+skip -1
+
+nLRecNo := RecNo()
+
+if (nDug - nPot) == 0
+	go (nLRecNo)	
+	return .t.
+endif
+
+go (nPRecNo)
+
+return .f.
 
 
 /*! \fn ZSpecPoDosp(fStrana,lSvi)

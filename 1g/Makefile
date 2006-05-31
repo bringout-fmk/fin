@@ -1,6 +1,8 @@
 VERZIJA=CDX
 MODUL=FIN
 
+SRCDOSROOT=c:\\dev\\fmk\\fin\\1g\\
+
 EOBJCOPY=echo nemam sta kopirati
 PRGS=e.prg
 EXE_PRGS=e.prg

@@ -3040,12 +3040,15 @@ DO WHILESC !EOF() .and. idfirma==cIdfirma .AND. cIdKonto==IdKonto
              		SELECT SUBAN
           	endif
 	enddo // partner
+	
 	IF prow()>58+gPStranica
 		FF
 		ZSpecPoDosp()
 	ENDIF
+	
 	if (!fveci .and. idpartner=cSvi) .or. fVeci
-    	else
+    	
+	else
       		exit
     	endif
 enddo
@@ -3083,12 +3086,16 @@ cLastIdPartner:=""
 IF cPoRN=="N"
 	fPrviProlaz:=.t.
 ENDIF
+
 altd()
+
 DO WHILE !EOF()
+	
 	IF cPoRN=="D"
     		fPrviProlaz:=.t.
   	ENDIF
-  	cIdPartner:=IDPARTNER
+  	
+	cIdPartner:=IDPARTNER
 
 	// provjeri saldo partnera
 	if !lPrikSldNula .and. saldo_nula(cIdPartner)
@@ -3096,8 +3103,7 @@ DO WHILE !EOF()
 		loop
 	endif
 
-	// a sada provjeri opcine
-	// nadji partnera
+	// provjeri opcine
 	if !EMPTY(cOpcine)
 		select partn
 		seek cIdPartner
@@ -3108,9 +3114,11 @@ DO WHILE !EOF()
 		endif
   		select pom
 	endif
+	
 	nUDug:=nUPot:=nUDug2:=nUPot2:=0
   	nUkUVD:=nUkUVP:=nUkUVD2:=nUkUVP2:=0
   	nUkVVD:=nUkVVP:=nUkVVD2:=nUkVVP2:=0
+	
 	cFaza:=otvst
 	
 	IF cSaRokom=="D"
@@ -3122,18 +3130,23 @@ DO WHILE !EOF()
    		NEXT
    		nFaza:=RRocnost()
   	ENDIF
+
+	IF prow()>52+gPStranica
+		FF
+		ZSpecPoDosp(.t.)
+		fPrviProlaz:=.f.
+	ENDIF
+    		
+	if fPrviProlaz
+       		ZSpecPoDosp()
+       		fPrviProlaz:=.f.
+    	endif
+
+    	select pom
+    
 	DO WHILESC !EOF() .and. cIdPartner==IdPartner
-    		IF prow()>52+gPStranica
-			FF
-			ZSpecPoDosp(.t.)
-			fPrviProlaz:=.f.
-		ENDIF
-    		if fPrviProlaz
-       			ZSpecPoDosp()
-       			fPrviProlaz:=.f.
-    		endif
-    		SELECT POM
-    		IF cPoRn=="D"
+    		
+		IF cPoRn=="D"
       			? datdok, datval, PADR(brdok,10)
       			nCol1:=pcol()+1
       			?? " "

@@ -3368,11 +3368,6 @@ if !fPrviProlaz  // bilo je stavki
         			PPljuc(TRANSFORM(nUDug2-nUPot2,PICPIC))
 			endif
 			
-			// Priprema za prenos na HH ureðaj
-			if lGenPartnSt
-				AzurFinOstav(cPosId, cIdPartner, Ocitaj(F_PARTN, cIdPartner, "naz"), (anInterVV[1,1,1]-anInterVV[1,2,1]), (anInterVV[2,1,1]-anInterVV[2,2,1]), (anInterVV[3,1,1]-anInterVV[3,2,1]), (anInterVV[4,1,1]-anInterVV[4,2,1]), (anInterVV[5,1,1] - anInterVV[5,2,1]), nSldMinIzn)
-			endif
-
       		ELSE
 			if ( cValuta == "1" )
         			PPljuc(TRANSFORM(nUkUVD-nUkUVP,PICPIC))

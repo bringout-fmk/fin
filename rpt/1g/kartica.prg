@@ -73,7 +73,6 @@ return
  */
  
 function SubKart(lOtvst)
-*{
 local cBrza:="D"
 local nC1:=37
 local nSirOp:=20
@@ -978,7 +977,7 @@ return partn->telefon=cTel
  */
  
 function ZaglSif(lPocStr)
-*{
+?
 if lPocStr==NIL
 	lPocStr:=.f.
 ENDIF

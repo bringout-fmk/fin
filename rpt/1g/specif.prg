@@ -3096,13 +3096,13 @@ DO WHILE !EOF()
   	ENDIF
   	
 	cIdPartner:=IDPARTNER
-
+	
 	// provjeri saldo partnera
 	if !lPrikSldNula .and. saldo_nula(cIdPartner)
 		skip
 		loop
 	endif
-
+	
 	// provjeri opcine
 	if !EMPTY(cOpcine)
 		select partn
@@ -3562,7 +3562,7 @@ skip -1
 
 nLRecNo := RecNo()
 
-if (nDug - nPot) == 0
+if (ROUND(nDug, 2) - ROUND(nPot, 2) == 0)
 	go (nLRecNo)	
 	return .t.
 endif

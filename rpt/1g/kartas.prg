@@ -509,6 +509,7 @@ return
  
 function ZaglSink2()
 *{
+?
 P_COND
 ?? "FIN.P: SINTETICKA KARTICA  PO MJESECIMA NA DAN: "; ?? DATE()
 if !(empty(dDatOd) .and. empty(dDatDo))

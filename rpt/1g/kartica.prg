@@ -66,18 +66,20 @@ Menu_SC("kart")
 return
 *}
 
-
-/*! \fn SubKart(lOtvst)
- *  \brief Subanaliticka kartica
- *  \param lOtvst  - .t. otvorene stavke
- */
- 
+// ---------------------------------------------
+// SubKart(lOtvst)
+// Subanaliticka kartica
+// param lOtvst  - .t. otvorene stavke
+// ---------------------------------------------
 function SubKart(lOtvst)
 local cBrza:="D"
 local nC1:=37
 local nSirOp:=20
 local nCOpis:=0
-local cOpis:=""
+local cOpis := ""
+local cBoxName
+local dPom := CTOD("")
+
 private fK1:=fk2:=fk3:=fk4:="N"
 private cIdFirma:=gFirma
 private fOtvSt:=lOtvSt
@@ -143,7 +145,7 @@ cK2:="9"
 cK3:="99"
 cK4:="99"
 
-if IzFMKIni("FIN","LimitiPoUgovoru_PoljeK3","N",SIFPATH)=="D"
+if IzFMKIni("FIN", "LimitiPoUgovoru_PoljeK3", "N", SIFPATH)=="D"
 	cK3:="999"
 endif
 if gDUFRJ=="D"
@@ -158,7 +160,11 @@ private cIdVN:=SPACE(40)
 qqBrDok:=SPACE(40)
 qqNazKonta:=SPACE(40)
 
-Box("#"+IF(fOtvSt,"KARTICA OTVORENIH STAVKI","SUBANALITICKA KARTICA"),21,65)
+cBoxName := "SUBANALITICKA KARTICA"
+if fOtvSt
+ cBoxName += " - OTVORENE STAVKE"
+endif
+Box("#"+ cBoxName, 21, 65)
 	set cursor on
 	@ m_x+2,m_y+2 SAY "BEZ/SA kumulativnim prometom  (1/2):" GET cKumul
  	@ m_x+3,m_y+2 SAY "BEZ/SA prethodnim prometom (1/2):" GET cPredh
@@ -401,11 +407,8 @@ else
   	endif
 endif
 
-#ifndef CAX
-	EOF RET
-#else
-	EOF CRET
-#endif
+
+EOF RET
 
 nStr:=0
 START PRINT CRET
@@ -426,7 +429,7 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
 	if nStr==0
 		ZaglSif(.t.)
 	endif
-	if cBrza=="D"   // "brza" kartica
+	if cBrza=="D"  
   		if IdKonto<>qqKonto .or. IdPartner<>qqPartner .and. RTRIM(qqPartner)!=";"
      			exit
   		endif
@@ -471,7 +474,7 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
       			endif
     		endif
 
-    		if prow()>55+gPStranica
+    		if prow() > 55+gPStranica
      			FF
 			ZaglSif(.t.)
     		endif
@@ -645,7 +648,17 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
               			endif
               			SELECT SUBAN
               			@ prow(),pcol()+1 SAY padr(BrDok,10)
-              			@ prow(),pcol()+1 SAY DatDok
+
+				dPom := datdok
+				if fOtvSt
+					if !EMPTY(DatVal) .and. (datval <> datdok)
+						// prikazi datum valute na kartici 
+						// otvorenih stavki ako je
+						// datval <> datdok
+						dPom := datval
+					endif
+				endif
+              			@ prow(),pcol()+1 SAY dPom
               			if ck14=="1"
                 			@ prow(),pcol()+1 SAY k1+"-"+k2+"-"+K3Iz256(k3)+k4
               			elseif ck14=="2"
@@ -901,7 +914,8 @@ nSviD+=nKonD; nSviP+=nKonP
 nSviD2+=nKonD2; nSviP2+=nKonP2
 
 if gnRazRed==99
-  FF; ZaglSif(.t.)
+  FF
+  ZaglSif(.t.)
 else
   i:=0
   do while prow()<=55+gPstranica.and.gnRazRed>i
@@ -913,7 +927,12 @@ enddo // eof()
 
 
 if cBrza=="N"
-IF prow()>56+gPStranica; FF; ZaglSif(.t.); ENDIF
+
+IF prow()>56+gPStranica
+  FF
+  ZaglSif(.t.)
+ENDIF
+
 ? M
 ? "UKUPNO ZA SVA KONTA:"
 if cDinDem=="1"
@@ -942,14 +961,13 @@ elseif cDinDem=="3"
 endif
 ? M
 ?
-endif // cBrza
+// cBrza
+endif 
 
 FF
 END PRINT
 
-#ifndef CAX
 closeret
-#endif
 return
 *}
 
@@ -1001,7 +1019,7 @@ if c1k1z<>"D" .or. lPocStr
 
   	?? iif(cDinDem=="1", ValDomaca(), iif(cDinDem=="2",ValPomocna(),ValDomaca()+"-"+ValPomocna()))," NA DAN:",DATE()
   	if !(empty(dDatOd) .and. empty(dDatDo))
-      		?? "   ZA PERIOD OD",dDatOd,"DO",dDatDo
+      		?? "   ZA PERIOD OD", dDatOd, "DO", dDatDo
   	endif
   	IF !EMPTY(qqBrDok)
     		? "Izvjestaj pravljen po uslovu za broj veze/racuna: '"+TRIM(qqBrDok)+"'"

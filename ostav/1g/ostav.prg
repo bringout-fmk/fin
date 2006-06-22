@@ -113,7 +113,9 @@ O_SUBAN
 
 CistiK1k4(.f.)
 
-select SUBAN; set order to 3   //IdFirma+IdKonto+IdPartner+BrDok+dtos(DatDok)
+select SUBAN
+//IdFirma+IdKonto+IdPartner+BrDok+dtos(DatDok)
+set order to 3   
 
 cFilt1:="OTVST==' '"
 

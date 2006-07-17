@@ -471,7 +471,7 @@ if (nArea==-1 .or. nArea==(F_PARTN))
 	endif
 
 	CREATE_INDEX("ID","id",SIFPATH+"PARTN") // firme
-	CREATE_INDEX("NAZ","naz",SIFPATH+"PARTN")
+	CREATE_INDEX("NAZ","LEFT(naz,25)",SIFPATH+"PARTN")
 endif
 
 

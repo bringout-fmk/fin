@@ -39,6 +39,7 @@
  *  \brief Utility
  */
 
+
 /*! \fn OtkljucajBug()
     \brief ??Otkljucaj lafo bug?
     \note sifra: BUG

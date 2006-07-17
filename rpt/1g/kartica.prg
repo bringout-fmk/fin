@@ -646,19 +646,12 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
                 				@ prow(),pcol()+1 SAY naz
                				endif
               			endif
-              			SELECT SUBAN
-              			@ prow(),pcol()+1 SAY padr(BrDok,10)
-
-				dPom := datdok
-				if fOtvSt
-					if !EMPTY(DatVal) .and. (datval <> datdok)
-						// prikazi datum valute na kartici 
-						// otvorenih stavki ako je
-						// datval <> datdok
-						dPom := datval
-					endif
-				endif
-              			@ prow(),pcol()+1 SAY dPom
+              			
+				SELECT SUBAN
+              			
+				@ prow(),pcol()+1 SAY padr(BrDok,10)
+              			@ prow(),pcol()+1 SAY datdok
+				
               			if ck14=="1"
                 			@ prow(),pcol()+1 SAY k1+"-"+k2+"-"+K3Iz256(k3)+k4
               			elseif ck14=="2"

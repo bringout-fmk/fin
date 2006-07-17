@@ -87,18 +87,18 @@ ENDDO
 
 
 return
-*}
 
-
-static function fill_ssbb_tbl(cKonto, cNaziv, nFDug, nFPot, nFSaldo)
-*{
+// ----------------------------------
+// filuje tabelu za export
+// ----------------------------------
+static function fill_ssbb_tbl(cKonto, cIdPart, cNaziv, nFDug, nFPot, nFSaldo)
 local nArr
 nArr:=SELECT()
 
 O_R_EXP
 append blank
 replace field->konto with cKonto
-//replace field->partner with cPartner
+replace field->idpart with cIdPart
 replace field->naziv with cNaziv
 replace field->duguje with nFDug
 replace field->potrazuje with nFPot
@@ -110,15 +110,14 @@ return
 *}
 
 
-static function fill_sbb_tbl(cKonto, cNaziv, nPsDug, nPsPot, nKumDug, nKumPot, nSldDug, nSldPot)
-*{
+static function fill_sbb_tbl(cKonto, cIdPart, cNaziv, nPsDug, nPsPot, nKumDug, nKumPot, nSldDug, nSldPot)
 local nArr
 nArr:=SELECT()
 
 O_R_EXP
 append blank
 replace field->konto with cKonto
-//replace field->partner with cPartner
+replace field->idpart with cIdPart
 replace field->naziv with cNaziv
 replace field->psdug with nPsDug
 replace field->pspot with nPsPot
@@ -130,14 +129,13 @@ replace field->sldpot with nSldPot
 select (nArr)
 
 return
-*}
+
 
 // vraca matricu sa sub.bb poljima
 static function get_sbb_fields(lBBSkraceni)
-*{
 aFields := {}
 AADD(aFields, {"konto", "C", 7, 0})
-//AADD(aFields, {"partner", "C", 6, 0})
+AADD(aFields, {"idpart", "C", 6, 0})
 AADD(aFields, {"naziv", "C", 40, 0})
 if lBBSkraceni
   AADD(aFields, {"duguje", "N", 15, 2})
@@ -153,14 +151,13 @@ else
 endif
 
 return aFields
-*}
+
 
 /*! \fn SubAnBB()
  *  \brief Subanaliticki bruto bilans
  */
  
 function SubAnBB()
-*{
 cIdFirma:=gFirma
 
 O_KONTO
@@ -388,9 +385,9 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
   	     if lExpRpt .and. !EMPTY(cIdPartner)
 	       if lBBSkraceni
-	         fill_ssbb_tbl(cIdKonto, partn->naz, D0KP, P0KP, D0KP - P0KP)
+	         fill_ssbb_tbl(cIdKonto, cIdPartner, partn->naz, D0KP, P0KP, D0KP - P0KP)
 	       else
-	         fill_sbb_tbl(cIdKonto, partn->naz, D0PS, D0PS, D0KP, P0KP, D0S, P0S)
+	         fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, D0PS, D0KP, P0KP, D0S, P0S)
 	       endif
 	     endif
 	     
@@ -434,9 +431,9 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
 	 if lExpRpt
 	   if lBBSkraceni
-	     fill_ssbb_tbl(cIdKonto, konto->naz, D1KP, P1KP, D1KP - P1KP)
+	     fill_ssbb_tbl(cIdKonto, "", konto->naz, D1KP, P1KP, D1KP - P1KP)
 	   else
-	     fill_sbb_tbl(cIdKonto, konto->naz, D1PS, P1PS, D1KP, P1KP, D1S, P1S)
+	     fill_sbb_tbl(cIdKonto, "", konto->naz, D1PS, P1PS, D1KP, P1KP, D1S, P1S)
            endif
 	 endif
 	 
@@ -472,9 +469,9 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
       if lExpRpt
        if lBBSkraceni
-        fill_ssbb_tbl(cSinKonto, konto->naz, D2KP, P2KP, D2KP - P2KP)
+        fill_ssbb_tbl(cSinKonto, "", konto->naz, D2KP, P2KP, D2KP - P2KP)
        else
-        fill_sbb_tbl(cSinKonto, konto->naz, D2PS, P2PS, D2KP, P2KP, D2S, P2S)
+        fill_sbb_tbl(cSinKonto, "", konto->naz, D2PS, P2PS, D2KP, P2KP, D2S, P2S)
        endif
       endif
 	
@@ -511,9 +508,9 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
    if lExpRpt
     if lBBSkraceni
-     fill_ssbb_tbl(cKlKonto, konto->naz, D3KP, P3KP, D3KP - P3KP)
+     fill_ssbb_tbl(cKlKonto, "", konto->naz, D3KP, P3KP, D3KP - P3KP)
     else
-     fill_sbb_tbl(cKlKonto, konto->naz, D3PS, P3PS, D3KP, P3KP, D3S, P3S)
+     fill_sbb_tbl(cKlKonto, "", konto->naz, D3PS, P3PS, D3KP, P3KP, D3S, P3S)
     endif
    endif
 	
@@ -540,9 +537,9 @@ ENDIF
 
 if lExpRpt
  if lBBSkraceni
-   fill_ssbb_tbl("UKUPNO", "", D4KP, P4KP, D4KP - P4KP)
+   fill_ssbb_tbl("UKUPNO", "", "", D4KP, P4KP, D4KP - P4KP)
  else
-   fill_sbb_tbl("UKUPNO", "", D4PS, P4PS, D4KP, P4KP, D4S, P4S)
+   fill_sbb_tbl("UKUPNO", "", "", D4PS, P4PS, D4KP, P4KP, D4S, P4S)
  endif
 endif
 

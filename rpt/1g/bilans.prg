@@ -381,13 +381,13 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
                @ prow(),PCOL()+1 SAY P0S PICTURE PicD
 
                D1PS+=D0PS;P1PS+=P0PS;D1TP+=D0TP;P1TP+=P0TP;D1KP+=D0KP;P1KP+=P0KP
-             endif
-
-  	     if lExpRpt .and. !EMPTY(cIdPartner)
-	       if lBBSkraceni
-	         fill_ssbb_tbl(cIdKonto, cIdPartner, partn->naz, D0KP, P0KP, D0KP - P0KP)
-	       else
-	         fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, D0PS, D0KP, P0KP, D0S, P0S)
+             
+  	       if lExpRpt .and. !EMPTY(cIdPartner)
+	         if lBBSkraceni
+	           fill_ssbb_tbl(cIdKonto, cIdPartner, partn->naz, D0KP, P0KP, D0KP - P0KP)
+	         else
+	           fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, D0PS, D0KP, P0KP, D0S, P0S)
+	         endif
 	       endif
 	     endif
 	     

@@ -60,7 +60,6 @@ if gNW=="N"
  Opc[1]:="1. knjizenje naloga    "
  Opc[2]:="2. stampa naloga"
  Opc[3]:="3. azuriranje podataka"
- Opc[4]:="4. kurs "+KursLis
 
  Izbor:=1
  do while .t.
@@ -77,14 +76,6 @@ if gNW=="N"
          StNal()
      case izbor == 3
          Azur()
-     case izbor == 4
-       // prva vrijednost
-       if KursLis=="1"  
-         KursLis:="2"
-       else
-         KursLis:="1"
-       endif
-       opc[4]:= "4. kurs " + KursLis
    endcase
 
  enddo
@@ -111,6 +102,7 @@ ImeKol:={ ;
           {"Partner",       {|| IdPartner }, "IdPartner" } ,;
           {"Br.veze ",      {|| BrDok   }, "BrDok" } ,;
           {"Datum",         {|| DatDok  }, "DatDok" } ,;
+          {"Dat.val",         {|| DatVal  }, "DatVal" } ,;
           {"D/P",           {|| D_P     }, "D_P" } ,;
           {ValDomaca(),     {|| transform(IznosBHD,FormPicL(gPicBHD,15)) }, "iznos "+ALLTRIM(ValDomaca()) } ,;
           {ValPomocna(),    {|| transform(IznosDEM,FormPicL(gPicDEM,10)) }, "iznos "+ALLTRIM(ValPomocna()) } ,;

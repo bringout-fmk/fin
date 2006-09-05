@@ -1,5 +1,6 @@
 #include "\dev\fmk\fin\fin.ch"
 
+
 /*
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
@@ -21,18 +22,7 @@ function TFinModNew()
 *{
 local oObj
 
-#ifdef CLIP
-	oObj:=TAppModNew()
-	oObj:setName:=@setName()
-	oObj:setGVars:=@setGVars()
-	oObj:mMenu:=@mMenu()
-	oObj:mMenuStandard:=@mMenuStandard()
-	oObj:run:=@run()
-	//oObj:gProc:=@gProc()
-
-#else
-	oObj:=TFinMod():new()
-#endif
+oObj:=TFinMod():new()
 
 oObj:self:=oObj
 return oObj
@@ -52,7 +42,6 @@ class TFinMod: public TAppMod
 	*void setGVars();
 	*void mMenu();
 	*void mMenuStandard();
-	//*void gProc(char Ch);
 	*void sRegg();
 	*void initdb();
 	*void srv();
@@ -287,8 +276,6 @@ return
 
 method setGVars()
 
-altd()
-
 SetFmkSGVars()
 SetFmkRGVars()
 
@@ -375,4 +362,3 @@ public cZabrana:="Opcija nedostupna za ovaj nivo !!!"
 
 return
 *}
-

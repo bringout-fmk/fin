@@ -170,8 +170,9 @@ private cPodKlas:="N"
 private cNule:="D"
 private cExpRptDN:="N"
 private cBBSkrDN:="N"
+private cPrikaz := "1"
 
-Box("sanb",12,60)
+Box("sanb",13,60)
 set cursor on
 
 do while .t.
@@ -193,8 +194,10 @@ do while .t.
    		@ m_x+9,m_y+2 SAY "Radna jedinica (999999-sve): " GET cIdRj
  	ENDIF
  	
- 	@ m_x+11,m_y+2 SAY "Export izvjestaja u dbf (D/N)? " GET cExpRptDN valid cExpRptDN $"DN" pict "@!"
- 	@ m_x+12,m_y+2 SAY "Export skraceni bruto bilans (D/N)? " GET cBBSkrDN valid cBBSkrDN $"DN" pict "@!"
+ 	@ m_x+10,m_y+2 SAY "Prikaz suban (1) / suban+anal (2) / anal (3)" GET cPrikaz valid cPrikaz $ "123" pict "@!"
+ 	
+	@ m_x+12,m_y+2 SAY "Export izvjestaja u dbf (D/N)? " GET cExpRptDN valid cExpRptDN $"DN" pict "@!"
+ 	@ m_x+13,m_y+2 SAY "Export skraceni bruto bilans (D/N)? " GET cBBSkrDN valid cBBSkrDN $"DN" pict "@!"
 	READ
 	ESC_BCR
  	
@@ -369,12 +372,16 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
               SKIP
             ENDDO // partner
 
-            IF prow()>61+gpStranica;FF;ZaglSan();ENDIF
+            IF prow()>61+gpStranica
+	    	FF
+		ZaglSan()
+	    ENDIF
 
-            IF cNule=="N" .and.  round(D0KP-P0KP,2)==0
+            IF (cNule == "N" .and. ROUND(D0KP-P0KP, 2) == 0)
                // ne prikazuj
             else
-               @ prow()+1,0 SAY  ++B  PICTURE '9999'    // ; ?? "."
+              if cPrikaz $ "12" 
+	       @ prow()+1,0 SAY  ++B  PICTURE '9999'    // ; ?? "."
                @ prow(),pcol()+1 SAY cIdKonto
                @ prow(),pcol()+1 SAY cIdPartner       // IdPartner(cIdPartner)
                SELECT PARTN; HSEEK cIdPartner
@@ -405,67 +412,82 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 	       endif
                @ prow(),PCOL()+1 SAY D0S PICTURE PicD
                @ prow(),PCOL()+1 SAY P0S PICTURE PicD
-
-               D1PS+=D0PS;P1PS+=P0PS;D1TP+=D0TP;P1TP+=P0TP;D1KP+=D0KP;P1KP+=P0KP
+	     endif
+	     
+             D1PS+=D0PS;P1PS+=P0PS;D1TP+=D0TP;P1TP+=P0TP;D1KP+=D0KP;P1KP+=P0KP
              
-  	       if lExpRpt .and. !EMPTY(cIdPartner)
+  	     if lExpRpt .and. !EMPTY(cIdPartner) .and. cPrikaz $ "12"
 	         if lBBSkraceni
 	           fill_ssbb_tbl(cIdKonto, cIdPartner, partn->naz, D0KP, P0KP, D0KP - P0KP)
 	         else
 	           fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, P0PS, D0KP, P0KP, D0S, P0S)
 	         endif
-	       endif
 	     endif
+	    endif
 	     
          ENDDO // konto
 
-         IF prow()>59+gpStranica;FF;ZaglSan();ENDIF
+	  IF prow() > 59 + gpStranica
+	 	FF
+		ZaglSan()
+	  ENDIF
 
-         @ prow()+1,2 SAY replicate("-",REP1_LEN-2)
-         @ prow()+1,2 SAY ++B1 PICTURE '9999'      // ; ?? "."
-         @ prow(),pcol()+1 SAY cIdKonto
-         select KONTO; HSEEK cIdKonto
-         IF cFormat=="1"
-          @ prow(),pcol()+1 SAY naz
-         ELSE
-          @ prow(),pcol()+1 SAY LEFT (naz,47)  // 40
-         ENDIF
-         select SUBAN
+	 if (( cPrikaz == "1" .and. EMPTY(cIdPartner)) .or. cPrikaz $ "23" )
+	  @ prow()+1,2 SAY replicate("-",REP1_LEN-2)
+          @ prow()+1,2 SAY ++B1 PICTURE '9999'      // ; ?? "."
+          @ prow(),pcol()+1 SAY cIdKonto
+          select KONTO
+	  HSEEK cIdKonto
+          IF cFormat=="1"
+           @ prow(),pcol()+1 SAY naz
+          ELSE
+           @ prow(),pcol()+1 SAY LEFT (naz,47)  // 40
+          ENDIF
+          select SUBAN
 
-         @ prow(),nCol1     SAY D1PS PICTURE PicD
-         @ prow(),PCOL()+1  SAY P1PS PICTURE PicD
-         IF cFormat=="1"
-          @ prow(),PCOL()+1  SAY D1TP PICTURE PicD
-          @ prow(),PCOL()+1  SAY P1TP PICTURE PicD
-         ENDIF
-         @ prow(),PCOL()+1  SAY D1KP PICTURE PicD
-         @ prow(),PCOL()+1  SAY P1KP PICTURE PicD
+          @ prow(),nCol1     SAY D1PS PICTURE PicD
+          @ prow(),PCOL()+1  SAY P1PS PICTURE PicD
+          IF cFormat=="1"
+           @ prow(),PCOL()+1  SAY D1TP PICTURE PicD
+           @ prow(),PCOL()+1  SAY P1TP PICTURE PicD
+          ENDIF
+          @ prow(),PCOL()+1  SAY D1KP PICTURE PicD
+          @ prow(),PCOL()+1  SAY P1KP PICTURE PicD
+	 endif
+	 
          D1S:=D1KP-P1KP
-         if D1S>=0
+         
+	 if D1S>=0
            P1S:=0
            D2S+=D1S;D3S+=D1S;D4S+=D1S
          else
            P1S:=-D1S; D1S:=0
            P2S+=P1S;P3S+=P1S;P4S+=P1S
          endif
-         @ prow(),PCOL()+1 SAY D1S PICTURE PicD
-         @ prow(),PCOL()+1 SAY P1S PICTURE PicD
-         @ prow()+1,2 SAY replicate("-",REP1_LEN-2)
-
+         
+	 if (( cPrikaz == "1" .and. EMPTY(cIdPartner)) .or. cPrikaz $ "23" )
+	  @ prow(),PCOL()+1 SAY D1S PICTURE PicD
+          @ prow(),PCOL()+1 SAY P1S PICTURE PicD
+          @ prow()+1,2 SAY replicate("-",REP1_LEN-2)
+	 endif
+	 
          SELECT SUBAN
          D2PS+=D1PS;P2PS+=P1PS;D2TP+=D1TP;P2TP+=P1TP;D2KP+=D1KP;P2KP+=P1KP
 
-	 if lExpRpt .and. EMPTY(cIdPartner)
+	 if lExpRpt .and. (( cPrikaz == "1" .and. EMPTY(cIdPartner)) .or. cPrikaz $ "23" )
 	   if lBBSkraceni
 	     fill_ssbb_tbl(cIdKonto, "", konto->naz, D1KP, P1KP, D1KP - P1KP)
 	   else
 	     fill_sbb_tbl(cIdKonto, "", konto->naz, D1PS, P1PS, D1KP, P1KP, D1S, P1S)
            endif
 	 endif
-	 
+      
       ENDDO  // sin konto
 
-      IF prow()>61+gpStranica; FF ;ZaglSan();ENDIF
+      IF prow() > 61 + gpStranica
+      	FF 
+	ZaglSan()
+      ENDIF
 
       @ prow()+1,4 SAY replicate("=",REP1_LEN-4)
       @ prow()+1,4 SAY ++B2 PICTURE '9999';?? "."
@@ -515,7 +537,8 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
            SalPDug WITH D3S,;
            SalPPot WITH P3S
    SELECT SUBAN
-   IF cPodKlas=="D"
+   
+    IF cPodKlas=="D"
     ? th5
     ? "UKUPNO KLASA "+cklkonto
     @ prow(),nCol1    SAY D3PS PICTURE PicD
@@ -529,7 +552,8 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
     @ PROW(),pcol()+1 SAY D3S PICTURE PicD
     @ PROW(),pcol()+1 SAY P3S PICTURE PicD
     ? th5
-   ENDIF
+    ENDIF
+   
    D4PS+=D3PS;P4PS+=P3PS;D4TP+=D3TP;P4TP+=P3TP;D4KP+=D3KP;P4KP+=P3KP
 
    if lExpRpt

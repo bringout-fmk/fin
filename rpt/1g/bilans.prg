@@ -194,10 +194,11 @@ do while .t.
    		@ m_x+9,m_y+2 SAY "Radna jedinica (999999-sve): " GET cIdRj
  	ENDIF
  	
- 	@ m_x+10,m_y+2 SAY "Prikaz suban (1) / suban+anal (2) / anal (3)" GET cPrikaz valid cPrikaz $ "123" pict "@!"
- 	
-	@ m_x+12,m_y+2 SAY "Export izvjestaja u dbf (D/N)? " GET cExpRptDN valid cExpRptDN $"DN" pict "@!"
- 	@ m_x+13,m_y+2 SAY "Export skraceni bruto bilans (D/N)? " GET cBBSkrDN valid cBBSkrDN $"DN" pict "@!"
+ 	@ m_x+10,m_y+2 SAY "Export izvjestaja u dbf (D/N)? " GET cExpRptDN valid cExpRptDN $"DN" pict "@!"
+ 	@ m_x+11,m_y+2 SAY "Export skraceni bruto bilans (D/N)? " GET cBBSkrDN valid cBBSkrDN $"DN" pict "@!"
+	
+ 	@ m_x+12,m_y+2 SAY "Prikaz suban (1) / suban+anal (2) / anal (3)" GET cPrikaz valid cPrikaz $ "123" pict "@!"
+	
 	READ
 	ESC_BCR
  	
@@ -380,7 +381,9 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
             IF (cNule == "N" .and. ROUND(D0KP-P0KP, 2) == 0)
                // ne prikazuj
             else
-              if cPrikaz $ "12" 
+              
+	      //if cPrikaz $ "12" 
+	       
 	       @ prow()+1,0 SAY  ++B  PICTURE '9999'    // ; ?? "."
                @ prow(),pcol()+1 SAY cIdKonto
                @ prow(),pcol()+1 SAY cIdPartner       // IdPartner(cIdPartner)
@@ -412,7 +415,8 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 	       endif
                @ prow(),PCOL()+1 SAY D0S PICTURE PicD
                @ prow(),PCOL()+1 SAY P0S PICTURE PicD
-	     endif
+	     
+	     //endif
 	     
              D1PS+=D0PS;P1PS+=P0PS;D1TP+=D0TP;P1TP+=P0TP;D1KP+=D0KP;P1KP+=P0KP
              
@@ -432,7 +436,8 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 		ZaglSan()
 	  ENDIF
 
-	 if (( cPrikaz == "1" .and. EMPTY(cIdPartner)) .or. cPrikaz $ "23" )
+	 //if (( cPrikaz == "1" .and. EMPTY(cIdPartner)) .or. cPrikaz $ "23" )
+	  
 	  @ prow()+1,2 SAY replicate("-",REP1_LEN-2)
           @ prow()+1,2 SAY ++B1 PICTURE '9999'      // ; ?? "."
           @ prow(),pcol()+1 SAY cIdKonto
@@ -453,7 +458,8 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
           ENDIF
           @ prow(),PCOL()+1  SAY D1KP PICTURE PicD
           @ prow(),PCOL()+1  SAY P1KP PICTURE PicD
-	 endif
+	 
+	 //endif
 	 
          D1S:=D1KP-P1KP
          
@@ -465,11 +471,13 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
            P2S+=P1S;P3S+=P1S;P4S+=P1S
          endif
          
-	 if (( cPrikaz == "1" .and. EMPTY(cIdPartner)) .or. cPrikaz $ "23" )
+	 //if (( cPrikaz == "1" .and. EMPTY(cIdPartner)) .or. cPrikaz $ "23" )
+	  
 	  @ prow(),PCOL()+1 SAY D1S PICTURE PicD
           @ prow(),PCOL()+1 SAY P1S PICTURE PicD
           @ prow()+1,2 SAY replicate("-",REP1_LEN-2)
-	 endif
+	 
+	 //endif
 	 
          SELECT SUBAN
          D2PS+=D1PS;P2PS+=P1PS;D2TP+=D1TP;P2TP+=P1TP;D2KP+=D1KP;P2KP+=P1KP

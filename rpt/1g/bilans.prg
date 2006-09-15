@@ -455,7 +455,7 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
          SELECT SUBAN
          D2PS+=D1PS;P2PS+=P1PS;D2TP+=D1TP;P2TP+=P1TP;D2KP+=D1KP;P2KP+=P1KP
 
-	 if lExpRpt
+	 if lExpRpt .and. EMPTY(cIdPartner)
 	   if lBBSkraceni
 	     fill_ssbb_tbl(cIdKonto, "", konto->naz, D1KP, P1KP, D1KP - P1KP)
 	   else

@@ -302,28 +302,53 @@ D4PS:=P4PS:=D4TP:=P4TP:=D4KP:=P4KP:=0
 nCol1:=50
 DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
-   IF prow()==0; ZaglSan(); ENDIF
+   IF prow() == 0
+   	ZaglSan()
+   ENDIF
 
-   // PS - pocetno stanje, TP - tekuci promet, KP - kumulativni promet, S - saldo
-   D3PS:=P3PS:=  D3TP:=P3TP:=  D3KP:=P3KP:=  D3S:=P3S:=  0
+   // PS - pocetno stanje
+   // TP - tekuci promet
+   // KP - kumulativni promet
+   // S - saldo
+   
+   D3PS:=P3PS:=D3TP:=P3TP:=D3KP:=P3KP:=D3S:=P3S:=0
    cKlKonto:=left(IdKonto,1)
-   DO WHILESC !EOF() .AND. IdFirma=cIdFirma .AND. cKlKonto==left(IdKonto,1)   // klasa konto
+   
+   DO WHILESC !EOF() .AND. IdFirma=cIdFirma .AND. cKlKonto==left(IdKonto,1)   
+      
+      // klasa konto
 
       cSinKonto:=left(IdKonto,3)
       D2PS:=P2PS:=D2TP:=P2TP:=D2KP:=P2KP:=D2S:=P2S:=0
-      DO WHILESC !EOF() .AND. IdFirma=cIdFirma .AND. cSinKonto==left(IdKonto,3)   // sin konto
+      
+      DO WHILESC !EOF() .AND. IdFirma=cIdFirma .AND. cSinKonto==left(IdKonto,3)   
+         // sint. konto
 
          cIdKonto:=IdKonto
          D1PS:=P1PS:=D1TP:=P1TP:=D1KP:=P1KP:=D1S:=P1S:=0
-         DO WHILESC !EOF() .AND. IdFirma=cIdFirma .AND. cIdKonto==IdKonto // konto
+         DO WHILESC !EOF() .AND. IdFirma=cIdFirma .AND. cIdKonto==IdKonto 
+	    
+	    // konto
 
             cIdPartner:=IdPartner
             D0PS:=P0PS:=D0TP:=P0TP:=D0KP:=P0KP:=D0S:=P0S:=0
-            DO WHILESC !EOF() .AND. IdFirma=cIdFirma .AND. cIdKonto==IdKonto .and. cIdPartner==IdPartner // partner
-              if cTip==ValDomaca()
-               IF D_P="1"; D0KP+=IznosBHD*nBBK; ELSE; P0KP+=IznosBHD*nBBK;ENDIF
+            
+	    DO WHILESC !EOF() .AND. IdFirma=cIdFirma .AND. cIdKonto==IdKonto .and. cIdPartner==IdPartner 
+	      
+	      // partner
+              
+	      if cTip==ValDomaca()
+                IF D_P="1"
+			D0KP+=IznosBHD*nBBK
+		ELSE
+			P0KP+=IznosBHD*nBBK
+		ENDIF
               else
-               IF D_P="1"; D0KP+=IznosDEM; ELSE; P0KP+=IznosDEM;ENDIF
+               	IF D_P="1"
+			D0KP+=IznosDEM
+		ELSE
+			P0KP+=IznosDEM
+		ENDIF
               endif
 
               if cTip==ValDomaca()
@@ -333,7 +358,8 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
                   IF D_P=="1"; D0TP+=IznosBHD*nBBK; ELSE; P0TP+=IznosBHD*nBBK; ENDIF
                ENDIF
               else
-               IF IdVN="00"
+               
+	       IF IdVN="00"
                   IF D_P=="1"; D0PS+=IznosDEM; ELSE; P0PS+=IznosDEM; ENDIF
                ELSE
                   IF D_P=="1"; D0TP+=IznosDEM; ELSE; P0TP+=IznosDEM; ENDIF
@@ -386,7 +412,7 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 	         if lBBSkraceni
 	           fill_ssbb_tbl(cIdKonto, cIdPartner, partn->naz, D0KP, P0KP, D0KP - P0KP)
 	         else
-	           fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, D0PS, D0KP, P0KP, D0S, P0S)
+	           fill_sbb_tbl(cIdKonto, cIdPartner, partn->naz, D0PS, P0PS, D0KP, P0KP, D0S, P0S)
 	         endif
 	       endif
 	     endif

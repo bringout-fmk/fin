@@ -1,40 +1,30 @@
 #include "\dev\fmk\fin\fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/db/1g/kzb.prg,v $
- * $Author: ernad $ 
- * $Revision: 1.3 $
- * $Log: kzb.prg,v $
- * Revision 1.3  2003/01/10 00:25:43  ernad
- *
- *
- * - popravka make systema
- * make zip ... \\*.chs -> \\\*.chs
- * ispravka std.ch ReadModal -> ReadModalSc
- * uvoðenje keyb/get.prg funkcija
- *
- * Revision 1.2  2002/06/19 12:13:26  sasa
- * no message
- *
- *
- */
- 
-/*! \file fmk/fin/db/1g/kzb.prg
- *  \brief Kontrola zbira naloga
- */
-
-/*! \fn KontrZb()
- *  \brief Kontrola zbira naloga
- */
- 
-function KontrZb(bDat)
-*{
+// --------------------------------
+// kontrola zbira naloga 
+// bDat = datumski uslov
+// lSilent - ne prikazuj box
+// vraca lRet - .t. ako je sve ok, 
+//              .f. ako nije
+// --------------------------------
+function KontrZb(bDat, lSilent)
+local lRet := .t.
+local nSaldo := 0
+local nSintD := 0
+local nSintP := 0
+local nSubD := 0
+local nSubP := 0
+local nNalD := 0
+local nNalP := 0
+local nAnalP := 0
+local nAnalD := 0
 
 if (bDat == nil)
 	bDat := .f.
+endif
+
+if (lSilent == nil)
+	lSilent := .f.
 endif
 
 if (bDat)
@@ -63,8 +53,9 @@ select F_SINT
 use sint 
 set order to
 
-Box("KZD",9,77,.f.)
-set cursor off
+if !lSilent
+ Box("KZD",9,77,.f.)
+ set cursor off
 	@ m_x+1,m_y+11 say "³"+PADC("NALOZI",16)+"³"+PADC("SINTETIKA",16)+"³"+PADC("ANALITIKA",16)+"³"+PADC("SUBANALITIKA",16)
 	@ m_x+2,m_y+1  say REPLICATE("Ä",10)+"Å"+REPLICATE("Ä",16)+"Å"+REPLICATE("Ä",16)+"Å"+REPLICATE("Ä",16)+"Å"+REPLICATE("Ä",16)
 	@ m_x+3,m_y+1 say "duguje "+ValDomaca()
@@ -81,28 +72,34 @@ set cursor off
 	
 	picBHD:=FormPicL("9 "+gPicBHD,16)
 	picDEM:=FormPicL("9 "+gPicDEM,16)
+endif
 
-	select NALOG
-	go top
+select NALOG
+go top
 	
-	nDug:=nPot:=nDu2:=nPo2:=0
-	DO WHILE !EOF() .and. INKEY()!=27
-   		if (bDat)
-			if (field->datnal < dDOd .or. field->datnal > dDDo)
-				skip
-				loop
-			endif
+nDug:=nPot:=nDu2:=nPo2:=0
+DO WHILE !EOF() .and. INKEY()!=27
+	if (bDat)
+		if (field->datnal < dDOd .or. field->datnal > dDDo)
+			skip
+			loop
 		endif
-	
-		nDug+=DugBHD
-   		nPot+=PotBHD
-   		nDu2+=DugDEM
-   		nPo2+=PotDEM
-   		SKIP
-	ENDDO
+	endif
+	nDug+=DugBHD
+   	nPot+=PotBHD
+   	nDu2+=DugDEM
+   	nPo2+=PotDEM
+   	SKIP
+ENDDO
+
+nSaldo += nDug - nPot
+nNalD := nDug
+nNalP := nPot
+
+if !lSilent
 	if LASTKEY()==K_ESC
-   		BoxC()
-   		CLOSERET
+		BoxC()
+		CLOSERET
 	endif
 	@ m_x+3,m_y+12 SAY nDug PICTURE picBHD
 	@ m_x+4,m_y+12 SAY nPot PICTURE picBHD
@@ -110,24 +107,31 @@ set cursor off
 	@ m_x+7,m_y+12 SAY nDu2 PICTURE picDEM
 	@ m_x+8,m_y+12 SAY nPo2 PICTURE picDEM
 	@ m_x+9,m_y+12 SAY nDu2-nPo2 PICTURE picDEM
+endif
 
-	select SINT
-	go top
-	nDug:=nPot:=nDu2:=nPo2:=0
-	go top
-	DO WHILE !EOF() .and. INKEY()!=27
-   		if (bDat)
-			if (field->datnal < dDOd .or. field->datnal > dDDo)
-				skip
-				loop
-			endif
+select SINT
+go top
+nDug:=nPot:=nDu2:=nPo2:=0
+go top
+DO WHILE !EOF() .and. INKEY()!=27
+	if (bDat)
+ 		if (field->datnal < dDOd .or. field->datnal > dDDo)
+			skip
+			loop
 		endif
-		nDug+=Dugbhd
-		nPot+=Potbhd
-   		nDu2+=Dugdem
-		nPo2+=Potdem
-   		SKIP
-	ENDDO
+	endif
+	nDug+=Dugbhd
+	nPot+=Potbhd
+   	nDu2+=Dugdem
+	nPo2+=Potdem
+ 	SKIP
+ENDDO
+
+nSaldo += nDug - nPot
+nSintD := nDug
+nSintP := nPot
+
+if !lSilent
 	ESC_BCR
 	@ m_x+3,m_y+29 SAY nDug PICTURE picBHD
 	@ m_x+4,m_y+29 SAY nPot PICTURE picBHD
@@ -135,23 +139,30 @@ set cursor off
 	@ m_x+7,m_y+29 SAY nDu2 PICTURE picDEM
 	@ m_x+8,m_y+29 SAY nPo2 PICTURE picDEM
 	@ m_x+9,m_y+29 SAY nDu2-nPo2 PICTURE picDEM
+endif
 
-	select ANAL
-	go top
-	nDug:=nPot:=nDu2:=nPo2:=0
-	DO WHILE !EOF() .and. INKEY()!=27
-   		if (bDat)
-			if (field->datnal < dDOd .or. field->datnal > dDDo)
-				skip
-				loop
-			endif
+select ANAL
+go top
+nDug:=nPot:=nDu2:=nPo2:=0
+DO WHILE !EOF() .and. INKEY()!=27
+	if (bDat)
+		if (field->datnal < dDOd .or. field->datnal > dDDo)
+			skip
+			loop
 		endif
-		nDug+=Dugbhd
-		nPot+=Potbhd
-   		nDu2+=Dugdem
-		nPo2+=Potdem
-   		SKIP
-	ENDDO
+	endif
+	nDug+=Dugbhd
+	nPot+=Potbhd
+	nDu2+=Dugdem
+	nPo2+=Potdem
+	SKIP
+ENDDO
+
+nSaldo += nDug - nPot
+nAnalD := nDug
+nAnalP := nPot
+
+if !lSilent
 	ESC_BCR
 	@ m_x+3,m_y+46 SAY nDug PICTURE picBHD
 	@ m_x+4,m_y+46 SAY nPot PICTURE picBHD
@@ -159,28 +170,35 @@ set cursor off
 	@ m_x+7,m_y+46 SAY nDu2 PICTURE picDEM
 	@ m_x+8,m_y+46 SAY nPo2 PICTURE picDEM
 	@ m_x+9,m_y+46 SAY nDu2-nPo2 PICTURE picDEM
+endif
 
-	select SUBAN
-	nDug:=nPot:=nDu2:=nPo2:=0
-	go top
+select SUBAN
+nDug:=nPot:=nDu2:=nPo2:=0
+go top
 
-	DO WHILE !EOF() .and. INKEY()!=27
-		if (bDat)
-			if (field->datdok < dDOd .or. field->datdok > dDDo)
-				skip
-				loop
-			endif
+DO WHILE !EOF() .and. INKEY()!=27
+	if (bDat)
+		if (field->datdok < dDOd .or. field->datdok > dDDo)
+			skip
+			loop
 		endif
+	endif
 		
-  		if D_P=="1"
-   			nDug+=Iznosbhd
-			nDu2+=Iznosdem
-  		else
-   			nPot+=Iznosbhd
-			nPo2+=Iznosdem
-  		endif
-  		SKIP
-	ENDDO
+	if D_P=="1"
+		nDug+=Iznosbhd
+		nDu2+=Iznosdem
+  	else
+   		nPot+=Iznosbhd
+		nPo2+=Iznosdem
+  	endif
+  	SKIP
+ENDDO
+
+nSaldo += nDug - nPot
+nSubD := nDug
+nSubP := nPot
+
+if !lSilent
 	ESC_BCR
 	@ m_x+3,m_y+63 SAY nDug PICTURE picBHD
 	@ m_x+4,m_y+63 SAY nPot PICTURE picBHD
@@ -189,10 +207,15 @@ set cursor off
 	@ m_x+8,m_y+63 SAY nPo2 PICTURE picDEM
 	@ m_x+9,m_y+63 SAY nDu2-nPo2 PICTURE picDEM
 	InkeySc(0)
-BoxC()
+	BoxC()
+endif
 
-closeret
-return
-*}
+// provjeri da li su podaci tacni !
+if (nSaldo > 0) .or. (nSubD + nNalD + nAnalD + nSintD <> nSubP + nNalP + nAnalP + nSintP)
+	lRet := .f.
+endif
+
+return lRet
+
 
 

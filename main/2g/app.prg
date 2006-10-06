@@ -1,6 +1,5 @@
 #include "\dev\fmk\fin\fin.ch"
 
-
 /*
  * ----------------------------------------------------------------
  *                                     Copyright Sigma-com software 
@@ -22,7 +21,18 @@ function TFinModNew()
 *{
 local oObj
 
-oObj:=TFinMod():new()
+#ifdef CLIP
+	oObj:=TAppModNew()
+	oObj:setName:=@setName()
+	oObj:setGVars:=@setGVars()
+	oObj:mMenu:=@mMenu()
+	oObj:mMenuStandard:=@mMenuStandard()
+	oObj:run:=@run()
+	//oObj:gProc:=@gProc()
+
+#else
+	oObj:=TFinMod():new()
+#endif
 
 oObj:self:=oObj
 return oObj
@@ -42,6 +52,7 @@ class TFinMod: public TAppMod
 	*void setGVars();
 	*void mMenu();
 	*void mMenuStandard();
+	//*void gProc(char Ch);
 	*void sRegg();
 	*void initdb();
 	*void srv();
@@ -121,6 +132,8 @@ OKumul(F_SUBAN,KUMPATH,"SUBAN",5,"D")
 OKumul(F_ANAL,KUMPATH,"ANAL", 2,"D")
 OKumul(F_SINT,KUMPATH,"SINT", 2,"D")
 OKumul(F_NALOG,KUMPATH,"NALOG", 2,"D")
+
+auto_kzb()
 
 close all
 
@@ -217,7 +230,7 @@ AADD(opcexe, {|| nil})
 
 AADD(opc, "X. parametri")
 if (ImaPravoPristupa(goModul:oDataBase:cName,"PARAM","PARAMETRI"))
-	AADD(opcexe, {|| Pars()})
+	AADD(opcexe, {|| mnu_params()})
 else
 	AADD(opcexe, {|| MsgBeep(cZabrana)})
 endif
@@ -276,6 +289,8 @@ return
 
 method setGVars()
 
+altd()
+
 SetFmkSGVars()
 SetFmkRGVars()
 
@@ -302,12 +317,17 @@ public gVSubOp:="N"
 public gnLMONI:=120
 public gKtoLimit:="N"
 public gnKtoLimit:=3
-
 public gFKomp:=PADR("KOMP.TXT",13)
-
 public gDUFRJ:="N"
 public gBrojac:="1"
-
+public gK1:="N"
+public gK2:="N"
+public gK3:="N"
+public gK4:="N"
+public gDatVal:="N"
+public gnLOSt:=0
+public gPotpis:="N"
+public gnKZBDana:=0
 
 ::super:setTGVars()
 
@@ -326,7 +346,6 @@ Rpar("bi",@gBuIz)
 Rpar("p1",@gPicDEM)
 Rpar("p2",@gPicBHD)
 Rpar("v1",@gVar1)
-
 Rpar("tr",@gTroskovi)
 Rpar("rj",@gRj)
 Rpar("rr",@gnRazRed)
@@ -335,6 +354,15 @@ Rpar("lm",@gnLMONI)
 Rpar("si",@gSAKrIz)
 Rpar("zx",@gKtoLimit)
 Rpar("zy",@gnKtoLimit)
+
+Rpar("k1",@gK1)
+Rpar("k2",@gK2)
+Rpar("k3",@gK3)
+Rpar("k4",@gK4)
+Rpar("dv",@gDatVal)
+Rpar("li",@gnLOSt)
+Rpar("po",@gPotpis)
+Rpar("az",@gnKZBdana)
 
 if empty(gNFirma)
 	Beep(1)
@@ -361,4 +389,4 @@ gGlBaza:="SUBAN.DBF"
 public cZabrana:="Opcija nedostupna za ovaj nivo !!!"
 
 return
-*}
+

@@ -109,7 +109,7 @@ Box(,23,70)
 	
 	@ m_x + nX, m_y + 2 SAY "Limit za unos konta? (D/N):" GET gKtoLimit pict "@!" valid gKtoLimit $ "DN"
  	
-	@ m_x + nX, col() + 2 SAY "-> iznos limita:" GET gnKtoLimit pict "9" WHEN gKtoLimit == "D"
+	@ m_x + nX, col() + 2 SAY "-> vrijednost limita:" GET gnKtoLimit pict "9" WHEN gKtoLimit == "D"
 	
 
 	nX := nX + 2
@@ -161,7 +161,7 @@ Box(, 15,70)
 
 	set cursor on
 
- 	@ m_x + nX, m_y + 2 SAY "*************** Varijante izgleda:"
+ 	@ m_x + nX, m_y + 2 SAY "*************** Varijante izgleda i prikaza:"
 
 	nX := nX + 2
 	
@@ -209,13 +209,6 @@ BoxC()
 if LastKey() <> K_ESC
 	write_params()
 endif
-
-return
-
-// -------------------------------
-// parametri - razno
-// -------------------------------
-static function par_razno()
 
 return
 

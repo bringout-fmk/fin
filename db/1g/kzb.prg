@@ -211,11 +211,60 @@ if !lSilent
 endif
 
 // provjeri da li su podaci tacni !
-if (nSaldo > 0) .or. (nSubD + nNalD + nAnalD + nSintD <> nSubP + nNalP + nAnalP + nSintP)
+if (nSaldo > 0) .or. ((nSubD + nNalD + nAnalD + nSintD) <> (nSubP + nNalP + nAnalP + nSintP))
 	lRet := .f.
 endif
 
+// upisi u params podatak o datumu povlacenja...
+private cSection:="9"
+private cHistory:=" "
+private aHistory:={}
+
+O_PARAMS
+WPar("kd", DATE())
+use
+
 return lRet
+
+
+// -------------------------------------------------
+// automatsko pokretanje kontrole zbira datoteka
+// -------------------------------------------------
+function auto_kzb()
+local dDate := DATE()
+local nTArea := SELECT()
+local lKzbOk
+local dLastDate:=DATE()
+private cSection:="9"
+private cHistory:=" "
+private aHistory:={}
+
+if gnKZBdana == 0
+	return
+endif
+
+O_PARAMS
+RPar("kd", @dLastDate)
+
+// ako je manje od KZBdana ne pozivaj opciju...
+if (dDate - dLastDate) <= gnKZBdana
+	select (nTArea)
+	return
+endif
+
+lKzbOk := kontrzb(nil, .t.)
+
+if !lKzbOk
+	MsgBeep("Kontrola zbira datoteka je uocila greske!#Pregledajte greske...")
+	kontrzb()
+endif
+
+select (nTArea)
+return
+
+
+
+
 
 
 

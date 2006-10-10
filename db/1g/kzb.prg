@@ -37,6 +37,10 @@ if (bDat)
 	BoxC()
 endif
 
+if lSilent
+	MsgO("Provjeravam kontrolu zbira datoteka...")
+endif
+
 select F_NALOG
 use nalog
 set order to
@@ -223,6 +227,10 @@ private aHistory:={}
 O_PARAMS
 WPar("kd", DATE())
 use
+
+if lSilent
+	MsgC()
+endif
 
 return lRet
 

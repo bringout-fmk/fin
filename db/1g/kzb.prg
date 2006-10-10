@@ -214,8 +214,10 @@ if !lSilent
 	BoxC()
 endif
 
+altd()
+
 // provjeri da li su podaci tacni !
-if (nSaldo > 0) .or. ( ROUND(nSubD + nNalD + nAnalD + nSintD, 2) <> ROUND(nSubP + nNalP + nAnalP + nSintP, 2) )
+if (ROUND(nSaldo, 2) > 0) .or. ( ROUND(nSubD + nNalD + nAnalD + nSintD, 2) <> ROUND(nSubP + nNalP + nAnalP + nSintP, 2) )
 	lRet := .f.
 endif
 

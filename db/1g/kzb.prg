@@ -215,7 +215,7 @@ if !lSilent
 endif
 
 // provjeri da li su podaci tacni !
-if (nSaldo > 0) .or. ((nSubD + nNalD + nAnalD + nSintD) <> (nSubP + nNalP + nAnalP + nSintP))
+if (nSaldo > 0) .or. ( ROUND(nSubD + nNalD + nAnalD + nSintD, 2) <> ROUND(nSubP + nNalP + nAnalP + nSintP, 2) )
 	lRet := .f.
 endif
 

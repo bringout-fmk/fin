@@ -128,12 +128,18 @@ LOCAL nRec:=0
   END PRINT
   GO (nRec)
 RETURN (NIL)
-*}
 
 
 
+// -------------------------------------------------------------
+// provjera duplih partnera pri pomoci asistenta
+// -------------------------------------------------------------
 function ProvDuplePartnere(cIdP, cIdK, cDp, lAsist, lSumirano)
-*{
+
+if gOAsDuPartn == "N"
+	return 0
+endif
+
 select pripr
 go top
 nCnt := 0
@@ -168,7 +174,7 @@ else
 endif
 
 return nSuma
-*}
+
 
 
 /*! \fn KonsultOS()
@@ -196,7 +202,7 @@ lSumirano := .f.
 nZbir := 0
 nZbir := ProvDuplePartnere(_idpartner, _idkonto, _d_p, @lAsist, @lSumirano)
 
-if nZbir>0 .and. !lAsist
+if nZbir > 0 .and. !lAsist
 	MsgBeep("Na dokumentu postoje dvije ili vise uplata#za istog kupca. Asistent onemogucen!")
 	return (NIL)
 endif
@@ -204,7 +210,8 @@ endif
 
 cIdFirma:=gFirma
 cIdPartner:=_idpartner
-if (nZbir <> 0)
+
+if gOAsDuPartn == "D" .and. (nZbir <> 0)
 	if fNovi	
 		nIznos:=_iznosbhd + nZbir
 	else
@@ -213,6 +220,7 @@ if (nZbir <> 0)
 else
 	nIznos:=_iznosbhd
 endif
+
 cDugPot:=_d_p
 cOpis:=_Opis
 

@@ -328,6 +328,7 @@ public gDatVal:="N"
 public gnLOSt:=0
 public gPotpis:="N"
 public gnKZBDana:=0
+public gOAsDuPartn:="N"
 
 ::super:setTGVars()
 
@@ -354,6 +355,7 @@ Rpar("lm",@gnLMONI)
 Rpar("si",@gSAKrIz)
 Rpar("zx",@gKtoLimit)
 Rpar("zy",@gnKtoLimit)
+Rpar("oA",@gOAsDuPartn)
 
 Rpar("k1",@gK1)
 Rpar("k2",@gK2)

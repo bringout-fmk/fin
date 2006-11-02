@@ -132,6 +132,10 @@ Box(,23,70)
 	
 	@ m_x + nX, m_y + 2 SAY "Koristiti konta-izuzetke u FIN-BUDZET-u? (D/N)" GET gBuIz VALID gBuIz$"DN" PICT "@!"
 
+	++ nX 
+	
+	@ m_x + nX, m_y + 2 SAY "Pri pomoci asistenta provjeri i spoji duple uplate za partn.? (D/N)" GET gOAsDuPartn VALID gOAsDuPartn $ "DN" PICT "@!"
+
   	nX := nX + 2
 
 	@ m_x + nX, m_y + 2 SAY "********************** Ostalo:"
@@ -247,6 +251,7 @@ Rpar("so",@gVSubOp)
 Rpar("zx",@gKtoLimit)
 Rpar("zy",@gnKtoLimit)
 Rpar("az",@gnKZBDana)
+Rpar("oA",@gOAsDuPartn)
 
 gNFirma:=padr(gNFirma,20)
 
@@ -298,6 +303,7 @@ Wpar("si",gSAKrIz)
 Wpar("zx",gKtoLimit)
 Wpar("zy",gnKtoLimit)
 Wpar("az",gnKZBdana)
+Wpar("aO",gOAsDuPartn)
 
 return
 

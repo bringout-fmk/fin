@@ -323,8 +323,7 @@ endif
   nC:=0
   do while !eof() .and. cNal==IdFirma+IdVn+BrNal
 
-
-    @ m_x+3,m_y+25 SAY ++nc  pict "9999"
+    @ m_x+3,m_y+25 SAY ++nC  pict "99999999999"
 
     Scatter()
     if _d_p=="1"; nSaldo:=_IznosBHD; else; nSaldo:= -_IznosBHD; endif

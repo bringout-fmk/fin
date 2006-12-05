@@ -78,7 +78,7 @@ local nLStart := 0
 local i
 local cNalBr
 
-__nalbr := nextnal("I1")
+__nalbr := ""
 __rbr := 0
 
 // broj linija fajla....
@@ -113,6 +113,10 @@ for i:=1 to nFLines
 		
 		// ovo su parametri izvoda...
 		aHeader := aItem
+		
+		if EMPTY( __nalbr )
+			__nalbr := PADL( aHeader[1], 4 , "0" )
+		endif
 		
 	endif
 	
@@ -276,33 +280,64 @@ return cKonto
 // -----------------------------------------------
 // vraca id partnera po pretpostavci
 // -----------------------------------------------
-static function _g_partn( cOpis )
+static function _g_partn( cTxt )
 local nTArea := SELECT()
-local aTemp
-local cTemp
+local cDesc := ""
+local cBank := ""
 local cPartnId := "?????"
 
-if LEFT(cOpis, 1) == "/"
-	cOpis := ALLTRIM( SUBSTR( cOpis, 18, LEN(cOpis) ) )
+// uzmi banku i opis ako postoji "/"
+if LEFT(cTxt, 1) == "/"
+	cDesc := ALLTRIM( SUBSTR( cTxt, 18, LEN(cTxt) ) )
+	cBank := ALLTRIM( SUBSTR( cTxt, 2, 16 ) )
+else
+	cDesc := ALLTRIM( cTxt )
 endif
 
-// za pretragu partnera formiraj matricu
-aTemp := TokToNiz( cOpis, " ")
+// pokusaj naci po banci...
+cPartnId := _src_p_bank( cBank )
+
+// ako nema nista, pokusaj po nazivu....
+if EMPTY(cPartnId)
+	cPartnId := _src_p_desc( cDesc )
+endif
+
+// ako nema nista... ???
+if EMPTY(cPartnId)
+	
+	Msgbeep("Nepostojeci partner !!!#Opis: " + PADR(cDesc, 30))
+	cPartnId := PADR(cDesc, 3) + ".."
+	p_firma(@cPartnId)
+	
+endif
+
+select (nTArea)
+
+return cPartnId
+
+
+// ------------------------------------------------------
+// pretraga partnera po nazivu ili dijelu naziva
+// ------------------------------------------------------
+static function _src_p_desc( cDesc )
+local aTemp
+local cTemp := ""
+local cPartner := ""
+
+if EMPTY(cDesc)
+	return cPartner
+endif
+
+aTemp := TokToNiz( cDesc, " ")
 
 if LEN(aTemp) > 1
-
 	cTemp := ALLTRIM( aTemp[1] )
 
 	if LEN( cTemp ) < 4
-		
 		cTemp += " " + ALLTRIM( aTemp[2] )
-	
 	endif
-
 else
-
 	cTemp := ALLTRIM(aTemp[1])
-
 endif
 
 O_PARTN
@@ -311,14 +346,39 @@ go top
 seek cTemp
 
 if FOUND()
-	cPartnId := partn->id
-else
-	cPartnId := "?" + cTemp
+	cPartner := partn->id
 endif
 
-select (nTArea)
+return cPartner
 
-return cPartnId
+
+// -------------------------------------------
+// pretraga po banci - SIFV
+// -------------------------------------------
+static function _src_p_bank( cBank )
+local cPartner := ""
+
+if EMPTY(cBank)
+	return cPartner
+endif
+
+O_SIFV
+select sifv
+set order to tag "NAZ"
+
+go top
+
+seek PADR("PARTN", 8) + PADR("BANK", 4) + cBank
+
+if FOUND()
+	
+	// ako si nasao po banci to je to!
+	cPartner := ALLTRIM( sifv->idsif )
+	
+endif
+
+return cPartner
+
 
 
 // ----------------------------------------------

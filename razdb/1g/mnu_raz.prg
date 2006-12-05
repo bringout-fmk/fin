@@ -17,12 +17,13 @@ AADD(opc, "1. fakt->fin                   ")
 AADD(opcexe, {|| FaktFin()})
 AADD(opc, "2. ld->fin ")
 AADD(opcexe, {|| LdFin()})
+AADD(opc, "3. import elba ")
+AADD(opcexe, {|| _imp_elba_txt() })
+
 if IsPlanika() .or. IsPlNS()
-	AADD(opc, "3. pos->fin ")
+	AADD(opc, "4. pos->fin ")
 	AADD(opcexe, {|| PosFin()})
 endif
-AADD(opc, "4. blag->fin ")
-AADD(opcexe, {|| BlagFin()})
 
 Menu_SC("raz")
 

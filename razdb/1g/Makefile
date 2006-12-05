@@ -3,7 +3,7 @@ MODUL=fin_1rdb
 
 SRCDOSROOT=c:\\dev\\fmk\\fin\\razdb\\1g\\
 
-PRGS=ldfin.prg faktfin.prg mnu_raz.prg pos_fin.prg blag_fin.prg
+PRGS=ldfin.prg faktfin.prg mnu_raz.prg pos_fin.prg blag_fin.prg elba.prg
 CS=
 ASMS=
 

@@ -95,6 +95,10 @@ for i:=1 to nFLines
 	// tekst ...
 	cTemp := aTemp[1]
 
+	if EMPTY(cTemp)
+		loop
+	endif
+
 	aItem := TokToNiz( cTemp, __delimit )
 
 	if aItem[1] $ "+-"
@@ -179,7 +183,7 @@ replace rbr with STR(++__rbr, 4)
 replace datdok with dDatDok
 replace d_p with cDP
 replace idkonto with _g_konto( aItem[1], aItem[10] )
-replace idpartner with _g_partn( aItem[9] )
+replace idpartner with _g_partn( aItem[1], aItem[9], aItem[8] )
 
 if ALLTRIM(aItem[11]) == "KM"
 	replace iznosbhd with VAL( aItem[12] )
@@ -275,12 +279,27 @@ endif
 
 return cKonto
 
+// --------------------------------------------------
+// uzmi partnera za stavku
+// --------------------------------------------------
+static function _g_partn( cTrType, cTxt, cTrRN )
+
+if ALLTRIM( cTrType ) == "+"
+	// trazi partnera za uplate na zr
+	_g_part_upl( cTxt )
+
+elseif ALLTRIM( cTrType ) == "-"
+	// trazi partnera za isplate sa zr
+	_g_part_isp( cTxt, cTrRN )
+endif
+
+return
 
 
 // -----------------------------------------------
-// vraca id partnera po pretpostavci
+// vraca id partnera za uplate na zr
 // -----------------------------------------------
-static function _g_partn( cTxt )
+static function _g_part_upl( cTxt )
 local nTArea := SELECT()
 local cDesc := ""
 local cBank := ""
@@ -307,13 +326,89 @@ if EMPTY(cPartnId)
 	
 	Msgbeep("Nepostojeci partner !!!#Opis: " + PADR(cDesc, 30))
 	cPartnId := PADR(cDesc, 3) + ".."
+	
+	// otvori sifranik..
 	p_firma(@cPartnId)
 	
+	// setuj partneru transakcijski racun
+	_set_part_bank( cPartnId, cBank )
+
 endif
+
 
 select (nTArea)
 
 return cPartnId
+
+
+// -----------------------------------------------
+// vraca id partnera za isplate sa zr
+// -----------------------------------------------
+static function _g_part_isp( cTxt, cTrRN )
+local nTArea := SELECT()
+local cDesc := ""
+local cBank := ""
+local cPartnId := "?????"
+
+// uzmi banku i opis ako postoji "/"
+if LEFT(cTxt, 1) == "/"
+	cDesc := ALLTRIM( SUBSTR( cTxt, 18, LEN(cTxt) ) )
+else
+	cDesc := ALLTRIM( cTxt )
+endif
+
+// pokusaj naci po banci...
+cPartnId := _src_p_bank( cTrRN )
+
+// ako nema nista, pokusaj po nazivu....
+if EMPTY(cPartnId)
+	cPartnId := _src_p_desc( cDesc )
+endif
+
+// ako nema nista... ???
+if EMPTY(cPartnId)
+	
+	Msgbeep("Nepostojeci partner !!!#Opis: " + PADR(cDesc, 30))
+	cPartnId := PADR(cDesc, 3) + ".."
+	
+	// otvori sifranik..
+	p_firma(@cPartnId)
+	
+	// setuj partneru transakcijski racun
+	_set_part_bank( cPartnId, cTrRN )
+
+endif
+
+
+select (nTArea)
+
+return cPartnId
+
+
+// ------------------------------------------------
+// setovanje bank racuna za partnera
+// ------------------------------------------------
+static function _set_part_bank( cPartn, cBank )
+local cRead := ""
+
+altd()
+
+// nema banke, nista...
+if EMPTY(cBank)
+	return
+endif
+
+// prvo procitaj polje bank
+cRead := IzSifK("PARTN", "BANK", cPartn )
+
+if !EMPTY(cRead)
+	cBank += "," + cRead
+endif
+
+USifK("PARTN", "BANK", cPartn, cBank)
+
+return
+
 
 
 // ------------------------------------------------------
@@ -403,7 +498,7 @@ local cRet := ""
 
 do case 
 	case "PDV" $ cOpis
-		cRet := "pdv " + STR( MONTH(dDatum) - 1 )
+		cRet := "pdv " + PADL( ALLTRIM( STR( MONTH(dDatum) - 1 ) ), 2, "0")
 endcase
 
 return cRet

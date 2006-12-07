@@ -91,7 +91,7 @@ Box(, 7, 65)
 
 	nX += 1
 	
-	@ m_x + nX, m_y + 2 GET cFile VALID !EMPTY(cFile) PICT "@S60"
+	@ m_x + nX, m_y + 2 GET cFile PICT "@S60" VALID _file_valid( cFile )
 
 	nX += 2
 
@@ -113,6 +113,25 @@ WPar("i1", cFile)
 
 return 1
 
+// ------------------------------------------
+// validacija fajla
+// ------------------------------------------
+static function _file_valid( cFile )
+local lRet := .t.
+
+cFile := ALLTRIM(cFile)
+
+if EMPTY(cFile)
+	MsgBeep("Lokacija i ime fajla moraju biti popunjeni !")
+	lRet := .f.
+else
+	if !FILE(cFile)
+		MsgBeep("Ovaj fajl ne postoji !!!")
+		lRet := .f.
+	endif
+endif
+
+return lRet
 
 
 // -------------------------------------------------------
@@ -206,9 +225,9 @@ return nItems
 // ----------------------------------------------------
 static function _ins_elba_item( aItem, aHeader )
 local cKtoVB := PADR("2001", 7)
-local cKtoKup := PADR("2120", 7)
-local cKtoDob := PADR("5430", 7)
 local cDP
+local cKonto
+local cPartner
 
 // aItem
 // ----------------------------------------------------
@@ -238,6 +257,12 @@ cDP := _g_elba_dp( aItem[1] )
 dDatDok := _g_elba_date( aItem[2] )
 cOpis := _g_opis( aItem[10] )
 cBrVeze := _g_br_veze( aItem[1], dDatDok, aItem[10] )
+cKonto := _g_konto( aItem[1], aItem[10] )
+cPartner := _g_partn( aItem[1], aItem[9], aItem[8] )
+
+if ALLTRIM(cKonto) == "3370"
+	cPartner := PADR("VOLKS", 6)
+endif
 
 select pripr
 append blank
@@ -250,8 +275,8 @@ replace opis with cOpis
 replace rbr with STR(++__rbr, 4)
 replace datdok with dDatDok
 replace d_p with cDP
-replace idkonto with _g_konto( aItem[1], aItem[10] )
-replace idpartner with _g_partn( aItem[1], aItem[9], aItem[8] )
+replace idkonto with cKonto
+replace idpartner with cPartner
 
 if ALLTRIM(aItem[11]) == "KM"
 	replace iznosbhd with VAL( aItem[12] )

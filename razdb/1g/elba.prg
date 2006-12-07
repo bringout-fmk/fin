@@ -22,6 +22,12 @@ if __ck_pripr() > 0
 	return
 endif
 
+// uzmi parametre...
+if _get_params( @cTxt ) == 0
+	MsgBeep("Prekidam operaciju...")
+	return
+endif
+
 O_PRIPR
 O_NALOG
 
@@ -55,6 +61,59 @@ nReturn := RecCount2()
 return nReturn
 
 
+// -------------------------------------------
+// parametri importa
+// -------------------------------------------
+static function _get_params( cFile )
+local nX := 1
+local cImpOk := "D"
+private GetList:={}
+private cSection:="E"
+private cHistory:=" "
+private aHistory:={}
+
+O_PARAMS
+
+cFile := PADR("c:\temp\elba.txt", 100)
+
+RPar("i1", @cFile)
+//RPar("i2", @cFile)
+//RPar("i3", @cFile)
+
+
+Box(, 7, 65)
+
+	@ m_x + nX, m_y + 2 SAY "Parametri importa" COLOR "BG+/B"
+
+	nX += 2
+
+	@ m_x + nX, m_y + 2 SAY "Lokacija i naziv fajla za import:"
+
+	nX += 1
+	
+	@ m_x + nX, m_y + 2 GET cFile VALID !EMPTY(cFile) PICT "@S60"
+
+	nX += 2
+
+	@ m_x + nX, m_y + 2 SAY "Importovati podatke (D/N)?" GET cImpOk VALID cImpOk $ "DN" PICT "@!"
+
+	read
+	
+BoxC()
+
+if LastKey() == K_ESC .or. cImpOk == "N"
+	return 0
+endif
+
+select params
+
+WPar("i1", cFile)
+//WPar("i2", cFile)
+// ...
+
+return 1
+
+
 
 // -------------------------------------------------------
 // vraca gdje se nalazi txt fajl za import
@@ -84,6 +143,10 @@ __rbr := 0
 // broj linija fajla....
 nFLines := brlinfajla( cTxt )
 
+Box( , 3, 60)
+
+@ m_x + 1, m_y + 2 SAY "Vrsim import podataka u pripremu ..." COLOR "BG+/B"
+
 for i:=1 to nFLines
 
 	// pomocna matrica...
@@ -112,6 +175,9 @@ for i:=1 to nFLines
 		_ins_elba_item( aItem, aHeader )
 		
 		++ nItems
+
+		@ m_x + 3, m_y + 2 SAY PADR("", 60) COLOR "BG+/B"
+		@ m_x + 3, m_y + 2 SAY "stavka " + ALLTRIM(STR( nItems )) COLOR "BG+/B"
 		
 	else
 		
@@ -126,6 +192,8 @@ for i:=1 to nFLines
 	
 	
 next
+
+BoxC()
 
 
 return nItems
@@ -262,6 +330,8 @@ if ALLTRIM(cTrans) == "+"
 	return cKonto
 endif
 
+cOpis := KonvZnWin( cOpis )
+
 if ALLTRIM(cTrans) == "-"
 
 	do case
@@ -271,6 +341,9 @@ if ALLTRIM(cTrans) == "-"
 		case "VOLKS" $ cOpis
 			cKonto := PADR("3370", 7)
 		
+		case "PROVIZIJA" $ UPPER(cOpis)
+			cKonto := PADR("3370", 7)
+			
 		otherwise 
 			cKonto := PADR("5430", 7)
 	endcase
@@ -283,6 +356,8 @@ return cKonto
 // uzmi partnera za stavku
 // --------------------------------------------------
 static function _g_partn( cTrType, cTxt, cTrRN )
+
+cTxt := KonvZnWin( cTxt )
 
 if ALLTRIM( cTrType ) == "+"
 	// trazi partnera za uplate na zr
@@ -312,6 +387,8 @@ if LEFT(cTxt, 1) == "/"
 else
 	cDesc := ALLTRIM( cTxt )
 endif
+
+cDesc := KonvZnWin( cDesc )
 
 // pokusaj naci po banci...
 cPartnId := _src_p_bank( cBank )
@@ -356,6 +433,8 @@ if LEFT(cTxt, 1) == "/"
 else
 	cDesc := ALLTRIM( cTxt )
 endif
+
+cDesc := KonvZnWin( cDesc )
 
 // pokusaj naci po banci...
 cPartnId := _src_p_bank( cTrRN )
@@ -486,6 +565,8 @@ local aTemp
 aTemp := TokToNiz( cOpis, "/" )
 
 cRet := ALLTRIM( aTemp[1] )
+
+cRet := KonvZnWin( cRet )
 
 return cRet
 

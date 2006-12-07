@@ -187,6 +187,7 @@ for i:=1 to nFLines
 	
 		// nema dovoljno elemenata...
 		if LEN(aItem) < 12
+			MsgBeep("  Greska: nedovoljan broj elemenata !!!! #Linija " + ALLTRIM(STR(i)) + "#Opis: " + PADR(cTemp, 35) + "..." )
 			loop
 		endif
 		
@@ -256,7 +257,8 @@ local cPartner
 cDP := _g_elba_dp( aItem[1] )
 dDatDok := _g_elba_date( aItem[2] )
 cOpis := _g_opis( aItem[10] )
-cBrVeze := _g_br_veze( aItem[1], dDatDok, aItem[10] )
+//cBrVeze := _g_br_veze( aItem[1], dDatDok, aItem[10] )
+cBrVeze := __nalbr
 cKonto := _g_konto( aItem[1], aItem[10] )
 cPartner := _g_partn( aItem[1], aItem[9], aItem[8] )
 
@@ -360,14 +362,12 @@ cOpis := KonvZnWin( cOpis )
 if ALLTRIM(cTrans) == "-"
 
 	do case
-		case "PDV" $ cOpis
-			cKonto := PADR("5609", 7)
-		
-		case "VOLKS" $ cOpis
-			cKonto := PADR("3370", 7)
 		
 		case "PROVIZIJA" $ UPPER(cOpis)
 			cKonto := PADR("3370", 7)
+		
+		case "PDV" $ cOpis
+			cKonto := PADR("5609", 7)
 			
 		otherwise 
 			cKonto := PADR("5430", 7)
@@ -466,13 +466,11 @@ cPartnId := _src_p_bank( cTrRN )
 
 // ako nema nista, pokusaj po nazivu....
 if EMPTY(cPartnId)
-	cPartnId := _src_p_desc( cDesc )
-endif
-
-// ako nema nista... ???
-if EMPTY(cPartnId)
+	
+	//cPartnId := _src_p_desc( cDesc )
 	
 	Msgbeep("Nepostojeci partner !!!#Opis: " + PADR(cDesc, 30))
+	
 	cPartnId := PADR(cDesc, 3) + ".."
 	
 	// otvori sifranik..
@@ -480,7 +478,7 @@ if EMPTY(cPartnId)
 	
 	// setuj partneru transakcijski racun
 	_set_part_bank( cPartnId, cTrRN )
-
+	
 endif
 
 
@@ -494,22 +492,20 @@ return cPartnId
 // ------------------------------------------------
 static function _set_part_bank( cPartn, cBank )
 local cRead := ""
-
-altd()
+local nTArea := SELECT()
 
 // nema banke, nista...
 if EMPTY(cBank)
+	select (nTArea)
 	return
 endif
 
-// prvo procitaj polje bank
-cRead := IzSifK("PARTN", "BANK", cPartn )
+O_SIFK
+O_SIFV
 
-if !EMPTY(cRead)
-	cBank += "," + cRead
-endif
+USifK( "PARTN", "BANK", cPartn, cBank )
 
-USifK("PARTN", "BANK", cPartn, cBank)
+select (nTArea)
 
 return
 

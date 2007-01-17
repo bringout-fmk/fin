@@ -113,8 +113,9 @@ RETURN (NIL)
 
 
 function SrediRbr(lSilent)
-*{
 local nArr
+local nTREC
+local i
 
 if (lSilent == nil)
 	lSilent := .f.
@@ -130,22 +131,40 @@ nArr:=SELECT()
 nRec:=RecNo()
 
 select pripr
+set order to tag "1"
 go top
+
 i:=1
+
+Box(, 1, 50)
+
 do while !EOF()
+	
+	skip 1
+	nTREC := RECNO()
+	skip -1
+	
 	Scatter()
-	_rbr := STR(i,4)
+	_rbr := PADL( ALLTRIM(STR(i)) , 4 )
 	Gather()
+	
+	@ m_x + 1, m_y + 2 SAY "redni broj: " + field->rbr
+	
 	++i
-	skip
+	
+	go (nTREC)
+	
 enddo
+
+BoxC()
+
 go top
 
 select (nArr)
 go nRec
 
 return
-*}
+
 
 
 /*! \fn ChkKtoMark(cIdKonto)

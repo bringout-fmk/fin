@@ -251,7 +251,7 @@ Rpar("so",@gVSubOp)
 Rpar("zx",@gKtoLimit)
 Rpar("zy",@gnKtoLimit)
 Rpar("az",@gnKZBDana)
-Rpar("oA",@gOAsDuPartn)
+Rpar("OA",@gOAsDuPartn)
 
 gNFirma:=padr(gNFirma,20)
 
@@ -303,7 +303,7 @@ Wpar("si",gSAKrIz)
 Wpar("zx",gKtoLimit)
 Wpar("zy",gnKtoLimit)
 Wpar("az",gnKZBdana)
-Wpar("aO",gOAsDuPartn)
+Wpar("OA",gOAsDuPartn)
 
 return
 

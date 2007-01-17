@@ -355,7 +355,7 @@ Rpar("lm",@gnLMONI)
 Rpar("si",@gSAKrIz)
 Rpar("zx",@gKtoLimit)
 Rpar("zy",@gnKtoLimit)
-Rpar("oA",@gOAsDuPartn)
+Rpar("OA",@gOAsDuPartn)
 
 Rpar("k1",@gK1)
 Rpar("k2",@gK2)

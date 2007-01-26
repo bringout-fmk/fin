@@ -1,10 +1,7 @@
 #include "\dev\fmk\fin\fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
+
+static __par_len
 
 
 /*! \file fmk/fin/rpt/1g/specif.prg
@@ -28,6 +25,8 @@ cPG := "D"   // prikazi grad partnera
 cIdFirma:=gFirma; nIznos:=nIznos2:=0; cDP:="1"; qqKonto:=qqPartner:=SPACE(100)
 
 O_PARTN
+
+__par_len := LEN(partn->id)
 
 Box("skpoi",10,70,.f.)
 @ m_x+1,m_y+2 SAY "SPECIFIKACIJA PARTNERA NA KONTU"
@@ -69,11 +68,11 @@ B:=0
 cIdFirma:=left(cIdFirma,2)
 
 if cF=="1"
-   M:="----- ----- ------------------------------------ ----------------------- ------------------ ----------------- ----------------- ----------------- ----------------- ----------------- ----------------- -----------------"
+   M:="----- " + REPLICATE("-", __par_len) + " ------------------------------------ ----------------------- ------------------ ----------------- ----------------- ----------------- ----------------- ----------------- ----------------- -----------------"
 elseif cPG=="D"
-   M:="---- ------ ------------------------- ---------------- ----------------- ----------------- ----------------- -----------------"
+   M:="---- " + REPLICATE("-", __par_len) + " ------------------------- ---------------- ----------------- ----------------- ----------------- -----------------"
 else
-   M:="---- ------ ------------------------- ----------------- ----------------- ----------------- -----------------"
+   M:="---- " + REPLICATE("-", __par_len) + " ------------------------- ----------------- ----------------- ----------------- -----------------"
 endif
 O_SUBAN
 select SUBAN
@@ -114,25 +113,42 @@ do whileSC !eof()
            endif
 
            IF (nIznos==0 .or. (nRazl > nIznos))  .and. (nIznos2==0 .or. (nRazl2 > nIznos2))
-              // ako je nRazl=0 uzeti sve partnere
-              IF prow()==0; ZaglDPK(); ENDIF
-              IF prow()>63+gPStranica; FF; ZaglDPK(); ENDIF
-              @ prow()+1,0 SAY ++B PICTURE '9999'
-              @ prow(),5 SAY cIdPartner
+              
+	      // ako je nRazl=0 uzeti sve partnere
+              	IF prow()==0
+	      		ZaglDPK()
+		ENDIF
+              
+	      	IF prow()>63 + gPStranica
+			FF
+			ZaglDPK()
+		ENDIF
+              	
+		@ prow()+1,0 SAY ++B PICTURE '9999'
+              	@ prow(),5 SAY cIdPartner
 
-              SELECT PARTN; HSEEK cIdPartner
-              @ prow(),pcol()+1 SAY naz
-              if cF=="1" // a3 format
-                @ prow(),pcol()+1 SAY naz2 PICTURE 'XXXXXXXXXXXX'
-                @ prow(),pcol()+1 SAY PTT; @ prow(),pcol()+1 SAY Mjesto PICTURE 'XXXXXXXXXXXXXXXX'
-              ElseIF cPG=="D"
-                @ prow(),pcol()+1 SAY Mjesto PICTURE 'XXXXXXXXXXXXXXXX'
-              endif
-              nCol1:=pcol()
-              if cF=="1" .or. cDD="1"
-               @ prow(),pcol()+1 SAY nDugBHD PICTURE picBHD
-               @ prow(),pcol()+1 SAY nPotBHD PICTURE picBHD
-              endif
+              	SELECT PARTN
+		HSEEK cIdPartner
+              	
+		@ prow(),pcol()+1 SAY PADR(naz, 25)
+              	
+		if cF=="1" // a3 format
+                	
+			@ prow(),pcol()+1 SAY PADR(naz2, 25) PICT 'XXXXXXXXXXXX'
+                	@ prow(),pcol()+1 SAY PTT
+			@ prow(),pcol()+1 SAY PADR(Mjesto, 16) PICT 'XXXXXXXXXXXXXXXX'
+			
+              	elseif cPG=="D"
+                	
+			@ prow(),pcol()+1 SAY PADR(Mjesto, 16) PICT 'XXXXXXXXXXXXXXXX'
+              	endif
+              
+	      	nCol1 := pcol()
+              	
+		if cF=="1" .or. cDD="1"
+               		@ prow(),pcol()+1 SAY nDugBHD PICTURE picBHD
+               		@ prow(),pcol()+1 SAY nPotBHD PICTURE picBHD
+              	endif
               if cF=="1" .or. cDD="2"
                @ prow(),pcol()+1 SAY nDugDEM PICTURE picbhd
                @ prow(),pcol()+1 SAY nPotDEM PICTURE picbhd
@@ -265,26 +281,26 @@ endif
 @ prow()+1,0 SAY " FIRMA:"
 @ prow(),pcol()+2 SAY cIdFirma
 SELECT PARTN; HSEEK cIdFirma
-@ prow(),pcol()+1 SAY naz; @ prow(),pcol()+1 SAY naz2
+@ prow(),pcol()+1 SAY ALLTRIM(PADR(naz, 25)); @ prow(),pcol()+1 SAY naz2
 
 @ prow(),pcol()+2 SAY "KONTO:"; @ prow(),pcol()+2 SAY cIdKonto
 if cF=="1"
- ? "----- ------ ------------------------------------ ----- ----------------- ----------------------------------------------------------------------- -----------------------------------------------------------------------"
- ? "*RED.*æIFRA*      NAZIV POSLOVNOG PARTNERA      * PTT *      MJESTO     *       K  U  M  U  L  A  T  I  V  N  I       P  R  O  M  E  T           *                 S      A      L      D       O                       *"
- ? "                                                                          ----------------------------------------------------------------------- -----------------------------------------------------------------------"
- ? "*BROJ*     *                                    * BROJ*                 *   DUGUJE   "+ValDomaca()+"  *  POTRA¦UJE "+ValDomaca()+" *   DUGUJE  "+ValPomocna()+"  *   POTRA¦. "+ValPomocna()+"  *    DUGUJE "+ValDomaca()+"  *  POTRA¦UJE "+ValDomaca()+" *   DUGUJE  "+ValPomocna()+"  *   POTRA¦."+ValPomocna()+"  *"
+ ? "----- " + REPLICATE("-", __par_len) + " ------------------------------------ ----- ----------------- ----------------------------------------------------------------------- -----------------------------------------------------------------------"
+ ? "*RED.*" + PADC("æIFRA", __par_len) + "*     NAZIV POSLOVNOG PARTNERA      * PTT *      MJESTO     *       K  U  M  U  L  A  T  I  V  N  I       P  R  O  M  E  T           *                 S      A      L      D       O                       *"
+ ? "      " + REPL(" ", __par_len) + "                                                              ----------------------------------------------------------------------- -----------------------------------------------------------------------"
+ ? "*BROJ*" + REPLICATE(" ", __par_len) + "*                                   * BROJ*                 *   DUGUJE   "+ValDomaca()+"  *  POTRA¦UJE "+ValDomaca()+" *   DUGUJE  "+ValPomocna()+"  *   POTRA¦. "+ValPomocna()+"  *    DUGUJE "+ValDomaca()+"  *  POTRA¦UJE "+ValDomaca()+" *   DUGUJE  "+ValPomocna()+"  *   POTRA¦."+ValPomocna()+"  *"
  ? m
 elseif cPG=="D"
- ? "----- ------ ------------------------ ---------------- ----------------------------------- -----------------------------------"
- ? "*RED.*æIFRA*      NAZIV POSLOVNOG    *     MJESTO     *         KUMULATIVNI  PROMET       *               SALDO              *"
+ ? "----- " + REPLICATE("-", __par_len) + " ------------------------ ---------------- ----------------------------------- -----------------------------------"
+ ? "*RED.*" + PADC("æIFRA", __par_len) + "*     NAZIV POSLOVNOG    *     MJESTO     *         KUMULATIVNI  PROMET       *               SALDO              *"
  ? "                                                       ----------------------------------- -----------------------------------"
- ? "*BROJ*     *      PARTNERA           *                *    DUGUJE       *   POTRA¦UJE     *    DUGUJE       *   POTRA¦UJE    *"
+ ? "*BROJ*" + REPLICATE(" ", __par_len)  + "*     PARTNERA           *                *    DUGUJE       *   POTRA¦UJE     *    DUGUJE       *   POTRA¦UJE    *"
  ? m
 else
- ? "----- ------ ------------------------ ----------------------------------- -----------------------------------"
- ? "*RED.*SIFRA*      NAZIV POSLOVNOG    *         KUMULATIVNI  PROMET       *               SALDO              *"
- ? "                                      ----------------------------------- -----------------------------------"
- ? "*BROJ*     *      PARTNERA           *    DUGUJE       *   POTRA¦UJE     *    DUGUJE       *   POTRA¦UJE    *"
+ ? "----- " + REPLICATE("-", __par_len) + " ------------------------ ----------------------------------- -----------------------------------"
+ ? "*RED.*" + PADC("SIFRA", __par_len) + "*      NAZIV POSLOVNOG    *         KUMULATIVNI  PROMET       *               SALDO              *"
+ ? "      " + REPL(" ", __par_len)+ "                        ----------------------------------- -----------------------------------"
+ ? "*BROJ*" + REPLICATE(" ", __par_len) + "*      PARTNERA           *    DUGUJE       *   POTRA¦UJE     *    DUGUJE       *   POTRA¦UJE    *"
  ? m
 endif
 
@@ -305,10 +321,6 @@ picBHD:=FormPicL("9 "+gPicBHD,16)
 picDEM:=FormPicL("9 "+gPicDEM,16)
 
 
-M:="----- ------ ----------------------------------- ------ ---------------- -------- -------- --------- -----------------"
-if gVar1=="0"
-  M+=" ----------------"
-endif
 
 cIdFirma:=gFirma; nIznosBHD:=0; nDana:=30; cIdKonto:=space(7)
 
@@ -319,7 +331,13 @@ dDatum:=date()
 cUkupnoPartner:="D"
 cPojed:="D"
 cD_P:="1"
+__par_len := LEN( partn->id )
 qqBrDok:=Space(40)
+
+M:="----- " + REPLICATE("-", __par_len ) + " ----------------------------------- ------ ---------------- -------- -------- --------- -----------------"
+if gVar1=="0"
+  M+=" ----------------"
+endif
 
 
 // Markeri otvorenih stavki
@@ -470,15 +488,25 @@ do whileSC !eof() .and. cIdKonto==IdKonto
          KDIN+=nDin; KDEM+=nDEM
          nDINP+=nDin; nDEMP+=nDEM
          if cPojed=="D"
-            IF prow()==0; ZaglSpBrDana(); ENDIF
-            IF prow()>62+gPStranica; FF; ZaglSpBrDana(); ENDIF
+            
+	    IF prow()==0
+	    	ZaglSpBrDana()
+	    ENDIF
+            IF prow()>62+gPStranica
+	    	FF
+		ZaglSpBrDana()
+	    ENDIF
 
             @ prow()+1,1 SAY ++B PICTURE '9999'
             @ prow(),pcol()+1 SAY cIdPartner
-            SELECT PARTN; HSEEK cIdPartner
-            @ prow(),pcol()+1 SAY naz; @ prow(),pcol()+1 SAY naz2 PICTURE 'XXXXXXXXXX'
-            @ prow(),pcol()+1 SAY PTT; @ prow(),pcol()+1 SAY Mjesto
-            SELECT SUBAN
+            SELECT PARTN
+	    HSEEK cIdPartner
+            @ prow(),pcol()+1 SAY PADR(naz, 25)
+	    @ prow(),pcol()+1 SAY naz2 PICTURE 'XXXXXXXXXX'
+            @ prow(),pcol()+1 SAY PTT
+	    @ prow(),pcol()+1 SAY Mjesto
+            
+	    SELECT SUBAN
 
             @ prow(),pcol()+1 SAY cBrDok
             @ prow(),pcol()+1 SAY dDatDok
@@ -509,9 +537,12 @@ do whileSC !eof() .and. cIdKonto==IdKonto
        @ prow()+1,1 SAY space(4)
      endif
      @ prow(),pcol()+1 SAY cIdPartner
-     SELECT PARTN; HSEEK cIdPartner
-     @ prow(),pcol()+1 SAY naz; @ prow(),pcol()+1 SAY naz2 PICTURE 'XXXXXXXXXX'
-     @ prow(),pcol()+1 SAY PTT; @ prow(),pcol()+1 SAY Mjesto
+     SELECT PARTN
+     HSEEK cIdPartner
+     @ prow(),pcol()+1 SAY PADR(naz, 25)
+     @ prow(),pcol()+1 SAY naz2 PICT 'XXXXXXXXXX'
+     @ prow(),pcol()+1 SAY PTT
+     @ prow(),pcol()+1 SAY Mjesto
      SELECT SUBAN
 
      @ prow(),pcol()+1 SAY space(len(cBrDok))
@@ -570,33 +601,33 @@ if gNW=="D"
  ? "Firma:",gFirma,gNFirma
 else
  SELECT PARTN; HSEEK cIdFirma
- ? "Firma:",cidfirma,partn->naz,partn->naz2
+ ? "Firma:",cidfirma,PADR(partn->naz, 25),partn->naz2
 endif
 
 ? "KONTO:",cIdkonto
 
 SELECT SUBAN
 
-? "----- ------ ----------------------------------- ------ ---------------- -------- -------- -------- "
+? "----- " + REPLICATE("-", __par_len) + " ----------------------------------- ------ ---------------- -------- -------- -------- "
 ?? replicate("-",17)
 if gVar1=="0" // dvovalutno
  ?? " "+replicate("-",17)
 endif
-? "*RED *PART- *      NAZIV POSLOVNOG PARTNERA      PTT     MJESTO         *  BROJ  * DATUM  * K1-K4  *"
+? "*RED *" + PADC("PART-", __par_len) + "*      NAZIV POSLOVNOG PARTNERA      PTT     MJESTO         *  BROJ  * DATUM  * K1-K4  *"
 if gVar1=="0"
   ?? PADC("NEPLAENO",35)
 ELSE
   ?? PADC("NEPLAENO",17)
 ENDIF
 
-? " BR.  NER                                                                                           "
+? " BR. " + PADC("NER", __par_len) + "                                                                                         "
 
 ?? replicate("-",17)
 if gVar1=="0" // dvovalutno
  ?? " "+replicate("-",17)
 endif
 
-? "*    *      *                                                           * RA¬UNA *"+iif(cObzirDatVal=="D"," VALUTE "," RA¬UNA ")+"*        *"
+? "*    *" + REPLICATE(" ", __par_len) + "*                                                           * RA¬UNA *"+iif(cObzirDatVal=="D"," VALUTE "," RA¬UNA ")+"*        *"
 
 cPom:=""
 if cD_P="1"
@@ -634,6 +665,7 @@ picBHD:=FormPicL("9 "+gPicBHD,20)
 
 O_PARTN
 
+__par_len := LEN(partn->id)
 dDatOd:=dDatDo:=ctod("")
 
 qqKonto:=space(100)
@@ -786,7 +818,7 @@ if gNW=="D"
  ? "Firma:",gFirma,gNFirma
 else
  SELECT PARTN; HSEEK cIdFirma
- ? "Firma:",cidfirma,partn->naz,partn->naz2
+ ? "Firma:",cidfirma,PADR(partn->naz,25),partn->naz2
 endif
 
 IF gRJ=="D" .and. gSAKrIz=="D" .and. LEN(cIdRJ)<>0
@@ -895,6 +927,8 @@ select params
 use
 
 O_PARTN
+
+__par_len := LEN(partn->id)
 
 cTip:="1"
 Box("",18,65)
@@ -1089,17 +1123,23 @@ START PRINT CRET
 
 IF cSkVar=="D"
   	nDOpis:=25
+	if __par_len > 6
+	  //nDOpis += 2
+	endif
 	nDIznos:=12
   	pic:=RIGHT(picbhd,nDIznos)
 ELSE
   	nDOpis:=50
+	if __par_len > 6
+	   //nDOpis += 2
+	endif
 	nDIznos:=20
 ENDIF
 
 if cTip=="3"
-   	m:="------  ------ "+REPL("-",nDOpis)+" "+REPL("-",nDIznos)+" "+REPL("-",nDIznos)
+   	m:="------- " + REPLICATE("-", __par_len) + " "+REPL("-",nDOpis)+" "+REPL("-",nDIznos)+" "+REPL("-",nDIznos)
 else
-   	m:="------  ------ "+REPL("-",nDOpis)+" "+REPL("-",nDIznos)+" "+REPL("-",nDIznos)+" "+REPL("-",nDIznos)
+   	m:="------- " + REPLICATE("-", __par_len) + " "+REPL("-",nDOpis)+" "+REPL("-",nDIznos)+" "+REPL("-",nDIznos)+" "+REPL("-",nDIznos)
 endif
 
 nStr:=0
@@ -1158,7 +1198,6 @@ do whileSC !eof()
 			endif
      			
 			skip 1
-			altd()
 
 			if cRascFunkFond=="D" .and. cGetFunkFond<>idrj+funk+fond
 				AADD(aRasclan, {cGetIdRj, cGetFunk, cGetFond, nDugujeBHD, nPotrazujeBHD})
@@ -1191,24 +1230,24 @@ do whileSC !eof()
          				select KONTO
 					hseek cIdKonto
 					select SUBAN
-         				cPom:=ALLTRIM(KONTO->naz)+" ("+ALLTRIM(PARTN->naz+PN2())+")"
+         				cPom:=ALLTRIM(KONTO->naz)+" ("+ALLTRIM(ALLTRIM(PARTN->naz)+PN2())+")"
          				?? PADR(cPom,nDOpis-DifIdP(cidpartner))
          				IF LEN(cPom)>nDOpis-DifIdP(cidpartner)
-           					cLDrugi:=SUBSTR(cPom,nDOpis+1-DifIdP(cidpartner))
+           					cLDrugi:=SUBSTR(cPom,nDOpis+1)
          				ENDIF
        				else
-         				cPom:=PARTN->naz+PN2()
+         				cPom:=ALLTRIM(PARTN->naz)+PN2()
          				IF !empty(partn->mjesto)
             					if right(trim(upper(partn->naz)),len(trim(partn->mjesto))) != TRIM(UPPER(partn->mjesto))
-                					cPom:=trim(partn->naz+PN2())+" "+trim(partn->mjesto)
-                					aTxt:=Sjecistr(cPom,nDOpis-DifIdP(cidpartner))
+                					cPom:=trim(ALLTRIM(partn->naz)+PN2())+" "+trim(partn->mjesto)
+                					aTxt:=Sjecistr(cPom,nDOpis)
                 					cPom:=aTxt[1]
                 					if len(aTxt)>1
                   						cLDrugi:=aTxt[2]
                 					endif
             					endif
          				endif
-         				?? padr(cPom,nDOpis-DifIdP(cidpartner))
+         				?? padr(cPom,nDOpis)
        				endif
      			else
        				select KONTO
@@ -1232,7 +1271,7 @@ do whileSC !eof()
      			endif
      			
 			if lExpRpt
-				fill_ss_tbl(cIdKonto, cIdPartner, IF(EMPTY(cIdPartner), konto->naz, partn->naz), nD, nP, nD-nP)
+				fill_ss_tbl(cIdKonto, cIdPartner, IF(EMPTY(cIdPartner), konto->naz, ALLTRIM(partn->naz)), nD, nP, nD-nP)
 			endif
 			
 			nKd+=nD
@@ -1346,6 +1385,7 @@ picBHD:=FormPicL("9 "+gPicBHD,20)
 
 O_KONTO
 O_PARTN
+__par_len := LEN(partn->id)
 
 dDatOd:=dDatDo:=ctod("")
 qqkonto:=space(7)
@@ -1447,9 +1487,9 @@ Pic:=PicBhd
 START PRINT CRET
 
 if cTip=="3"
-   m:="------  ------ ------------------------------------------------- --------------------- --------------------"
+   m:="------  " + REPLICATE("-", __par_len) + " ------------------------------------------------- --------------------- --------------------"
 else
-   m:="------  ------ ------------------------------------------------- --------------------- -------------------- --------------------"
+   m:="------  " + REPLICATE("-", __par_len) + " ------------------------------------------------- --------------------- -------------------- --------------------"
 endif
 nStr:=0
 
@@ -1470,7 +1510,7 @@ do whileSC !eof()
      nd:=np:=0;nd2:=np2:=0
      if prow()==0; zagl6(cSkVar); endif
      cIdPartner:=IdPartner
-     cNazPartn:=partn->naz
+     cNazPartn:=PADR(partn->naz, 25)
      do whileSC !eof() .and. idfirma==cidfirma .and. idkonto==cidkonto .and. eval(bUslov) .and. IdPartner==cIdPartner
          if d_P=="1"
            nd+=iznosbhd; nd2+=iznosdem
@@ -1552,12 +1592,9 @@ return
 /*! \fn TekRec()
  *  \brief Vraca tekuci zapis
  */
- 
 function TekRec()
-*{
 @ m_x+1,m_y+2 SAY RecNo()
 return nil
-*}
 
 
 /*! \fn Zagl6(cSkVar)
@@ -1594,7 +1631,7 @@ else
   ? "Firma:",gNFirma,"(SVE RJ)"
  ELSE
   SELECT PARTN; HSEEK cIdFirma
-  ? "Firma:",cidfirma,partn->naz,partn->naz2
+  ? "Firma:",cidfirma,PADR(partn->naz, 25),partn->naz2
  ENDIF
 endif
 ?
@@ -1611,15 +1648,15 @@ ELSE
 ENDIF
 if cTip $ "12"
   IF cSkVar!="D"
-    ? "KONTO   PARTN.  NAZIV KONTA / PARTNERA                                          duguje            potra§uje                saldo"
+    ? "KONTO  " + PADC("PARTN.", __par_len) + "  NAZIV KONTA / PARTNERA                                          duguje            potra§uje                saldo"
   ELSE
-    ? "KONTO   PARTN.  "+PADR("NAZIV KONTA / PARTNERA",nDOpis)+" "+PADC("duguje",nDIznos)+" "+PADC("potra§uje",nDIznos)+" "+PADC("saldo",nDIznos)
+    ? "KONTO  " + PADC("PARTN", __par_len) + "  " +  PADR("NAZIV KONTA / PARTNERA",nDOpis)+" "+PADC("duguje",nDIznos)+" "+PADC("potra§uje",nDIznos)+" "+PADC("saldo",nDIznos)
   ENDIF
 else
   IF cSkVar!="D"
-    ? "KONTO   PARTN.  NAZIV KONTA / PARTNERA                                       saldo "+ValDomaca()+"           saldo "+ALLTRIM(ValPomocna())
+    ? "KONTO  " + PADC("PARTN.", __par_len) + "  NAZIV KONTA / PARTNERA                                       saldo "+ValDomaca()+"           saldo "+ALLTRIM(ValPomocna())
   ELSE
-    ? "KONTO   PARTN.  "+PADR("NAZIV KONTA / PARTNERA",nDOpis)+" "+PADC("saldo "+ValDomaca(),nDIznos)+" "+PADC("saldo "+ALLTRIM(ValPomocna()),nDIznos)
+    ? "KONTO  " + PADC("PARTN.", __par_len) + "  "+PADR("NAZIV KONTA / PARTNERA",nDOpis)+" "+PADC("saldo "+ValDomaca(),nDIznos)+" "+PADC("saldo "+ALLTRIM(ValPomocna()),nDIznos)
   ENDIF
 endif
 ? m
@@ -1641,6 +1678,8 @@ private fOtvSt:=lOtvSt
 
 O_KONTO
 O_PARTN
+
+__par_len := LEN(partn->id)
 
 cDinDem:="1"
 dDatOd:=dDatDo:=ctod("")
@@ -1698,9 +1737,9 @@ enddo
 BoxC()
 
 IF cPG=="N"
-private m:="------ ------------------------- ---------------- ---------------- ----------------"
+private m:=REPLICATE("-", __par_len) + " ------------------------- ---------------- ---------------- ----------------"
 Else
-private m:="------ ------------------------- ---------------- ---------------- ---------------- ----------------"
+private m:=REPLICATE("-", __par_len) + " ------------------------- ---------------- ---------------- ---------------- ----------------"
 EndIF
 
 O_SUBAN
@@ -1816,15 +1855,26 @@ do whilesc !eof() .and. IdFirma==cIdFirma
         endif
      endif
 
-     if fuslov
-      IF prow()>56+gPStranica; FF; Zagl7(); ENDIF
+     if fUslov
+      IF prow()>56+gPStranica
+      	FF
+	Zagl7()
+      ENDIF
+      
       @ prow()+1,0 SAY cidpartner
-      select partn; hseek cidpartner; select suban
-      @ prow(),pcol()+1 SAY partn->naz
+      
+      select partn
+      hseek cIdPartner
+      select suban
+      
+      @ prow(),pcol()+1 SAY PADR(partn->naz, 25)
+      
       IF cPG=="D"
-        @ prow(),pcol()+1 SAY PARTN->Mjesto
+      	@ prow(),pcol()+1 SAY PARTN->Mjesto
       EndIF
+      
       nC1:=pcol()+1
+      
       if cDinDem=="1"
          @ prow(),pcol()+1 SAY nDBHD PICTURE picBHD
          @ prow(),pcol()+1 SAY nPBHD PICTURE picBHD
@@ -1885,16 +1935,16 @@ if gNW=="D"
  ? "Firma:",gFirma,gNFirma
 else
  SELECT PARTN; HSEEK cIdFirma
- ? "Firma:",cidfirma,partn->naz,partn->naz2
+ ? "Firma:",cidfirma,PADR(partn->naz,25),partn->naz2
 endif
 
 select SUBAN
 
 ? m
 IF cPG="D"
-? "PARTN.  PARTNER                       MJESTO           saldo1         saldo2           saldo"
+? PADR("PARTN.", __par_len) + " PARTNER                       MJESTO           saldo1         saldo2           saldo"
 Else
-? "PARTN.  PARTNER                       saldo1           saldo2           saldo"
+? PADR("PARTN.", __par_len) + "  PARTNER                       saldo1           saldo2           saldo"
 EndIF
 ? m
 return
@@ -1916,6 +1966,9 @@ picBHD:=FormPicL("9 "+gPicBHD,16)
 picDEM:=FormPicL("9 "+gPicDEM,12)
 
 O_PARTN
+
+__par_len := LEN(partn->id)
+
 
 Box("SSK",6,60,.f.)
 
@@ -2053,7 +2106,7 @@ if gNW=="D"
  ? "Firma:",gFirma,gNFirma
 else
  SELECT PARTN; HSEEK cIdFirma
- ? "Firma:",cidfirma,partn->naz,partn->naz2
+ ? "Firma:",cidfirma,PADR(partn->naz,25),partn->naz2
 endif
 
 ? "----- ------- ----------------------------- ------------------------------------------------------------ -----------------------------"
@@ -2082,6 +2135,8 @@ picBHD:=FormPicL("9 "+gPicBHD,13)
 picDEM:=FormPicL("9 "+gPicDEM,10)
 
 O_PARTN
+
+__par_len := LEN(partn->id)
 
 Box("SSK",6,60,.f.)
 
@@ -2221,7 +2276,7 @@ if gNW=="D"
  ? "Firma:",gFirma,gNFirma
 else
  SELECT PARTN; HSEEK cIdFirma
- ? "Firma:",cidfirma,partn->naz,partn->naz2
+ ? "Firma:",cidfirma,PADR(partn->naz, 25),partn->naz2
 endif
 
 ? "----- ------- ----------------------------- ------------------------------------------------------------ -----------------------------"
@@ -2311,7 +2366,7 @@ else
 		set relation to suban->idpartner into partn
 	endif
 	if cSortPar=="N"
-		index on idfirma+idkonto+partn->naz+idpartner+dtos(datdok) to SUBSUB
+		index on idfirma+idkonto+PADR(partn->naz, 25)+idpartner+dtos(datdok) to SUBSUB
 		set order to tag "SUBSUB"
 	endif
 	if !empty(cMjestoPar)
@@ -2420,9 +2475,9 @@ do while cidfirma==idfirma .and. !eof() .and. cidkonto==idkonto
 			?? PADR(RJ->naz,36)
 		else
 			if cPG=="N"
-				?? partn->naz
+				?? PADR(partn->naz, 25)
 			else
-				?? Left (PARTN->Naz, 20), LEFT (PARTN->Mjesto, 15)
+				?? Left (PARTN->Naz, 25), LEFT (PARTN->Mjesto, 15)
 			endif
 		endif
 
@@ -2727,6 +2782,7 @@ private cIdKonto := SPACE (7), cIdFirma := SPACE (LEN (gFirma)), ;
   O_KONTO
   O_PARTN
   O_SUBAN
+  __par_len := LEN(partn->id)
   *
   Box (, 11, 60)
   @ m_x,m_y+15 SAY "PREGLED PARTNERA BEZ PROMETA"
@@ -2764,9 +2820,9 @@ private cIdKonto := SPACE (7), cIdFirma := SPACE (LEN (gFirma)), ;
   ? SPACE (5)+"Za period:", IF (Empty (dDatOd), "", DTOC (dDatOd)+" ")+;
     "do", DTOC (dDatDo)
   ?
-  ? SPACE (5)+"Sifra ", PADR ("NAZIV", LEN (PARTN->Naz)), ;
+  ? SPACE (5)+PADR("Sifra", __par_len), PADR("NAZIV", 25), ;
     PADR ("MJESTO", LEN (PARTN->Mjesto)), PADR ("ADRESA", LEN (PARTN->Adresa))
-  ? SPACE (5) + "------", REPL ("-", LEN (PARTN->Naz)), ;
+  ? SPACE (5) + REPL("-", __par_len), REPL ("-", 25 ), ;
     REPL ("-", LEN (PARTN->Mjesto)), REPL ("-", LEN (PARTN->Adresa))
 
   nBrPartn := 0
@@ -2791,13 +2847,13 @@ private cIdKonto := SPACE (7), cIdFirma := SPACE (LEN (gFirma)), ;
       SKIP
     End
     IF fNema
-      ? SPACE (5) + PARTN->Id, PARTN->Naz, PARTN->Mjesto, PARTN->Adresa
+      ? SPACE (5) + PARTN->Id, PADR(PARTN->Naz, 25), PARTN->Mjesto, PARTN->Adresa
       nBrPartn ++
     ENDIF
     SELECT PARTN
     SKIP
   END
-  ? SPACE (5) + "------", REPL ("-", LEN (PARTN->Naz)), ;
+  ? SPACE (5) + REPL("-", __par_len), REPL ("-", 25 ), ;
     REPL ("-", LEN (PARTN->Mjesto)), REPL ("-", LEN (PARTN->Adresa))
   ?
   ? SPACE (5)+ "Ukupno izlistano", Alltrim (Str (nBrPartn)), ;
@@ -2865,9 +2921,11 @@ O_SUBAN
 O_PARTN
 O_KONTO
 
+__par_len := LEN(partn->id)
+
 cIdFirma:=gFirma
-cIdkonto:=space(7)
-cIdPartner:=space(6)
+cIdkonto:=SPACE(7)
+cIdPartner:=PADR("", __par_len)
 dNaDan:=DATE()
 cOpcine:=SPACE(20)
 cValuta:="1"
@@ -2950,7 +3008,7 @@ ELSE
     	Boxc()
 ENDIF
 
-CrePom()  // kreiraj pomocnu bazu
+CrePom(, __par_len)  // kreiraj pomocnu bazu
 
 IF cPoRN=="D"
 	gaZagFix:={5,3}
@@ -3156,7 +3214,7 @@ DO WHILE !EOF()
       			ENDIF
     		ELSEIF cLastIdPartner!=cIdPartner .or. LEN(cLastIdPartner)<1
      			Pljuc(cIdPartner)
-      			PPljuc(Ocitaj(F_PARTN,cIdPartner,"naz"))
+      			PPljuc(PADR(Ocitaj(F_PARTN,cIdPartner,"naz"), 25))
       			cLastIdPartner:=cIdPartner
     		ENDIF
     		IF otvst==" "
@@ -3480,11 +3538,11 @@ ENDIF // total
 
 IF cPoRn=="N"
 	IF cSaRokom=="D"
-     		? "ÃÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´"
+     		? "Ã" + REPL("Ä", __par_len) + "ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´"
   	ELSE
-     		? "ÃÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´"
+     		? "Ã" + REPL("Ä", __par_len) + "ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´"
   	ENDIF
-  	Pljuc( PADR( "UKUPNO" , LEN(POM->IDPARTNER+PARTN->naz)+1 ) )
+  	Pljuc( PADR( "UKUPNO" , LEN( POM->IDPARTNER + PADR(PARTN->naz, 25)) + 1 ) )
   	IF cSaRokom=="D"
     		FOR i:=1 TO LEN(anInterUV)
       			if ( cValuta == "1" )
@@ -3515,7 +3573,7 @@ IF cPoRn=="N"
    			PPljuc(TRANSFORM(nTUDug2-nTUPot2,PICPIC))
 		endif
 		
-		? "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ"
+		? "À" + REPL("Ä", __par_len) + "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ"
   	ELSE
 		if ( cValuta == "1" )
     			PPljuc(TRANSFORM(nTUkUVD-nTUkUVP,PICPIC))
@@ -3527,7 +3585,7 @@ IF cPoRn=="N"
     			PPljuc(TRANSFORM(nTUDug2-nTUPot2,PICPIC))
 		endif
 		
-		? "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ"
+		? "À" + REPL("Ä", __par_len) + "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ"
   	ENDIF
 ENDIF
 
@@ -3622,7 +3680,7 @@ IF cPoRn=="D"
  	else
   		SELECT PARTN
 		HSEEK cIdPartner
-  		? "PARTNER:", cIdPartner,TRIM(naz)," ",TRIM(naz2)," ",TRIM(mjesto)
+  		? "PARTNER:", cIdPartner,TRIM(PADR(naz, 25))," ",TRIM(naz2)," ",TRIM(mjesto)
  	endif
 	? m
  	?
@@ -3642,16 +3700,16 @@ ELSE
 	HSEEK cIdKonto
 	? "KONTO  :",cIdKonto,naz
 	IF cSaRokom=="D"
-   		? "ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ¿"
-   		? "³      ³                         ³                  U      V  A  L  U  T  I                  ³               V  A  N      V  A  L  U  T  E               ³         ³"
-   		? "³SIFRA ³     NAZIV  PARTNERA     ÃÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ´  UKUPNO ³"
-   		? "³PARTN.³                         ³DO"+STR(nDoDana1,3)+" D. ³DO"+STR(nDoDana2,3)+" D. ³DO"+STR(nDoDana3,3)+" D. ³DO"+STR(nDoDana4,3)+" D. ³PR."+STR(nDoDana4,2)+" D. ³ UKUPNO  ³DO"+STR(nDoDana1,3)+" D. ³DO"+STR(nDoDana2,3)+" D. ³DO"+STR(nDoDana3,3)+" D. ³DO"+STR(nDoDana4,3)+" D. ³PR."+STR(nDoDana4,2)+" D. ³ UKUPNO  ³         ³"
-   		? "ÃÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´"
+   		? "Ú" + REPL("Ä", __par_len) + "ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ¿"
+   		? "³" + REPL(" ", __par_len) + "³                         ³                  U      V  A  L  U  T  I                  ³               V  A  N      V  A  L  U  T  E               ³         ³"
+   		? "³" + PADC("SIFRA", __par_len) + "³     NAZIV  PARTNERA     ÃÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ´  UKUPNO ³"
+   		? "³" + PADC("PARTN.", __par_len) + "³                         ³DO"+STR(nDoDana1,3)+" D. ³DO"+STR(nDoDana2,3)+" D. ³DO"+STR(nDoDana3,3)+" D. ³DO"+STR(nDoDana4,3)+" D. ³PR."+STR(nDoDana4,2)+" D. ³ UKUPNO  ³DO"+STR(nDoDana1,3)+" D. ³DO"+STR(nDoDana2,3)+" D. ³DO"+STR(nDoDana3,3)+" D. ³DO"+STR(nDoDana4,3)+" D. ³PR."+STR(nDoDana4,2)+" D. ³ UKUPNO  ³         ³"
+   		? "Ã" + REPL("Ä", __par_len) + "ÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´"
  	ELSE
-   		? "ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ¿"
-   		? "³SIFRA ³                         ³ UKUPNO  ³ UKUPNO  ³         ³"
-   		? "³PARTN.³     NAZIV  PARTNERA     ³U VALUTI ³VAN VAL. ³ UKUPNO  ³"
-  	 	? "ÃÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´"
+   		? "Ú" + REPL("Ä", __par_len) + "ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ¿"
+   		? "³" + PADC("SIFRA", __par_len) + "³                         ³ UKUPNO  ³ UKUPNO  ³         ³"
+   		? "³" + PADC("PARTN.", __par_len) + "³     NAZIV  PARTNERA     ³U VALUTI ³VAN VAL. ³ UKUPNO  ³"
+  	 	? "Ã" + REPL("Ä", __par_len) + "ÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄ´"
  	ENDIF
 ENDIF
 
@@ -3830,6 +3888,8 @@ LOCAL GetList:={}
   // 1. je tekuca, 2. prosla godina , ... ,  N.posljednja godina knji§enja
 
   O_PARTN
+  __par_len := LEN(partn->id)
+  
   O_SUBAN
   set order to tag "3"
                 // "3": "IdFirma+IdKonto+IdPartner+BrDok+dtos(DatDok)"
@@ -3925,7 +3985,7 @@ LOCAL GetList:={}
   aKol:={}
   nKol:=0
   AADD(aKol, { "R.BR."     , {|| STR(nRbr,4)+"." }, .f., "C",  5, 0, 1, ++nKol } )
-  AADD(aKol, { "PARTNER"   , {|| idpartner       }, .f., "C",  7, 0, 1, ++nKol } )
+  AADD(aKol, { "PARTNER"   , {|| idpartner       }, .f., "C",  iif(__par_len == 6, 7, __par_len), 0, 1, ++nKol } )
   AADD(aKol, { "NAZIV"     , {|| cNPartnera      }, .f., "C", 40, 0, 1, ++nKol } )
   AADD(aKol, { "UKUPNO"    , {|| ukPartner     }, .t., "N", 13, 2, 1, ++nKol } )
   FOR i:=1 TO LEN(aGod)
@@ -4120,7 +4180,7 @@ RETURN .t.
 function FSvaki1()
 *{
 ++nRbr
-cNPartnera:=Ocitaj(F_PARTN,IDPARTNER,"naz")
+cNPartnera:=PADR(Ocitaj(F_PARTN,IDPARTNER,"naz"), 25)
 RETURN
 *}
 
@@ -4241,6 +4301,10 @@ endif
 
 O_KONTO
 O_PARTN
+
+__par_len := LEN(partn->id)
+cIdPartner := PADR("", __par_len)
+
 O_SUBAN
 select SUBAN
 

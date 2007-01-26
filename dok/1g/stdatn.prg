@@ -1,33 +1,7 @@
 #include "\dev\fmk\fin\fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/dok/1g/stdatn.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: stdatn.prg,v $
- * Revision 1.4  2004/01/13 19:07:55  sasavranic
- * appsrv konverzija
- *
- * Revision 1.3  2003/04/12 06:43:38  mirsad
- * ispravka: gBrojac sada je PUBLIC varijabla
- *
- * Revision 1.2  2002/06/19 13:46:23  sasa
- * no message
- *
- *
- */
- 
+static __par_len
 
-/*! \file fmk/fin/dok/1g/stdatn.prg
- *  \brief Stampanje naloga
- */
- 
-/*! \fn StDatn()
- *  \brief Stampanje naloga
- */
 
 function StDatn()
 *{
@@ -242,6 +216,8 @@ LOCAL cMjGod:=""
   O_NALOG
   O_SUBAN
 
+  __par_len := LEN(partn->id)
+
   SELECT SUBAN; SET ORDER TO TAG "4"
   SELECT NALOG; SET ORDER TO TAG "3"
 
@@ -264,9 +240,9 @@ LOCAL cMjGod:=""
   lJerry := ( IzFMKIni("FIN","JednovalutniNalogJerry","N",KUMPATH) == "D" )
 
   IF gNW=="N"
-    M:="------ ---------- --- "+"---- ------- ------ ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" -- ------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
+    M:="------ ---------- --- "+"---- ------- " + REPL("-", __par_len) + " ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" -- ------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
   ELSE
-    M:="------ ---------- --- "+"---- ------- ------ ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
+    M:="------ ---------- --- "+"---- ------- " + REPL("-", __par_len) + " ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
   ENDIF
   cMjGod:=STR(MONTH(dDatNal),2)+STR(YEAR(dDatNal),4)
   Zagl11()

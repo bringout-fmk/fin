@@ -1067,10 +1067,14 @@ ENDIF
  *  \fTiho
  */
  
-function CrePom(fTiho)
+function CrePom(fTiho, nParLen)
 *{
+local nPartLen
 IF fTiho==NIL; fTiho:=.f.; ENDIF
 select (F_POM); USE
+if nParLen == nil
+	nParLen := 6
+endif
 // kreiranje pomocne baze POM.DBF
 // ------------------------------
 cPom:=PRIVPATH+"POM"
@@ -1084,7 +1088,7 @@ cPom:=PRIVPATH+"POM"
   ENDIF
   // ferase(cPom+".CDX")
 aDbf := {}
-AADD(aDBf,{ 'IDPARTNER'   , 'C' ,  6 ,  0 })
+AADD(aDBf,{ 'IDPARTNER'   , 'C' ,  nParLen ,  0 })
 AADD(aDBf,{ 'DATDOK'      , 'D' ,  8 ,  0 })
 AADD(aDBf,{ 'DATVAL'      , 'D' ,  8 ,  0 })
 AADD(aDBf,{ 'BRDOK'       , 'C' , 10 ,  0 })

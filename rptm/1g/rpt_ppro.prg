@@ -1,35 +1,12 @@
 #include "\dev\fmk\fin\fin.ch"
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/rptm/1g/rpt_ppro.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: rpt_ppro.prg,v $
- * Revision 1.4  2004/01/13 19:07:57  sasavranic
- * appsrv konverzija
- *
- * Revision 1.3  2003/01/27 00:44:19  mirsad
- * ispravke BUG-ova
- *
- * Revision 1.2  2002/06/21 07:40:11  sasa
- * no message
- *
- *
- */
+
+static __par_len
 
 
-/*! \file fmk/fin/rptm/1g/rpt_ppro.prg
- *  \brief Pregled promjena 
- */
-
-/*! \fn PrPromRn()
- *  \brief Pregled promjena na racunu
- */
-
+// ----------------------------------------------
+// pregled promjena na racunu
+// ----------------------------------------------
 function PrPromRn()
-*{
 qqIDVN  := "I1;I2;"
 qqKonto := "2000;"
 dOd     := dDo := DATE()
@@ -81,6 +58,9 @@ SELECT PARAMS; USE
 O_KONTO
 O_PARTN
 O_SUBAN
+
+__par_len := LEN(partn->id)
+
 // SET ORDER TO TAG "5"
 // idFirma+IdKonto+dtos(DatDok)+idpartner
 
@@ -111,8 +91,8 @@ DO WHILE !EOF()
   SKIP 1
 ENDDO
 
-m := "------ -------- ------ "+REPL("-",40)+" "+REPL("-",16)
-z := "R.BR. * DATUM  *PARTN.*"+PADC("NAZIV PARTNERA ILI OPIS PROMJENE",40)+"*"+PADC("UPLATA KM",16)
+m := "------ -------- " + REPL("-", __par_len) + " "+REPL("-",40)+" "+REPL("-",16)
+z := "R.BR. * DATUM  *" + PADC("PARTN.", __par_len) + "*"+PADC("NAZIV PARTNERA ILI OPIS PROMJENE",40)+"*"+PADC("UPLATA KM",16)
 
 START PRINT CRET
  nStranica := 0

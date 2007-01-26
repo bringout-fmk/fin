@@ -10,6 +10,7 @@
 #define DABLAGAS lBlagAsis.and._IDVN==cBlagIDVN
 
 static cTekucaRj:=""
+static __par_len
 
 // FmkIni_KumPath_TekucaRj - Tekuca radna jedinica
 // Koristi se u slucaju da u Db unosimo podatke za odredjenu radnu jedinicu
@@ -60,6 +61,7 @@ if gNW=="N"
  Opc[1]:="1. knjizenje naloga    "
  Opc[2]:="2. stampa naloga"
  Opc[3]:="3. azuriranje podataka"
+ Opc[4]:="4. kurs "+KursLis
 
  Izbor:=1
  do while .t.
@@ -76,6 +78,14 @@ if gNW=="N"
          StNal()
      case izbor == 3
          Azur()
+     case izbor == 4
+       // prva vrijednost
+       if KursLis=="1"  
+         KursLis:="2"
+       else
+         KursLis:="1"
+       endif
+       opc[4]:= "4. kurs " + KursLis
    endcase
 
  enddo
@@ -102,7 +112,6 @@ ImeKol:={ ;
           {"Partner",       {|| IdPartner }, "IdPartner" } ,;
           {"Br.veze ",      {|| BrDok   }, "BrDok" } ,;
           {"Datum",         {|| DatDok  }, "DatDok" } ,;
-          {"Dat.val",         {|| DatVal  }, "DatVal" } ,;
           {"D/P",           {|| D_P     }, "D_P" } ,;
           {ValDomaca(),     {|| transform(IznosBHD,FormPicL(gPicBHD,15)) }, "iznos "+ALLTRIM(ValDomaca()) } ,;
           {ValPomocna(),    {|| transform(IznosDEM,FormPicL(gPicDEM,10)) }, "iznos "+ALLTRIM(ValPomocna()) } ,;
@@ -797,6 +806,8 @@ O_TNAL
 O_TDOK
 O_PSUBAN
 
+__par_len := LEN(partn->id)
+
 select PSUBAN
 ZAP
 
@@ -887,6 +898,9 @@ if "DNEVNIKN"==PADR(UPPER(PROCNAME(1)),8) .or.;
    "DNEVNIKN"==PADR(UPPER(PROCNAME(2)),8)
    lDnevnik:=.t.
 endif
+
+__par_len := LEN(partn->id)
+
 ?
 if gNW=="N" .and. gVar1=="0"
  P_COND2
@@ -928,17 +942,17 @@ P_NRED
 ?? M
 if gNW=="D"
  P_NRED
- ?? IF(lDnevnik,"R.BR. *   BROJ   *DAN*","")+"*R. * KONTO * PART *"+IF(gVar1=="1".and.lJerry,"       NAZIV PARTNERA         *                    ","    NAZIV PARTNERA ILI      ")+"*   D  O  K  U  M  E  N  T    *         IZNOS U  "+ValDomaca()+"         *"+IF(gVar1=="1","","    IZNOS U "+ValPomocna()+"    *")
+ ?? IF(lDnevnik,"R.BR. *   BROJ   *DAN*","")+"*R. * KONTO *" + PADC("PART", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"       NAZIV PARTNERA         *                    ","    NAZIV PARTNERA ILI      ")+"*   D  O  K  U  M  E  N  T    *         IZNOS U  "+ValDomaca()+"         *"+IF(gVar1=="1","","    IZNOS U "+ValPomocna()+"    *")
  P_NRED
- ?? IF(lDnevnik,"U DNE-*  NALOGA  *   *","")+"              NER   "+IF(gVar1=="1".and.lJerry,"            ILI                      O P I S       ","                            ")+" ----------------------------- ------------------------------- "+IF(gVar1=="1","","---------------------")
- P_NRED; ?? IF(lDnevnik,"VNIKU *          *   *","")+"*BR *       *      *"+IF(gVar1=="1".and.lJerry,"        NAZIV KONTA           *                    ","    NAZIV KONTA             ")+"* BROJ VEZE * DATUM  * VALUTA *  DUGUJE "+ValDomaca()+"  * POTRAZUJE "+ValDomaca()+"*"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"* POT."+ValPomocna()+"*")
+ ?? IF(lDnevnik,"U DNE-*  NALOGA  *   *","")+"             " + PADC("NER", __par_len) + " "+IF(gVar1=="1".and.lJerry,"            ILI                      O P I S       ","                            ")+" ----------------------------- ------------------------------- "+IF(gVar1=="1","","---------------------")
+ P_NRED; ?? IF(lDnevnik,"VNIKU *          *   *","")+"*BR *       *" + REPL(" ", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"        NAZIV KONTA           *                    ","    NAZIV KONTA             ")+"* BROJ VEZE * DATUM  * VALUTA *  DUGUJE "+ValDomaca()+"  * POTRAZUJE "+ValDomaca()+"*"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"* POT."+ValPomocna()+"*")
 ELSE
  P_NRED
- ?? IF(lDnevnik,"R.BR. *   BROJ   *DAN*","")+"*R. * KONTO * PART *"+IF(gVar1=="1".and.lJerry,"       NAZIV PARTNERA         *                    ","    NAZIV PARTNERA ILI      ")+"*           D  O  K  U  M  E  N  T             *         IZNOS U  "+ValDomaca()+"         *"+IF(gVar1=="1","","    IZNOS U "+ValPomocna()+"    *")
+ ?? IF(lDnevnik,"R.BR. *   BROJ   *DAN*","")+"*R. * KONTO *" + PADC("PART", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"       NAZIV PARTNERA         *                    ","    NAZIV PARTNERA ILI      ")+"*           D  O  K  U  M  E  N  T             *         IZNOS U  "+ValDomaca()+"         *"+IF(gVar1=="1","","    IZNOS U "+ValPomocna()+"    *")
  P_NRED
- ?? IF(lDnevnik,"U DNE-*  NALOGA  *   *","")+"              NER   "+IF(gVar1=="1".and.lJerry,"            ILI                      O P I S       ","                            ")+" ---------------------------------------------- ------------------------------- "+IF(gVar1=="1","","---------------------")
+ ?? IF(lDnevnik,"U DNE-*  NALOGA  *   *","")+"             " + PADC("NER", __par_len) + " "+IF(gVar1=="1".and.lJerry,"            ILI                      O P I S       ","                            ")+" ---------------------------------------------- ------------------------------- "+IF(gVar1=="1","","---------------------")
  P_NRED
- ?? IF(lDnevnik,"VNIKU *          *   *","")+"*BR *       *      *"+IF(gVar1=="1".and.lJerry,"        NAZIV KONTA           *                    ","    NAZIV KONTA             ")+"*  TIP I NAZIV   * BROJ VEZE * DATUM  * VALUTA *  DUGUJE "+ValDomaca()+"  * POTRAZUJE "+ValDomaca()+"*"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"* POT."+ValPomocna()+"*")
+ ?? IF(lDnevnik,"VNIKU *          *   *","")+"*BR *       *" + REPL(" ", __par_len)+ "*"+IF(gVar1=="1".and.lJerry,"        NAZIV KONTA           *                    ","    NAZIV KONTA             ")+"*  TIP I NAZIV   * BROJ VEZE * DATUM  * VALUTA *  DUGUJE "+ValDomaca()+"  * POTRAZUJE "+ValDomaca()+"*"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"* POT."+ValPomocna()+"*")
 ENDIF
 P_NRED
 ?? M
@@ -1113,20 +1127,15 @@ enddo
 
 closeret
 return
-*}
 
-
-
-
-/*! \fn IdPartner(cIdPartner)
- *  \brief Odstampa sifru na 6 mjesta, a ako ne moze onda punu sifru
- *  \param cIdPartner  - id partnera
- */
  
 function IdPartner(cIdPartner)
-*{
-return iif(len(TRIM(cIDPARTNER))>6,cIdPartner,left(cidpartner,6))
-*}
+local cRet
+
+cRet := cIdPartner
+
+return cRet
+
 
 
 /*! \fn DifIdP(cIdPartner)
@@ -1136,7 +1145,8 @@ return iif(len(TRIM(cIDPARTNER))>6,cIdPartner,left(cidpartner,6))
  
 function DifIdP(cIdPartner)
 *{
-return if(len(TRIM(cIDPARTNER))>6,2,0)
+return 0
+//return if(len(TRIM(cIDPARTNER))>6,2,0)
 *}
 
 
@@ -1642,7 +1652,12 @@ return
 function StSubNal(cInd,lAuto)
 LOCAL nArr:=SELECT(), aRez:={}, aOpis:={}
 
-IF lAuto=NIL; lAuto:=.f.; ENDIF
+IF lAuto = NIL
+	lAuto := .f.
+ENDIF
+O_PARTN
+__par_len := LEN(partn->id)
+select (nArr)
 
 lJerry := ( IzFMKIni("FIN","JednovalutniNalogJerry","N",KUMPATH) == "D" )
 
@@ -1650,9 +1665,9 @@ PicBHD:="@Z "+FormPicL(gPicBHD,15)
 PicDEM:="@Z "+FormPicL(gPicDEM,10)
 
 IF gNW=="N"
-     M:=IF(cInd=="3","------ ---------- --- ","")+"---- ------- ------ ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" -- ------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
+     M:=IF(cInd=="3","------ ---------- --- ","")+"---- ------- " + REPL("-", __par_len) + " ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" -- ------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
 ELSE
-     M:=IF(cInd=="3","------ ---------- --- ","")+"---- ------- ------ ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
+     M:=IF(cInd=="3","------ ---------- --- ","")+"---- ------- " + REPL("-", __par_len) + " ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
 ENDIF
 
 IF cInd $ "1#2"
@@ -1719,7 +1734,8 @@ DO WHILE !eof() .and. eval(b2)
 
        nColStr:=PCOL()+1
 
-       @  prow(),pcol()+1 SAY padr(aRez[1],28+IF(gVar1=="1".and.lJerry,2,0)-DifIdP(idpartner)) // dole cu nastaviti
+       @  prow(),pcol()+1 SAY padr(aRez[1],28+IF(gVar1=="1".and.lJerry,2,0))
+       //-DifIdP(idpartner)) // dole cu nastaviti
 
        nColDok:=PCOL()+1
 

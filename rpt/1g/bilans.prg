@@ -1,28 +1,12 @@
 #include "\dev\fmk\fin\fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
 
-/*! \file fmk/fin/rpt/1g/bilans.prg
- *  \brief Bilans stanja bilans ....
- */
- 
-/*! \fn Bilans()
- *  \brief Menij bilansa
- */
- 
+static __par_len
+
+// --------------------------------------
+// bilansni izvjestaji
+// --------------------------------------
 function Bilans()
-*{
-cSecur:=SecurR(KLevel,"BBilans")
-if ImaSlovo("X",cSecur)
-	MsgBeep("Opcija nedostupna !")
-   	closeret
-endif
-
 
 IF gVar1=="0"
 	private opc[5],Izbor
@@ -88,6 +72,8 @@ ENDDO
 
 return
 
+
+
 // ----------------------------------
 // filuje tabelu za export
 // ----------------------------------
@@ -107,10 +93,14 @@ replace field->saldo with nFSaldo
 select (nArr)
 
 return
-*}
 
 
-static function fill_sbb_tbl(cKonto, cIdPart, cNaziv, nPsDug, nPsPot, nKumDug, nKumPot, nSldDug, nSldPot)
+// ------------------------------------------------
+// filovanje tabele sbb
+// ------------------------------------------------
+static function fill_sbb_tbl(cKonto, cIdPart, cNaziv, ;
+			nPsDug, nPsPot, nKumDug, nKumPot, ;
+			nSldDug, nSldPot)
 local nArr
 nArr:=SELECT()
 
@@ -131,11 +121,17 @@ select (nArr)
 return
 
 
+
+// ------------------------------------------
 // vraca matricu sa sub.bb poljima
-static function get_sbb_fields(lBBSkraceni)
+// ------------------------------------------
+static function get_sbb_fields(lBBSkraceni, nPartLen)
+if nPartLen == nil
+	nPartLen := 6
+endif
 aFields := {}
 AADD(aFields, {"konto", "C", 7, 0})
-AADD(aFields, {"idpart", "C", 6, 0})
+AADD(aFields, {"idpart", "C", nPartLen, 0})
 AADD(aFields, {"naziv", "C", 40, 0})
 if lBBSkraceni
   AADD(aFields, {"duguje", "N", 15, 2})
@@ -153,15 +149,16 @@ endif
 return aFields
 
 
-/*! \fn SubAnBB()
- *  \brief Subanaliticki bruto bilans
- */
- 
+// -----------------------------------------------
+// Subanaliticki bruto bilans
+// -----------------------------------------------
 function SubAnBB()
 cIdFirma:=gFirma
 
 O_KONTO
 O_PARTN
+
+__par_len := LEN(partn->id)
 
 qqKonto:=space(100)
 dDatOd:=dDatDo:=ctod("")
@@ -241,7 +238,7 @@ private lExpRpt := (cExpRptDN == "D")
 private lBBSkraceni := (cBBSkrDN == "D")
 
 if lExpRpt
-	aExpFields := get_sbb_fields(lBBSkraceni)
+	aExpFields := get_sbb_fields(lBBSkraceni, __par_len)
 	t_exp_create(aExpFields)
 	cLaunch := exp_report()
 endif

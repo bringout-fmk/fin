@@ -1,21 +1,12 @@
 #include "\dev\fmk\fin\fin.ch"
- /*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
+
+static __par_len
 
 
-/*! \file fmk/fin/rpt/1g/rpt_dug.prg
- *  \brief Dugovanja partnera
- */
-
-/*! \fn SpecDugPartnera()
- *  \brief Specifikacija dugovanja partnera
- */
-
+// ------------------------------------------------------
+// specifikacija dugovanja partnera po r.intervalima
+// ------------------------------------------------------
 function SpecDugPartnera()
-*{
 local nCol1:=72
 local cSvi:="N"
 private cIdPartner
@@ -40,9 +31,11 @@ O_SUBAN
 O_PARTN
 O_KONTO
 
+__par_len := LEN(partn->id)
+
 cIdFirma:=gFirma
 cIdkonto:=space(7)
-cIdPartner:=space(6)
+cIdPartner:=PADR("", __par_len)
 dNaDan:=DATE()
 cOpcine:=SPACE(20)
 cSaRokom:="D"
@@ -76,10 +69,11 @@ read
 ESC_BCR
 BoxC()
 
-altd()
+
 if EMPTY(cIdPartner)
 	cIdPartner:=""
 endif
+
 cSvi:=cIdPartner
 
 // odredjivanje prirode zadanog konta (dug. ili pot.)
@@ -102,7 +96,7 @@ ELSE
     	Boxc()
 ENDIF
 
-CrePom()  // kreiraj pomocnu bazu
+CrePom(, __par_len)  // kreiraj pomocnu bazu
 
 gaZagFix:={4,5}
 
@@ -226,7 +220,6 @@ anInterVV:={ { {0,0} , {0,0} , {0,0} , {0,0} },;        // do - interval 1
 cLastIdPartner:=""
 fPrviProlaz:=.t.
 
-altd()
 do while !EOF()
   	cIdPartner:=idpartner
 	// a sada provjeri opcine
@@ -264,7 +257,7 @@ do while !EOF()
     		SELECT POM
     		IF cLastIdPartner!=cIdPartner .or. LEN(cLastIdPartner)<1
 			Pljuc(cIdPartner)
-      			PPljuc(Ocitaj(F_PARTN,cIdPartner,"naz"))
+      			PPljuc( PADR( Ocitaj(F_PARTN,cIdPartner,"naz"), 25) )
       			cLastIdPartner:=cIdPartner
     		ENDIF
     		IF otvst<>" "
@@ -355,9 +348,9 @@ do while !EOF()
 
 ENDDO
 
-? "цддддддадддддддддддддддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддеддддддддддддд╢"
+? "ц" + REPL("д", __par_len) + "адддддддддддддддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддеддддддддддддд╢"
 
-Pljuc( PADR( "UKUPNO" , LEN(POM->IDPARTNER+PARTN->naz)+1 ) )
+Pljuc( PADR( "UKUPNO" , LEN(POM->IDPARTNER+PADR(PARTN->naz, 25))+1 ) )
 
 FOR i:=1 TO LEN(anInterVV)
 	if ( cValuta == "1" )
@@ -375,7 +368,7 @@ else
 	PPljuc(TRANSFORM(nTUDug2-nTUPot2,PICPIC))
 endif
 
-? "юддддддддддддддддддддддддддддддддадддддддддддддадддддддддддддадддддддддддддадддддддддддддадддддддддддддадддддддддддддаддддддддддддды"
+? "ю" + REPL("д", __par_len) + "ддддддддддддддддддддддддддадддддддддддддадддддддддддддадддддддддддддадддддддддддддадддддддддддддадддддддддддддаддддддддддддды"
 
 FF
 END PRINT
@@ -385,7 +378,7 @@ use
 
 CLOSERET
 return
-*}
+
 
 /*! \fn ZaglDuznici(fStrana, lSvi)
  *  \brief Zaglavlje izvjestaja duznika
@@ -423,16 +416,13 @@ SELECT KONTO
 HSEEK cIdKonto
 
 ? "KONTO  :",cIdKonto,naz
-? "зддддддбдддддддддддддддддддддддддбдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддбддддддддддддд©"
-? "Ё      Ё                         Ё                     V  A  N      V  A  L  U  T  E                                 Ё             Ё"
-? "ЁSIFRA Ё     NAZIV  PARTNERA     едддддддддддддбдддддддддддддбдддддддддддддбдддддддддддддбдддддддддддддбддддддддддддд╢  UKUPNO     Ё"
-? "ЁPARTN.Ё                         ЁDO"+STR(nDoDana1,3)+" D.     ЁDO"+STR(nDoDana2,3)+" D.     ЁDO"+STR(nDoDana3,3)+" D.     ЁDO"+STR(nDoDana4,3)+" D.     ЁPR."+STR(nDoDana4,2)+" D.     Ё UKUPNO      Ё             Ё"
-? "цддддддедддддддддддддддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддеддддддддддддд╢"
+? "з" + REPL("д", __par_len) + "бдддддддддддддддддддддддддбдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддбддддддддддддд©"
+? "Ё" + REPL(" ", __par_len) + "Ё                         Ё                     V  A  N      V  A  L  U  T  E                                 Ё             Ё"
+? "Ё" + PADR("SIFRA", __par_len) + "Ё     NAZIV  PARTNERA     едддддддддддддбдддддддддддддбдддддддддддддбдддддддддддддбдддддддддддддбддддддддддддд╢  UKUPNO     Ё"
+? "Ё" + PADR("PARTN.", __par_len) + "Ё                         ЁDO"+STR(nDoDana1,3)+" D.     ЁDO"+STR(nDoDana2,3)+" D.     ЁDO"+STR(nDoDana3,3)+" D.     ЁDO"+STR(nDoDana4,3)+" D.     ЁPR."+STR(nDoDana4,2)+" D.     Ё UKUPNO      Ё             Ё"
+? "ц" + REPL("д", __par_len) + "едддддддддддддддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддедддддддддддддеддддддддддддд╢"
 
 select (nArr)
 return
-*}
-
-
 
 

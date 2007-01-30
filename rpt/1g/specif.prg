@@ -2886,9 +2886,13 @@ RETURN cVrati
  */
  
 function SpecPoDosp(lKartica)
-*{
 local nCol1:=72,cSvi:="N"
 local lPrikSldNula:=.f.
+local lExpRpt := .f.
+local cExpRpt := "N"
+local aExpFld 
+local cStart
+local cP_naz := ""
 private cIdPartner
 
 IF lKartica==NIL
@@ -2939,7 +2943,7 @@ nDoDana4 := 60
 
 PICPIC:="999999.99"
 
-Box(,16,60)
+Box(,18,60)
 if gNW=="D"
       	@ m_x+1,m_y+2 SAY "Firma "
 	?? gFirma,"-",gNFirma
@@ -2965,9 +2969,12 @@ ENDIF
 if cPoRN=="N"
 	@ m_x+16,m_y+2 SAY "Prikaz izvjestaja u (1)KM (2)EURO" GET cValuta VALID cValuta$"12"
 endif
+@ m_x+18,m_y+2 SAY "Export izvjestaja u DBF ?" GET cExpRpt VALID cExpRpt$"DN" PICT "@!"
 read
 ESC_BCR
 Boxc()
+
+lExpRpt := (cExpRpt == "D")
 
 if cPrikNule == "D"
 	lPrikSldNula := .t.
@@ -2985,7 +2992,14 @@ endif
 if empty(cIdpartner)
 	cIdPartner:=""
 endif
+
 cSvi:=cIdpartner
+
+if lExpRpt == .t.
+	aExpFld := get_ost_fields( cSaRokom, __par_len )
+	t_exp_create( aExpFld )
+	cStart := exp_report()
+endif
 
 // odredjivanje prirode zadanog konta (dug. ili pot.)
 // --------------------------------------------------
@@ -3008,7 +3022,12 @@ ELSE
     	Boxc()
 ENDIF
 
-CrePom(, __par_len)  // kreiraj pomocnu bazu
+CrePom( nil, __par_len)  // kreiraj pomocnu bazu
+
+O_TRFP2
+O_SUBAN
+O_PARTN
+O_KONTO
 
 IF cPoRN=="D"
 	gaZagFix:={5,3}
@@ -3214,8 +3233,9 @@ DO WHILE !EOF()
       			ENDIF
     		ELSEIF cLastIdPartner!=cIdPartner .or. LEN(cLastIdPartner)<1
      			Pljuc(cIdPartner)
-      			PPljuc(PADR(Ocitaj(F_PARTN,cIdPartner,"naz"), 25))
-      			cLastIdPartner:=cIdPartner
+      			cP_naz := PADR(Ocitaj(F_PARTN,cIdPartner,"naz"), 25)
+      			PPljuc( cP_naz )
+			cLastIdPartner:=cIdPartner
     		ENDIF
     		IF otvst==" "
       			IF cPoRn=="D"
@@ -3439,6 +3459,13 @@ if !fPrviProlaz  // bilo je stavki
         			PPljuc(TRANSFORM(nUDug2-nUPot2,PICPIC))
 			endif
 			
+			if lExpRpt == .t.
+			   if cValuta == "1"	
+				fill_ost_tbl( cSaRokom, cIdPartner, cP_naz, nUkUVD - nUkUVP, nUkVVD - nUkVVP, nUDug - nUPot, anInterUV[1,1,1] - anInterUV[1,2,1], anInterUV[2,1,1] - anInterUV[2,2,1], anInterUV[3,1,1] - anInterUV[3,2,1], anInterUV[4,1,1] - anInterUV[4,2,1], anInterUV[5,1,1] - anInterUV[5,2,1], anInterVV[1,1,1] - anInterVV[1,2,1], anInterVV[2,1,1] - anInterVV[2,2,1], anInterVV[3,1,1] - anInterVV[3,2,1], anInterVV[4,1,1] - anInterVV[4,2,1], anInterVV[5,1,1] - anInterVV[5,2,1] )
+			   else
+			   	fill_ost_tbl( cSaRokom, cIdPartner, cP_naz, nUkUVD2 - nUkUVP2, nUkVVD2 - nUkVVP2, nUDug2 - nUPot2, anInterUV[1,3,1] - anInterUV[1,4,1], anInterUV[2,3,1] - anInterUV[2,4,1], anInterUV[3,3,1] - anInterUV[3,4,1], anInterUV[4,3,1] - anInterUV[4,4,1], anInterUV[5,3,1] - anInterUV[5,4,1], anInterVV[1,3,1] - anInterVV[1,4,1], anInterVV[2,3,1] - anInterVV[2,4,1], anInterVV[3,3,1] - anInterVV[3,4,1], anInterVV[4,3,1] - anInterVV[4,4,1], anInterVV[5,3,1] - anInterVV[5,4,1] )		
+			   endif
+			endif
       		ELSE
 			if ( cValuta == "1" )
         			PPljuc(TRANSFORM(nUkUVD-nUkUVP,PICPIC))
@@ -3449,6 +3476,18 @@ if !fPrviProlaz  // bilo je stavki
         			PPljuc(TRANSFORM(nUkVVD2-nUkVVP2,PICPIC))
         			PPljuc(TRANSFORM(nUDug2-nUPot2  ,PICPIC))
 			endif
+
+			if lExpRpt == .t.
+			   if cValuta == "1"
+				fill_ost_tbl( cSaRokom, cIdPartner, cP_naz, nUkUVD - nUkUVP, nUkVVD - nUkVVP, nUDug - nUPot )
+						
+			   else
+				fill_ost_tbl( cSaRokom, cIdPartner, cP_naz, nUkUVD2 - nUkUVP2, nUkVVD2 - nUkVVP2, nUDug2 - nUPot2 )
+				
+			   endif
+			endif
+					
+	
       		ENDIF
     	ENDIF
 endif
@@ -3573,6 +3612,17 @@ IF cPoRn=="N"
    			PPljuc(TRANSFORM(nTUDug2-nTUPot2,PICPIC))
 		endif
 		
+		if lExpRpt == .t.
+		  
+		  if cValuta == "1"
+		    fill_ost_tbl(cSaRokom, "UKUPNO", "", nTUkUVD - nTUkUVP, nTUkVVD - nTUkVVP, nTUDug - nTUPot, anInterUV[1,1,2] - anInterUV[1,2,2], anInterUV[2,1,2] - anInterUV[2,2,2], anInterUV[3,1,2] - anInterUV[3,2,2], anInterUV[4,1,2] - anInterUV[4,2,2], anInterUV[5,1,2] - anInterUV[5,2,2], anInterVV[1,1,2] - anInterVV[1,2,2], anInterVV[2,1,2] - anInterVV[2,2,2], anInterVV[3,1,2] - anInterVV[3,2,2], anInterVV[4,1,2] - anInterVV[4,2,2], anInterVV[5,1,2] - anInterVV[5,2,2] )
+		  else
+		     fill_ost_tbl(cSaRokom, "UKUPNO", "", nTUkUVD2 - nTUkUVP2, nTUkVVD2 - nTUkVVP2, nTUDug2 - nTUPot2, anInterUV[1,3,2] - anInterUV[1,4,2], anInterUV[2,3,2] - anInterUV[2,4,2], anInterUV[3,3,2] - anInterUV[3,4,2], anInterUV[4,3,2] - anInterUV[4,4,2], anInterUV[5,3,2] - anInterUV[5,4,2], anInterVV[1,3,2] - anInterVV[1,4,2], anInterVV[2,3,2] - anInterVV[2,4,2], anInterVV[3,3,2] - anInterVV[3,4,2], anInterVV[4,3,2] - anInterVV[4,4,2], anInterVV[5,3,2] - anInterVV[5,4,2] )
+		  endif
+		  
+		endif
+
+		
 		? "À" + REPL("Ä", __par_len) + "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ"
   	ELSE
 		if ( cValuta == "1" )
@@ -3585,6 +3635,16 @@ IF cPoRn=="N"
     			PPljuc(TRANSFORM(nTUDug2-nTUPot2,PICPIC))
 		endif
 		
+		if lExpRpt == .t.
+		  
+		  if cValuta == "1"
+		  	fill_ost_tbl(cSaRokom, "UKUPNO", "", nTUkUVD - nTUkUVP, nTUkVVD - nTUkVVP, nTUDug - nTUPot )
+		  else
+		  	fill_ost_tbl(cSaRokom, "UKUPNO", "", nTUkUVD2 - nTUkUVP2, nTUkVVD2 - nTUkVVP2, nTUDug2 - nTUPot2 )
+		  endif
+				
+		endif
+	
 		? "À" + REPL("Ä", __par_len) + "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÙ"
   	ENDIF
 ENDIF
@@ -3593,12 +3653,15 @@ FF
 
 END PRINT
 
+if lExpRpt == .t.
+	tbl_export( cStart )
+endif
+
 select (F_POM)
 use
 
 CLOSERET
 return
-*}
 
 
 // provjeri da li je saldo partnera 0, vraca .t. ili .f.
@@ -3741,93 +3804,7 @@ RETURN cVrati
 
 
 
-/*! \fn IspisRocnosti()
- *  \brief Ispis rocnosti
- */
- 
-function IspisRocnosti()
-*{
-LOCAL cRocnost:=Rocnost(), cVrati
-  IF cRocnost=="999"
-    cVrati:=" PREKO "+STR(nDoDana4,3)+" DANA"
-  ELSE
-    cVrati:=" DO "+cRocnost+" DANA"
-  ENDIF
-RETURN cVrati
-*}
 
-
-/*! \fn RRocnost()
- *  \brief Ispis rocnosti
- */
-
-function RRocnost()
-*{
-LOCAL nDana := ABS(IF( EMPTY(datval) , datdok , datval ) - dNaDan), nVrati
-  IF nDana<=nDoDana1
-    nVrati:=1
-  ELSEIF nDana<=nDoDana2
-    nVrati:=2
-  ELSEIF nDana<=nDoDana3
-    nVrati:=3
-  ELSEIF nDana<=nDoDana4
-    nVrati:=4
-  ELSE
-    nVrati:=5
-  ENDIF
-RETURN nVrati
-*}
-
-
-
-/*! \fn IspisRoc2(i)
- *  \brief
- *  \param i
- */
- 
-function IspisRoc2(i)
-*{
-LOCAL cVrati
-  IF i==1
-    cVrati := " DO "+STR( nDoDana1 , 3 )
-  ELSEIF i==2
-    cVrati := " DO "+STR( nDoDana2 , 3 )
-  ELSEIF i==3
-    cVrati := " DO "+STR( nDoDana3 , 3 )
-  ELSEIF i==4
-    cVrati := " DO "+STR( nDoDana4 , 3 )
-  ELSE
-    cVrati := " PR."+STR( nDoDana4 , 3 )
-  ENDIF
-RETURN cVrati+" DANA"
-*}
-
-
-
-/*! \fn Pljuc(xVal)
- *  \brief
- *  \param xVal
- */
-function Pljuc(xVal)
-*{
-? "³"
-?? xVal
-?? "³"
-RETURN
-*}
-
-
-/*! \fn PPljuc(xVal)
- *  \brief
- *  \param xVal
- */
- 
-function PPljuc(xVal)
-*{
-?? xVal
-?? "³"
-RETURN
-*}
 
 /*! \fn RekPPG(lPdv)
  *  \brief Posmatraju se samo otvorene stavke iz izvjeçtaja otv.stavki grupisano po brojevima veze. (POM.DBF koji se pravi f-jom StKart() modula OSTAV.PRG). Ako otvorena stavka ima datum valutiranja, uzima se godina iz tog datuma. Ako otvorena stavka nema datuma val., racun se trazi prvo u tekucoj godini. Ako se nalazi u poc.stanju, trazenje se vrsi u proslim godinama. Ako ga nema u poc.stanju, trazi se prvo knjizenje na odgovarajucoj strani (za kupce dugovnoj, za dobavljace potraznoj) i ako ga ima uzima se godina iz datuma dokumenta.
@@ -4185,28 +4162,6 @@ RETURN
 *}
 
 
-/*! \fn PonDVPS()
- *  \brief Ponisti datum valutiranja u dokumentima pocetnog stanja
- *  \param
- */
-
-function PonDVPS()
-*{
-O_SUBAN
-  SET ORDER TO TAG "4"
-  SEEK gFirma+"00"
-  DO WHILE !EOF() .and. IDFIRMA+IDVN==gFirma+"00"
-    Scatter()
-      _datval := CTOD("")
-    Gather()
-    SKIP 1
-  ENDDO
-CLOSERET
-return
-*}
-
-
-
 /*! \fn RPPG()
  *  \brief Rekapitulacija partnera po godinama
  */
@@ -4246,34 +4201,6 @@ Izbor:=menu("frppg",opc,Izbor,.f.)
 enddo
 return
 *}
-
-
-
-/*! \fn RasclanRj()
- *  \brief Rasclanjuje radne jedinice
- */
- 
-function RasclanRJ()
-*{
-if cRasclaniti=="D"
-	return cRasclan==suban->(idrj)
-  	//sasa, 12.02.04
-  	//return cRasclan==suban->(idrj+funk+fond)
-else
-  	return .t.
-endif
-*}
-
-
-/*! \fn PN2()
- *  \brief
- */
-
-function PN2()
-*{
-RETURN ( if( cN2Fin=="D" , " "+TRIM(PARTN->naz2) , "" ) )
-*}
-
 
 
 

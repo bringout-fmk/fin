@@ -77,7 +77,8 @@ return
 // ----------------------------------
 // filuje tabelu za export
 // ----------------------------------
-static function fill_ssbb_tbl(cKonto, cIdPart, cNaziv, nFDug, nFPot, nFSaldo)
+static function fill_ssbb_tbl(cKonto, cIdPart, cNaziv, ;
+			nFDug, nFPot, nFSaldo )
 local nArr
 nArr:=SELECT()
 
@@ -100,7 +101,7 @@ return
 // ------------------------------------------------
 static function fill_sbb_tbl(cKonto, cIdPart, cNaziv, ;
 			nPsDug, nPsPot, nKumDug, nKumPot, ;
-			nSldDug, nSldPot)
+			nSldDug, nSldPot )
 local nArr
 nArr:=SELECT()
 
@@ -125,14 +126,19 @@ return
 // ------------------------------------------
 // vraca matricu sa sub.bb poljima
 // ------------------------------------------
-static function get_sbb_fields(lBBSkraceni, nPartLen)
+static function get_sbb_fields(lBBSkraceni, nPartLen )
 if nPartLen == nil
 	nPartLen := 6
 endif
+if lRj == nil
+	lRj := .f.
+endif
+
 aFields := {}
 AADD(aFields, {"konto", "C", 7, 0})
 AADD(aFields, {"idpart", "C", nPartLen, 0})
 AADD(aFields, {"naziv", "C", 40, 0})
+
 if lBBSkraceni
   AADD(aFields, {"duguje", "N", 15, 2})
   AADD(aFields, {"potrazuje", "N", 15, 2})
@@ -145,6 +151,7 @@ else
   AADD(aFields, {"slddug", "N", 15, 2})
   AADD(aFields, {"sldpot", "N", 15, 2})
 endif
+
 
 return aFields
 
@@ -238,7 +245,7 @@ private lExpRpt := (cExpRptDN == "D")
 private lBBSkraceni := (cBBSkrDN == "D")
 
 if lExpRpt
-	aExpFields := get_sbb_fields(lBBSkraceni, __par_len)
+	aExpFields := get_sbb_fields(lBBSkraceni, __par_len )
 	t_exp_create(aExpFields)
 	cLaunch := exp_report()
 endif

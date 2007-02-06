@@ -833,9 +833,7 @@ return
 *}
 
 
-
-static function fill_ss_tbl(cKonto, cPartner, cNaziv, nFDug, nFPot, nFSaldo)
-*{
+static function fill_ss_tbl(cKonto, cPartner, cNaziv, nFDug, nFPot, nFSaldo, cRj, cRjNaz)
 local nArr
 nArr:=SELECT()
 
@@ -848,24 +846,39 @@ replace field->duguje with nFDug
 replace field->potrazuje with nFPot
 replace field->saldo with nFSaldo
 
+if cRj <> nil
+	replace field->rj with cRj
+	replace field->rjnaziv with cRjNaz
+endif
+
 select (nArr)
 
 return
-*}
+
 
 // vraca matricu sa sub.bb poljima
-static function get_ss_fields()
-*{
+static function get_ss_fields( cRj )
+
+if cRj == nil
+	cRj := "N"
+endif
+
 aFields := {}
 AADD(aFields, {"konto", "C", 7, 0})
 AADD(aFields, {"partner", "C", 6, 0})
 AADD(aFields, {"naziv", "C", 40, 0})
+
+if cRj == "D"
+	AADD(aFields, {"rj", "C", 10, 0})
+	AADD(aFields, {"rjnaziv", "C", 40, 0})
+endif
+
 AADD(aFields, {"duguje", "N", 15, 2})
 AADD(aFields, {"potrazuje", "N", 15, 2})
 AADD(aFields, {"saldo", "N", 15, 2})
 
 return aFields
-*}
+
 
 
 
@@ -1012,7 +1025,7 @@ BoxC()
 lExpRpt := (cExpRptDN == "D")
 
 if lExpRpt
-	aSSFields := get_ss_fields()
+	aSSFields := get_ss_fields( gRj )
 	t_exp_create(aSSFields)
 	cLaunch := exp_report()
 endif
@@ -1271,7 +1284,22 @@ do whileSC !eof()
      			endif
      			
 			if lExpRpt
-				fill_ss_tbl(cIdKonto, cIdPartner, IF(EMPTY(cIdPartner), konto->naz, ALLTRIM(partn->naz)), nD, nP, nD-nP)
+				if gRj == "D" .and. cRasclaniti == "D"
+					
+					cRj_id := cRasclan
+					
+					if !EMPTY(cRj_id)
+						cRj_naz := rj->naz
+					else
+						cRj_naz := ""
+					endif
+					
+				else
+					cRj_id := nil
+					cRj_naz := nil
+				endif
+				
+				fill_ss_tbl(cIdKonto, cIdPartner, IF(EMPTY(cIdPartner), konto->naz, ALLTRIM(partn->naz)), nD, nP, nD-nP, cRj_id, cRj_naz)
 			endif
 			
 			nKd+=nD
@@ -1348,7 +1376,7 @@ else
 endif
 
 if lExpRpt
-	fill_ss_tbl("UKUPNO", "", "", nUD, nUP, nUD-nUP)
+	fill_ss_tbl("UKUPNO", "", "", nUD, nUP, nUD-nUP )
 endif
 
 ? m

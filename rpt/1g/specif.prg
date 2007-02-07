@@ -857,15 +857,18 @@ return
 
 
 // vraca matricu sa sub.bb poljima
-static function get_ss_fields( cRj )
+static function get_ss_fields( cRj, nPartLen )
 
 if cRj == nil
 	cRj := "N"
 endif
+if nPartLen == nil
+	nPartLen := 6
+endif
 
 aFields := {}
 AADD(aFields, {"konto", "C", 7, 0})
-AADD(aFields, {"partner", "C", 6, 0})
+AADD(aFields, {"partner", "C", nPartLen, 0})
 AADD(aFields, {"naziv", "C", 40, 0})
 
 if cRj == "D"
@@ -1025,7 +1028,7 @@ BoxC()
 lExpRpt := (cExpRptDN == "D")
 
 if lExpRpt
-	aSSFields := get_ss_fields( gRj )
+	aSSFields := get_ss_fields( gRj, __par_len )
 	t_exp_create(aSSFields)
 	cLaunch := exp_report()
 endif

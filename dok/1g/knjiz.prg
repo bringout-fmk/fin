@@ -2296,7 +2296,8 @@ local lUsed
 local cRJ
 nArr:=SELECT()
 lUsed:=.t.
-cRJ:=SPACE(4)
+O_PRIPR
+cRJ:=SPACE( LEN(pripr->idrj) )
 select (F_PARAMS)
 if !used()
 	lUsed:=.f.

@@ -82,10 +82,14 @@ nRBr:=0
 nIznos:=0
 
 do while !eof()
+	
 	private cPom:=trfp3->id
+	
 	if "#RN#"$cPom
+		
 		select rnal
 		go top
+		
 		do while !eof()
 			cPom:=trfp3->id
 			cBrDok:=rnal->id
@@ -109,12 +113,27 @@ do while !eof()
 			skip 1
 		enddo
 		select trfp3
+	
+	elseif "#AH#" $ cPom
+
+		cPom := STRTRAN(cPom, "#AH#", "")
+		
+		altd()
+		
+		cIznos := &cPom
+		
+		select trfp3
+		
 	else
-		nIznos:=&cPom
-		cBrDok:=""
+		
+		nIznos := &cPom
+		cBrDok := ""
+		
 		if round(nIznos,2)<>0
+			
 			select pripr
 			append blank
+			
 			replace idvn     with trfp3->idvn
 			replace	idfirma  with gFirma
 			replace	brnal    with cBrNal
@@ -133,7 +152,96 @@ enddo
 
 close all
 return
-*}
+
+
+// ------------------------------------------------------------
+// autorski honorari prenos REKLD
+// cTag: "2" - po partneru, "3" - izdanju, "4" - izdanje partner
+// cOpis: trazi opis pri trazenju
+// ------------------------------------------------------------
+function ah_rld(cId, cTag, cOpis)
+local nTArea := SELECT()
+local nIzn1 := 0
+local nIzn2 := 0
+local cTmp := ""
+
+if cTag == nil
+	cTag := "1"
+endif
+if cOpis == nil
+	cOpis := ""
+endif
+
+select rekld
+set order to tag &cTag
+go top
+seek str(_godina,4) + str(_mjesec,2) + cId
+
+altd()
+
+do while !EOF() .and. godina == STR(_godina, 4) .and. ;
+		mjesec == STR(_mjesec, 2) .and. ;
+		ALLTRIM(id) == cId
+	
+	cTmp := field->idpartner
+	cIzdanje := field->izdanje
+
+	nIzn1 := 0
+	nIzn2 := 0
+
+	do while !EOF() .and. godina == STR(_godina,4) .and. ;
+		mjesec == STR(_mjesec, 2) .and. ;
+		ALLTRIM(id) == cId .and. ;
+		IF(cTag=="2" .or. cTag == "4", idpartner == cTmp, .t.) .and. ;
+		IF(cTag=="3" .or. cTag == "4", izdanje == cIzdanje, .t.)
+		
+		if !EMPTY(cOpis) .and. AT(cOpis, cIzdanje) == 0
+			skip
+			loop
+		endif
+		
+		nIzn1 += iznos1
+		nIzn2 += iznos2
+		
+		skip 
+	enddo
+
+	cBrDok := ""
+	
+	if cTag == "3" .or. cTag == "1" .or. cTag == "4"
+		cTmp := ""
+	endif
+	
+	// dodaj u pripremu
+	if ROUND(nIzn1, 2) <> 0
+		
+		select pripr
+		append blank
+			
+		replace idvn with trfp3->idvn
+		replace	idfirma with gFirma
+		replace	brnal with cBrNal
+		replace	rbr with STR( ++ nRBr, 4)
+		replace datdok with dDatum
+		replace	idkonto with trfp3->idkonto
+		replace	d_p with trfp3->d_p
+		replace	iznosbhd with nIzn1
+		replace idpartner with cTmp
+		replace	brdok with cBrDok
+		
+		cNalOpis := TRIM(trfp3->naz) + " za " + STR(_mjesec,2) + "/" + STR(_godina, 4)
+	
+		replace opis with cNalOpis
+	
+	endif
+	
+	select rekld
+enddo
+
+select (nTArea)
+return
+
+
 
 
 /*! \fn RLD(cId, nIz12)

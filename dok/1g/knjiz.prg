@@ -128,7 +128,7 @@ for i:=1 to 16
 	AADD(Kol,i)
 next
 
-if gRj=="D"
+if gRj=="D" .and. pripr->(FIELDPOS("IDRJ")) <> 0
 	AADD(ImeKol, { "RJ", {|| IdRj}, "IdRj" }  )
 	AADD(Kol, 17)
 ENDIF
@@ -345,7 +345,7 @@ if fk4=="D"
      	endif
 endif
 
-if gRj=="D"
+if gRj=="D" .and. pripr->(FIELDPOS("IDRJ")) <> 0
 	@  m_x+11,col()+2 SAY "RJ" GET _idrj valid empty(_idrj) .or. P_Rj(@_idrj) PICT "@!"
 	
 endif
@@ -1821,7 +1821,9 @@ DO WHILE !eof() .and. eval(b2)
             if IzFMKIni("FAKT","VrstePlacanja","N",SIFPATH)=="D"
               ?? "("+Ocitaj(F_VRSTEP,k4,"naz")+")"
             endif
-            if gRj=="D"; ?? " RJ:",idrj; endif
+            if gRj=="D"
+	    	?? " RJ:",idrj
+	    endif
             if gTroskovi=="D"
               ?? "    Funk:",Funk
               ?? "    Fond:",Fond
@@ -2297,7 +2299,11 @@ local cRJ
 nArr:=SELECT()
 lUsed:=.t.
 O_PRIPR
-cRJ:=SPACE( LEN(pripr->idrj) )
+if gRJ == "D" .and. pripr->(FIELDPOS("IDRJ")) <> 0
+	cRJ:=SPACE( LEN(pripr->idrj) )
+else
+	cRj:=SPACE(6)
+endif
 select (F_PARAMS)
 if !used()
 	lUsed:=.f.

@@ -10,37 +10,56 @@
  */
 
 function LdFin()
-*{
-local cPath, nIznos
-
+local cPath
+local nIznos
 private cShema:="1"
 private dDatum:=DATE()
 private _godina:=YEAR(DATE())
 private _mjesec:=MONTH(DATE())
+private _ldpath:=PADR( STRTRAN(KUMPATH, SLASH + "FIN", SLASH + "LD"), 60)
+private cSection:="L"
+private cHistory:=" "
+private aHistory:={}
 
-Box("#KONTIRANJE OBRACUNA PLATE",7,75)
+O_PARAMS
+
+RPar("lk", @_ldpath)
+RPar("sh", @cShema)
+
+Box("#KONTIRANJE OBRACUNA PLATE", 10, 75)
+	
 	@ m_x+2, m_y+2 SAY "GODINA:" GET _godina PICT "9999"
 	@ m_x+3, m_y+2 SAY "MJESEC:" GET _mjesec PICT "99"
 	@ m_x+5, m_y+2 SAY "Shema kontiranja:" GET cShema PICT "@!"
 	@ m_x+6, m_y+2 SAY "Datum knjizenja :" GET dDatum
+	
+	@ m_x+8, m_y+2 SAY "LD kumulativ:" GET _ldpath VALID !EMPTY(_ldpath)
+	
 	READ
 BoxC()
 
-if LASTKEY()==K_ESC
+if LASTKEY() == K_ESC
 	close all
 	return
 endif
 
-cPath:=KUMPATH
-cPath:=STRTRAN(cPath,SLASH+"FIN",SLASH+"LD")
+select params
+
+WPar("lk", _ldpath)
+WPar("sh", cShema)
+
+select params
+use
+
+cPath := ALLTRIM(_ldpath)
 
 O_RNAL
 O_NALOG
 O_PRIPR
 O_TRFP3
 
-if file(cPath+"REKLD.DBF")
-	use (cPath+"REKLD.DBF") new
+if file( cPath + "REKLD.DBF")
+	use (cPath + "REKLD.DBF") new
 	set order to 1
 else
 	MsgBeep("Niste pokrenuli rekapitulaciju LD-a!")
@@ -48,8 +67,8 @@ else
 	return
 endif
 
-if file(cPath+"REKLDP.DBF")
-	use (cPath+"REKLDP.DBF") new
+if file(cPath + "REKLDP.DBF")
+	use (cPath + "REKLDP.DBF") new
 	set order to 1
 endif
 

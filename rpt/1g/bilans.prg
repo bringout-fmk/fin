@@ -130,9 +130,6 @@ static function get_sbb_fields(lBBSkraceni, nPartLen )
 if nPartLen == nil
 	nPartLen := 6
 endif
-if lRj == nil
-	lRj := .f.
-endif
 
 aFields := {}
 AADD(aFields, {"konto", "C", 7, 0})

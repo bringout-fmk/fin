@@ -14,11 +14,9 @@ static __par_len
  */
 
 function SpecDPK()
-*{
 local nCol1
 
 picBHD:=FormPicL("9 "+gPicBHD,17)
-//picDEM:=FormPicL("9 "+gPicDEM,17)
 
 cF:=cDD:="2" // format izvjestaja
 cPG := "D"   // prikazi grad partnera
@@ -2917,7 +2915,8 @@ RETURN cVrati
  */
  
 function SpecPoDosp(lKartica)
-local nCol1:=72,cSvi:="N"
+local nCol1:=72
+local cSvi:="N"
 local lPrikSldNula:=.f.
 local lExpRpt := .f.
 local cExpRpt := "N"
@@ -2937,10 +2936,11 @@ ELSE
 ENDIF
 
 cDokument:=SPACE(8)
-picBHD:=FormPicL(gPicBHD,14)
-picDEM:=FormPicL(gPicDEM,10)
 
-IF gVar1=="0"
+picBHD := FormPicL(gPicBHD, 14)
+picDEM := FormPicL(gPicDEM, 10)
+
+IF gVar1 == "0"
 	m:="----------- ------------- -------------- -------------- ---------- ---------- ---------- -------------------------"
 ELSE
  	m:="----------- ------------- -------------- -------------- -------------------------"
@@ -2972,15 +2972,18 @@ nDoDana2 := 15
 nDoDana3 := 30
 nDoDana4 := 60
 
-PICPIC:="999999.99"
+PICPIC := PADR("999999.99", 12)  
 
 Box(,18,60)
+
 if gNW=="D"
       	@ m_x+1,m_y+2 SAY "Firma "
 	?? gFirma,"-",gNFirma
 else
-	@ m_x+1,m_y+2 SAY "Firma: " GET cIdFirma valid {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
+	@ m_x+1,m_y+2 SAY "Firma: " GET cIdFirma ;
+		VALID {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
 endif
+
 @ m_x+ 2,m_y+2 SAY "Konto:               " GET cIdkonto   pict "@!"  valid P_kontoFin(@cIdkonto)
 IF cPoRN=="D"
 	@ m_x+ 3,m_y+2 SAY "Partner (prazno svi):" GET cIdpartner pict "@!"  valid empty(cIdpartner)  .or. ("." $ cidpartner) .or. (">" $ cidpartner) .or. P_Firma(@cIdPartner)
@@ -2992,11 +2995,10 @@ ENDIF
 @ m_x+ 9,m_y+2 SAY "Interval 2: do (dana)" GET nDoDana2 WHEN cSaRokom=="D" PICT "999"
 @ m_x+10,m_y+2 SAY "Interval 3: do (dana)" GET nDoDana3 WHEN cSaRokom=="D" PICT "999"
 @ m_x+11,m_y+2 SAY "Interval 4: do (dana)" GET nDoDana4 WHEN cSaRokom=="D" PICT "999"
-IF cPoRN=="N"
-	@ m_x+13,m_y+2 SAY "Prikaz iznosa (format)" GET PICPIC PICT "@!"
-ENDIF
+@ m_x+13,m_y+2 SAY "Prikaz iznosa (format)" GET PICPIC PICT "@!"
 @ m_x+14,m_y+2 SAY "Uslov po opcini (prazno - nista)" GET cOpcine
 @ m_x+15,m_y+2 SAY "Prikaz stavki kojima je saldo 0 (D/N)?" GET cPrikNule VALID cPrikNule $ "DN" PICT "@!"
+
 if cPoRN=="N"
 	@ m_x+16,m_y+2 SAY "Prikaz izvjestaja u (1)KM (2)EURO" GET cValuta VALID cValuta$"12"
 endif
@@ -3004,6 +3006,8 @@ endif
 read
 ESC_BCR
 Boxc()
+
+PICPIC := ALLTRIM(PICPIC)
 
 lExpRpt := (cExpRpt == "D")
 
@@ -3024,7 +3028,7 @@ if empty(cIdpartner)
 	cIdPartner:=""
 endif
 
-cSvi:=cIdpartner
+cSvi := cIdpartner
 
 if lExpRpt == .t.
 	aExpFld := get_ost_fields( cSaRokom, __par_len )
@@ -3032,26 +3036,25 @@ if lExpRpt == .t.
 	cStart := exp_report()
 endif
 
-// odredjivanje prirode zadanog konta (dug. ili pot.)
-// --------------------------------------------------
 select (F_TRFP2)
 if !used()
 	O_TRFP2
 endif
 
-HSEEK "99 "+LEFT(cIdKonto,1)
-DO WHILE !EOF() .and. IDVD=="99" .and. TRIM(idkonto)!=LEFT(cIdKonto,LEN(TRIM(idkonto)))
-	SKIP 1
-ENDDO
-IF IDVD=="99" .and. TRIM(idkonto)==LEFT(cIdKonto,LEN(TRIM(idkonto)))
+hseek "99 " + LEFT(cIdKonto, 1)
+do while !EOF() .and. IDVD=="99" .and. TRIM(idkonto)!=LEFT(cIdKonto,LEN(TRIM(idkonto)))
+	skip 1
+enddo
+
+if idvd=="99" .and. TRIM(idkonto)==LEFT(cIdKonto,LEN(TRIM(idkonto)))
 	cDugPot:=D_P
-ELSE
+else
 	cDugPot:="1"
     	Box(,3,60)
       	@ m_x+2,m_y+2 SAY "Konto "+cIdKonto+" duguje / potrazuje (1/2)" get cdugpot  VALID cdugpot$"12" PICT "9"
       	READ
     	Boxc()
-ENDIF
+endif
 
 CrePom( nil, __par_len)  // kreiraj pomocnu bazu
 
@@ -3069,49 +3072,62 @@ ELSE
     		gaZagFix:={4,5}
   	ENDIF
 ENDIF
+
 START PRINT RET
 
-nUkDugBHD:=nUkPotBHD:=0
+nUkDugBHD:=0
+nUkPotBHD:=0
+
 select suban
 set order to 3
 
 if cSvi=="D"
-	seek cidfirma+cidkonto
+	seek cIdFirma + cIdKonto
 else
- 	seek cidfirma+cidkonto+cidpartner
+ 	seek cIdFirma + cIdKonto + cIdPartner
 endif
 
 DO WHILESC !EOF() .and. idfirma==cIdfirma .AND. cIdKonto==IdKonto
+	
 	cIdPartner:=idpartner
-	nUDug2:=nUPot2:=0
-    	nUDug:=nUPot:=0
-    	fPrviprolaz:=.t.
-    	DO WHILESC !EOF() .and. idfirma==cIdfirma .AND. cIdKonto==IdKonto .and. cIdPartner==IdPartner
+	nUDug2:=0
+	nUPot2:=0
+    	nUDug:=0
+	nUPot:=0
+    	
+	fPrviprolaz:=.t.
+    	
+	DO WHILESC !EOF() .and. idfirma==cIdfirma .AND. cIdKonto==IdKonto .and. cIdPartner==IdPartner
+		
 		cBrDok:=BrDok
 		cOtvSt:=otvst
           	nDug2:=nPot2:=0
           	nDug:=nPot:=0
           	aFaktura:={CTOD(""),CTOD(""),CTOD("")}
-          	DO WHILESC !EOF() .and. idfirma==cIdfirma .AND. cIdKonto==IdKonto .and. cIdPartner==IdPartner .and. brdok==cBrDok
-             		IF D_P=="1"
+          	
+		DO WHILESC !EOF() .and. idfirma==cIdfirma .AND. cIdKonto==IdKonto .and. cIdPartner==IdPartner .and. brdok==cBrDok
+             		
+			IF D_P=="1"
                 		nDug+=IznosBHD
                 		nDug2+=IznosDEM
             		ELSE
                 		nPot+=IznosBHD
                 		nPot2+=IznosDEM
              		ENDIF
-             		IF D_P==cDugPot
+             		
+			IF D_P==cDugPot
                			aFaktura[1]:=DATDOK
                			aFaktura[2]:=DATVAL
              		ENDIF
-             		if aFaktura[3]<DatDok  // datum zadnje promjene
+             		
+			if aFaktura[3]<DatDok  // datum zadnje promjene
                 		aFaktura[3]:=DatDok
              		endif
 
              		SKIP 1
           	ENDDO
 
-          	if round(ndug-npot,2)==0
+          	if round(ndug-npot,2) == 0
              		// nista
           	else
              		fPrviProlaz:=.f.
@@ -3151,7 +3167,7 @@ DO WHILESC !EOF() .and. idfirma==cIdfirma .AND. cIdKonto==IdKonto
 	
 	IF prow()>58+gPStranica
 		FF
-		ZSpecPoDosp()
+		ZSpecPoDosp( nil, nil, PICPIC )
 	ENDIF
 	
 	if (!fveci .and. idpartner=cSvi) .or. fVeci
@@ -3195,8 +3211,6 @@ IF cPoRN=="N"
 	fPrviProlaz:=.t.
 ENDIF
 
-altd()
-
 DO WHILE !EOF()
 	
 	IF cPoRN=="D"
@@ -3239,14 +3253,14 @@ DO WHILE !EOF()
    		nFaza:=RRocnost()
   	ENDIF
 
-	IF prow()>52+gPStranica
+	IF prow() > 52 + gPStranica
 		FF
-		ZSpecPoDosp(.t.)
+		ZSpecPoDosp(.t., nil, PICPIC )
 		fPrviProlaz:=.f.
 	ENDIF
     		
 	if fPrviProlaz
-       		ZSpecPoDosp()
+       		ZSpecPoDosp(nil, nil, PICPIC )
        		fPrviProlaz:=.f.
     	endif
 
@@ -3258,7 +3272,7 @@ DO WHILE !EOF()
       			? datdok, datval, PADR(brdok,10)
       			nCol1:=pcol()+1
       			?? " "
-      			?? TRANSFORM(dug,picbhd), TRANSFORM(pot,picbhd), TRANSFORM(dug-pot,picbhd)
+      			?? TRANSFORM(dug, picbhd), TRANSFORM(pot, picbhd), TRANSFORM(dug-pot, picbhd)
       			IF gVar1=="0"
         			?? " "+TRANSFORM(dug2,picdem), TRANSFORM(pot2,picdem), TRANSFORM(dug2-pot2,picdem)
       			ENDIF
@@ -3442,7 +3456,7 @@ ENDDO
 
 IF prow()>58+gPStranica
 	FF
-	ZSpecPoDosp(.t.)
+	ZSpecPoDosp(.t., nil, PICPIC)
 ENDIF
 
 SELECT POM
@@ -3542,7 +3556,7 @@ IF cPoRn=="D" .and. LEN(cSvi)<LEN(idpartner) .and.;
 
   // prikazimo total
   FF
-  ZSpecPoDosp(.t.,.t.)
+  ZSpecPoDosp(.t.,.t., PICPIC)
   ? m2:=STRTRAN(M,"-","=")
   IF cSaRokom=="D"
     FOR i:=1 TO LEN(anInterUV)
@@ -3607,13 +3621,19 @@ IF cPoRn=="D" .and. LEN(cSvi)<LEN(idpartner) .and.;
 ENDIF // total
 
 IF cPoRn=="N"
-	IF cSaRokom=="D"
-     		? "ц" + REPL("д", __par_len) + "адддддддддддддддддддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддеддддддддд╢"
-  	ELSE
-     		? "ц" + REPL("д", __par_len) + "адддддддддддддддддддддддддедддддддддедддддддддеддддддддд╢"
-  	ENDIF
+	
+	cTmpL := ""
+	
+	// uzmi liniju
+	_get_line1( @cTmpL, cSaRokom, PICPIC )
+	
+	? cTmpL
+	
   	Pljuc( PADR( "UKUPNO" , LEN( POM->IDPARTNER + PADR(PARTN->naz, 25)) + 1 ) )
-  	IF cSaRokom=="D"
+  	
+	_get_line2( @cTmpL, cSaRokom, PICPIC)
+	
+	IF cSaRokom=="D"
     		FOR i:=1 TO LEN(anInterUV)
       			if ( cValuta == "1" )
       				PPljuc(TRANSFORM(anInterUV[i,1,2]-anInterUV[i,2,2],PICPIC))
@@ -3653,8 +3673,6 @@ IF cPoRn=="N"
 		  
 		endif
 
-		
-		? "ю" + REPL("д", __par_len) + "ддддддддддддддддддддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддадддддддддаддддддддды"
   	ELSE
 		if ( cValuta == "1" )
     			PPljuc(TRANSFORM(nTUkUVD-nTUkUVP,PICPIC))
@@ -3676,8 +3694,10 @@ IF cPoRn=="N"
 				
 		endif
 	
-		? "ю" + REPL("д", __par_len) + "ддддддддддддддддддддддддддадддддддддадддддддддаддддддддды"
   	ENDIF
+
+	? cTmpL
+	
 ENDIF
 
 FF
@@ -3695,7 +3715,68 @@ CLOSERET
 return
 
 
+// -----------------------------------------------------
+// vraca liniju za report varijanta 1
+// -----------------------------------------------------
+static function _get_line1(cTmpL, cSaRokom, cPicForm )
+local cStart := "ц"
+local cMidd := "а"
+local cLine := "е"
+local cEnd := "╢"
+local cFill := "д"
+local nFor := 3
+
+if cSaRokom == "D"
+	nFor := 13
+endif
+
+cTmpL := cStart
+cTmpL += REPLICATE(cFill, __par_len) 
+cTmpL += cMidd
+cTmpL += REPLICATE(cFill, 25)
+	
+for i := 1 to nFor
+	cTmpL += cLine
+	cTmpL += REPLICATE(cFill, LEN(cPicForm))
+next
+		
+cTmpL += cEnd
+
+return
+
+// ------------------------------------------------------
+// vraca liniju varijantu 2
+// ------------------------------------------------------
+static function _get_line2( cTmpL, cSaRokom, cPicForm )
+local cStart := "ю" 
+local cLine := "а"
+local cEnd := "ы"
+local cFill := "д"
+local nFor := 3
+
+if cSaRokom == "D"
+	nFor := 13
+endif
+
+cTmpL := cStart
+cTmpL += REPLICATE(cFill, __par_len) 
+cTmpL += cLine
+cTmpL += REPLICATE(cFill, 25)
+	
+for i := 1 to nFor
+	cTmpL += cLine
+	cTmpL += REPLICATE(cFill, LEN(cPicForm))
+next
+		
+cTmpL += cEnd
+
+return
+
+
+
+// --------------------------------------------------------
 // provjeri da li je saldo partnera 0, vraca .t. ili .f.
+// --------------------------------------------------------
 function saldo_nula(cIdPartn)
 local nPRecNo
 local nLRecNo
@@ -3730,8 +3811,16 @@ return .f.
  *  \param lSvi
  */
  
-function ZSpecPoDosp(fStrana,lSvi)
+function ZSpecPoDosp( fStrana, lSvi, PICPIC )
+local nII
+local cTmp
+
 ?
+
+if cSaRokom == "D" .and. ((LEN(ALLTRIM(PICPIC)) * 13) + 46 ) > 170
+	?? "#%LANDS#"
+endif
+
 IF cPoRn=="D"
 	IF gVar1=="0"
     		P_COND2
@@ -3746,29 +3835,34 @@ ELSE
   	ENDIF
 ENDIF
 
-IF lSvi==NIL
+if lSvi == NIL
 	lSvi:=.f.
-ENDIF
+endif
 
-if fStrana==NIL
+if fStrana == NIL
 	fStrana:=.f.
 endif
 
-if nStr=0
+if nStr = 0
   	fStrana:=.t.
 endif
 
-IF cPoRn=="D"
+IF cPoRn == "D"
 	?? "FIN.P:  SPECIFIKACIJA OTVORENIH STAVKI PO DOSPIJECU NA DAN "; ?? dNaDan
  	if fStrana
   		@ prow(),110 SAY "Str:"+str(++nStr,3)
  	endif
+	
 	SELECT PARTN
 	HSEEK cIdFirma
- 	? "FIRMA:",cIdFirma,"-",gNFirma
+ 	
+	? "FIRMA:",cIdFirma,"-",gNFirma
+	
 	SELECT KONTO
 	HSEEK cIdKonto
+	
 	? "KONTO  :", cIdKonto, naz
+	
 	if lSvi
   		? "PARTNER: SVI"
  	else
@@ -3776,15 +3870,20 @@ IF cPoRn=="D"
 		HSEEK cIdPartner
   		? "PARTNER:", cIdPartner,TRIM(PADR(naz, 25))," ",TRIM(naz2)," ",TRIM(mjesto)
  	endif
+	
 	? m
  	?
- 	?? "Dat.dok.*Dat.val.* "
- 	IF gVar1=="0"
+ 	
+	?? "Dat.dok.*Dat.val.* "
+ 	
+	IF gVar1=="0"
   		?? "  BrDok   *   dug "+ValDomaca()+"  *   pot "+ValDomaca()+"   *  saldo  "+ValDomaca()+" * dug "+ValPomocna()+" * pot "+ValPomocna()+" *saldo "+ValPomocna()+"*      U/VAN VALUTE      *"
  	ELSE
   		?? "  BrDok   *   dug "+ValDomaca()+"  *   pot "+ValDomaca()+"   *  saldo  "+ValDomaca()+" *      U/VAN VALUTE      *"
  	ENDIF
- 	? m
+ 	
+	? m
+
 ELSE
 	?? "FIN.P:  SPECIFIKACIJA OTVORENIH STAVKI PO DOSPIJECU NA DAN "; ?? dNaDan
 	SELECT PARTN
@@ -3792,23 +3891,214 @@ ELSE
  	? "FIRMA:",cIdFirma,"-",gNFirma
 	SELECT KONTO
 	HSEEK cIdKonto
-	? "KONTO  :",cIdKonto,naz
+	
+	? "KONTO  :", cIdKonto, naz
+	
 	IF cSaRokom=="D"
-   		? "з" + REPL("д", __par_len) + "бдддддддддддддддддддддддддбдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддбдддддддддддддддддддддддддддддддддддддддддддддддддддддддддддбддддддддд©"
-   		? "Ё" + REPL(" ", __par_len) + "Ё                         Ё                  U      V  A  L  U  T  I                  Ё               V  A  N      V  A  L  U  T  E               Ё         Ё"
-   		? "Ё" + PADC("SIFRA", __par_len) + "Ё     NAZIV  PARTNERA     цдддддддддбдддддддддбдддддддддбдддддддддбдддддддддбдддддддддедддддддддбдддддддддбдддддддддбдддддддддбдддддддддбддддддддд╢  UKUPNO Ё"
-   		? "Ё" + PADC("PARTN.", __par_len) + "Ё                         ЁDO"+STR(nDoDana1,3)+" D. ЁDO"+STR(nDoDana2,3)+" D. ЁDO"+STR(nDoDana3,3)+" D. ЁDO"+STR(nDoDana4,3)+" D. ЁPR."+STR(nDoDana4,2)+" D. Ё UKUPNO  ЁDO"+STR(nDoDana1,3)+" D. ЁDO"+STR(nDoDana2,3)+" D. ЁDO"+STR(nDoDana3,3)+" D. ЁDO"+STR(nDoDana4,3)+" D. ЁPR."+STR(nDoDana4,2)+" D. Ё UKUPNO  Ё         Ё"
-   		? "ц" + REPL("д", __par_len) + "едддддддддддддддддддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддедддддддддеддддддддд╢"
- 	ELSE
-   		? "з" + REPL("д", __par_len) + "бдддддддддддддддддддддддддбдддддддддбдддддддддбддддддддд©"
-   		? "Ё" + PADC("SIFRA", __par_len) + "Ё                         Ё UKUPNO  Ё UKUPNO  Ё         Ё"
-   		? "Ё" + PADC("PARTN.", __par_len) + "Ё     NAZIV  PARTNERA     ЁU VALUTI ЁVAN VAL. Ё UKUPNO  Ё"
-  	 	? "ц" + REPL("д", __par_len) + "едддддддддддддддддддддддддедддддддддедддддддддеддддддддд╢"
+   		
+		// prvi red
+		cTmp := "з"
+		cTmp += REPLICATE("д", __par_len)
+		cTmp += "б"
+		cTmp += REPLICATE("д", 25)
+		cTmp += "б"
+		cTmp += REPLICATE("д", (LEN(PICPIC) * 5) + 4 )
+		cTmp += "б"
+		cTmp += REPLICATE("д", LEN(PICPIC))
+		cTmp += "б"
+		cTmp += REPLICATE("д", (LEN(PICPIC) * 5) + 4 )
+		cTmp += "б"
+		cTmp += REPLICATE("д", LEN(PICPIC))
+		cTmp += "б"
+		cTmp += REPLICATE("д", LEN(PICPIC))
+		cTmp += "©"
+		
+		? cTmp
+
+		// drugi red
+   		cTmp := "Ё"
+		cTmp += REPLICATE(" ", __par_len)
+		cTmp += "Ё"
+		cTmp += REPLICATE(" ", 25) 
+		cTmp += "Ё"
+		cTmp += _f_text("U      V  A  L  U  T  I", (LEN(PICPIC) * 5) + 4 )
+		
+		cTmp += "Ё"
+		cTmp += REPLICATE(" ", LEN(PICPIC))
+		
+		cTmp += "Ё"
+		cTmp += _f_text("V  A  N      V  A  L  U  T  E", (LEN(PICPIC) * 5) + 4 )
+		cTmp += "Ё"
+		cTmp += REPLICATE(" ", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += REPLICATE(" ", LEN(PICPIC))
+		cTmp += "Ё"
+	
+		? cTmp
+	
+   		
+		// treci red
+		cTmp := "Ё"
+		cTmp += PADC("SIFRA", __par_len) 
+		cTmp += "Ё"
+		cTmp += _f_text("NAZIV  PARTNERA", 25)
+		cTmp += "ц"
+		
+		for nII := 1 to 5
+			cTmp += REPLICATE("д", LEN(PICPIC) )
+			
+			if nII == 5
+				cTmp += "ц"
+			else
+				cTmp += "б"
+			endif
+			
+		next
+		
+		cTmp += _f_text( " ", LEN(PICPIC) )
+		cTmp += "ц"
+		
+		for nII := 1 to 5
+			cTmp += REPLICATE("д", LEN(PICPIC) )
+			
+			if nII == 5
+				cTmp += "ц"
+			else
+				cTmp += "б"
+			endif
+		next
+		
+		cTmp += _f_text( " ", LEN(PICPIC) )
+		cTmp += "╢"
+		cTmp += _f_text( "UKUPNO", LEN(PICPIC) )
+		cTmp += "Ё"
+
+		? cTmp
+		
+   		cTmp := "Ё"
+		cTmp += PADC("PARTN.", __par_len)
+		cTmp += "Ё"
+		cTmp += _f_text(" ", 25) 
+		
+		cTmp += "Ё"
+		cTmp += _f_text( "DO" + STR(nDoDana1, 3) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "DO" + STR(nDoDana2, 3) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "DO" + STR(nDoDana3, 3) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "DO" + STR(nDoDana4, 3) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "PR." + STR(nDoDana4, 2) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "UKUPNO", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "DO" + STR(nDoDana1, 3) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "DO" + STR(nDoDana2, 3) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "DO" + STR(nDoDana3, 3) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "DO" + STR(nDoDana4, 3) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "PR." + STR(nDoDana4, 2) + " D.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( "UKUPNO", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text( " ", LEN(PICPIC))
+		cTmp +=	"Ё"
+   		
+		? cTmp 
+		
+		cTmp := "ц"
+		cTmp += REPLICATE("д", __par_len)
+		cTmp += "е"
+		cTmp += REPLICATE("д", 25)
+		
+		for nII := 1 to 13
+			cTmp += "е"
+			cTmp += REPLICATE("д", LEN(PICPIC))
+		next
+		
+		cTmp += "╢"
+
+		? cTmp
+ 	
+	ELSE
+   		
+		// 1 red
+		cTmp := "з"
+		cTmp += REPLICATE("д", __par_len)
+		cTmp += "б"
+		cTmp += REPLICATE("д", 25)
+		
+		for nII := 1 to 3
+			cTmp += "б"
+			cTmp += REPLICATE("д", LEN(PICPIC) )
+		next
+		
+		cTmp += "©"
+
+		? cTmp
+
+
+		// 2 red
+   		
+		cTmp := "Ё"
+		cTmp += PADC("SIFRA", __par_len)
+		cTmp += "Ё"
+		cTmp += _f_text(" ", 25) 
+		cTmp += "Ё"
+		cTmp += _f_text("UKUPNO", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text("UKUPNO", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text(" ", LEN(PICPIC))
+		cTmp += "Ё"
+   		
+		? cTmp
+		
+		// 3 red
+  	 	
+		cTmp := "Ё"
+		cTmp += PADC("PARTN.", __par_len)
+		cTmp += "Ё"
+		cTmp += _f_text("NAZIV PARTNERA", 25) 
+		cTmp += "Ё"
+		cTmp += _f_text("U VALUTI", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text("VAN VAL.", LEN(PICPIC))
+		cTmp += "Ё"
+		cTmp += _f_text("UKUPNO", LEN(PICPIC))
+		cTmp += "Ё"
+		
+		? cTmp
+		
+		// 4 red
+		cTmp := "ц"
+		cTmp += REPL("д", __par_len)
+		cTmp += "е"
+		cTmp += REPLICATE("д", 25)
+		
+		for nII := 1 to 3
+			cTmp += "е"
+			cTmp += REPLICATE("д", LEN(PICPIC) )
+		next
+		
+		cTmp += "╢"
+
+		? cTmp
  	ENDIF
 ENDIF
 
 return
-*}
+
+
+// ---------------------------------------------
+// formatiraj tekst ... na nLen
+// ---------------------------------------------
+static function _f_text( cTxt, nLen )
+return PADC(cTxt, nLen)
 
 
 

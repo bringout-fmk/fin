@@ -392,12 +392,25 @@ return 1
 static function chk_sezona()
 local nYearDok
 local nYearSez
+local cCurrSez
+local cTmp := ""
 
-nYearSez := VAL(goModul:oDataBase:cSezona)
+cCurrSez := goModul:oDataBase:cRadimUSezona
+
+if cCurrSez == "RADP"
+	// ako je radno podrucje, procitaj koja je sezona
+	nYearSez := VAL(goModul:oDataBase:cSezona)
+	cTmp := goModul:oDataBase:cSezona
+else
+	// vidi koja je sezona cRadimUSezona
+	nYearSez := VAL(cCurrSez)
+	cTmp := cCurrSez
+endif
+
 nYearDok := YEAR(_datdok)
 
 if nYearSez <> nYearDok
-	MsgBeep("Upozorenje!##Datum dokumenta " + DToC(_datDok) + "#Tekuca sezona " + goModul:oDataBase:cSezona)
+	MsgBeep("Upozorenje!##Datum dokumenta " + DToC(_datDok) + "#Tekuca sezona " + cTmp )
 endif
 
 return .t.

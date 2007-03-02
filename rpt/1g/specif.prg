@@ -2324,11 +2324,14 @@ RETURN
  *  \brief Pregled novih dugovanja i potrazivanja
  */
 function PregNDP()
-*{
-picBHD:=FormPicL("9 "+gPicBHD,17)
-private cDP:="1", cSortPar:="S", cMjestoPar:=SPACE(80)
+picBHD := FormPicL("9 " + gPicBHD, 17)
+private cDP:="1"
+private cSortPar:="S"
+private cMjestoPar:=SPACE(80)
 
 O_PARTN
+__par_len := LEN( partn->id )
+
 O_KONTO
 
 Box("#PREGLED NOVIH DUGOVANJA/POTRAZIVANJA",15,72)
@@ -2345,13 +2348,19 @@ Box("#PREGLED NOVIH DUGOVANJA/POTRAZIVANJA",15,72)
 	ESC_BCR
 
 	if cDP=="2"
-		cIdkonto:=padr("5430",7)
+		cIdkonto := padr("5410",7)
 	else
-		cIdkonto:=padr("2120",7)
+		cIdkonto := padr("2110",7)
 	endif
-	dDatOd:=date()-7
-	dDatDo:=date()
-	private cPrik:="2",cdindem:="1", cPG:="D", cPoRP:="2"
+	
+	dDatOd := DATE() - 7
+	dDatDo := DATE()
+	
+	private cPrik:="2"
+	private cDinDem:="1"
+	private cPG:="D"
+	private cPoRP:="2"
+	
 	@ m_x+3,m_y+2 SAY "Konto:" GET cIdkonto valid p_kontoFin(@cidkonto)
 	@ m_x+5,m_y+2 SAY "Period:" GET dDatOd
 	@ m_x+5,col()+2 SAY "do" GET dDatDo valid dDatDo>=dDatOd
@@ -2407,9 +2416,15 @@ hseek cidfirma+cidkonto
 EOF CRET
 
 if cPG=="D"
-	m:="-------------------------- --------------- ------------------ ----------------- ----------------- ----------------- ---------------"
+	m := REPLICATE("-", __par_len)
+	m += " "
+	m += REPLICATE("-", 25)
+	m += " --------------- ------------------ ----------------- ----------------- ----------------- ---------------"
 else
-	m:="------------------------------- ------------------ ----------------- ----------------- ----------------- -------------------"
+	m := REPLICATE("-", __par_len)
+	m += " "
+	m += REPLICATE("-", 25)
+	m += " ------------------ ----------------- ----------------- ----------------- -------------------"
 endif
 
 START PRINT CRET
@@ -2424,7 +2439,10 @@ do while cidfirma==idfirma .and. !eof() .and. cidkonto==idkonto
 	else
 		cIdPartner:=idpartner
 	endif
-	nPS1:=nPS2:=0
+	
+	nPS1:=0
+	nPS2:=0
+	
 	fYear:=.f.
 
 	do while cidfirma==idfirma .and. !eof() .and. cidkonto==idkonto .and. IF(cPoRP=="1",idrj,idpartner)==cidpartner .and. datdok<dDatOd
@@ -2437,7 +2455,8 @@ do while cidfirma==idfirma .and. !eof() .and. cidkonto==idkonto
 			nPS2-=iznosdem
 		endif
 
-		if year(datdok)==year(date())  // bilo je prometa u toku godine
+		if YEAR(datdok) == YEAR(DATE())  
+			// bilo je prometa u toku godine
 			fYear:=.t.
 		endif
 
@@ -2499,15 +2518,18 @@ do while cidfirma==idfirma .and. !eof() .and. cidkonto==idkonto
 			zagl9()
 		endif
 
-		? cidpartner+" "
+		? cIdPartner+" "
+		
 		if cPoRP=="1"
-			?? PADR(RJ->naz,36)
+			?? PADR( RJ->naz, 36)
 		else
+		
 			if cPG=="N"
 				?? PADR(partn->naz, 25)
 			else
 				?? Left (PARTN->Naz, 25), LEFT (PARTN->Mjesto, 15)
 			endif
+		
 		endif
 
 		nCol1:=pcol()+1
@@ -2560,25 +2582,30 @@ return
  *  \param
  */
 function Zagl9()
+local nTArea := SELECT()
+
 ?
 P_COND
-?? space(47)
+?? space(35)
 
 B_ON
-?? "PREGLED ",iif(cDP=="1","DUGOVANJA","POTRA¦IVANJA")
-? spacE(40)
 
-if cDP=="1"
-	?? "KUPACA"
-else
-	?? "DOBAVLJACA"
+?? "PREGLED ", iif(cDP=="1", "DUGOVANJA", "POTRA¦IVANJA" )
+?? ", ZA PERIOD ", dDatOd, "-", dDatDo
+
+// uzmi konto
+select konto
+hseek cIdKonto
+select (nTArea)
+
+? SPACE(2)
+?? ALLTRIM(cIdKonto), ":", ALLTRIM( konto->naz ) 
+
+if cPoRP == "1"
+	? SPACE(2)
+	?? "PO RADNIM JEDINICAMA"
 endif
 
-if cPoRP=="1"
-	?? " PO RADNIM JEDINICAMA"
-endif
-
-??  " ZA PERIOD ",dDatOd,"-",dDatDo
 B_OFF
 
 if !empty(cMjestoPar)
@@ -2586,35 +2613,43 @@ if !empty(cMjestoPar)
 endif
 
 if cDP=="1"
+	
 	? m
+	
 	if cPoRP=="1"
-		? "        Naziv                                 Prethodno           Novo             Napla†eno         Sadaçnje          Napomena"
-		? "                                                stanje          potra§ivanje                           stanje"
+		
+		? SPACE(__par_len) + "  Naziv                                 Prethodno           Novo             Napla†eno         Sadaçnje          Napomena"
+		? SPACE(__par_len) + "                                          stanje          potra§ivanje                           stanje"
+	
 	elseif cPG=="N"
-		? "          Naziv                     Prethodno           Novo             Napla†eno         Sadasnje          Napomena"
-		? "                                     stanje          potra§ivanje                           stanje"
+		
+		? SPACE(__par_len) + "    Naziv                     Prethodno           Novo             Napla†eno         Sadasnje          Napomena"
+		? SPACE(__par_len) + "                               stanje          potra§ivanje                           stanje"
+	
 	else
-		? "        Naziv                  Mjesto         Prethodno           Novo             Napla†eno         Sadaçnje          Napomena"
-		? "                                                stanje          potra§ivanje                           stanje"
+		
+		? SPACE(__par_len) + "  Naziv                  Mjesto         Prethodno           Novo             Napla†eno         Sadaçnje          Napomena"
+		? SPACE(__par_len) + "                                          stanje          potra§ivanje                           stanje"
+	
 	endif
+	
 	? m
 else
 	? m
 	if cPoRP=="1"
-		? "        Naziv                                 Prethodno           Prispjelo         Placeno          Sadaçnje          Napomena"
-		? "                                                stanje                                                 stanje"
+		? SPACE(__par_len) + "  Naziv                                 Prethodno           Prispjelo         Placeno          Sadaçnje          Napomena"
+		? SPACE(__par_len) + "                                          stanje                                                 stanje"
 	elseif cPG=="N"
-		? "  Naziv                             Prethodno         Prispjelo          Placeno          Sadaçnje          Napomena"
-		? "                                      stanje                                               stanje"
+		? SPACE(__par_len) + "  Naziv                       Prethodno         Prispjelo          Placeno          Sadaçnje          Napomena"
+		? SPACE(__par_len) + "                                stanje                                               stanje"
 	else
-		? "        Naziv                  Mjesto         Prethodno           Prispjelo         Placeno          Sadaçnje          Napomena"
-		? "                                                stanje                                                 stanje"
+		? SPACE(__par_len) + "  Naziv                  Mjesto         Prethodno           Prispjelo         Placeno          Sadaçnje          Napomena"
+		? SPACE(__par_len) + "                                          stanje                                                 stanje"
 	endif
 	? m
 endif
 
 return
-*}
 
 
 

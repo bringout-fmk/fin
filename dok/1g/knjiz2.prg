@@ -131,14 +131,14 @@ nArr:=SELECT()
 nRec:=RecNo()
 
 select pripr
-set order to tag "1"
+set order to tag "0"
 go top
 
 i:=1
 
 Box(, 1, 50)
 
-do while !EOF()
+do while !EOF() 
 	
 	skip 1
 	nTREC := RECNO()
@@ -150,11 +150,13 @@ do while !EOF()
 	
 	@ m_x + 1, m_y + 2 SAY "redni broj: " + field->rbr
 	
-	++i
+	++ i
 	
 	go (nTREC)
 	
 enddo
+
+set order to tag "1"
 
 BoxC()
 

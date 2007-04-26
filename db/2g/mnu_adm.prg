@@ -27,6 +27,11 @@ AADD(opcexe, {|| goModul:oDatabase:install()})
 AADD(opc, "2. security")
 AADD(opcexe, {|| MnuSecMain()})
 
+if is_fmkrules()
+	AADD(opc, "3. fmk pravila - rules ")
+	AADD(opcexe, {|| p_fmkrules(,,, aRuleCols, bRuleBlock ) })
+endif
+
 Menu_SC("adm")
 
 return

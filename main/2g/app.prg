@@ -330,6 +330,9 @@ public gPotpis:="N"
 public gnKZBDana:=0
 public gOAsDuPartn:="N"
 
+public aRuleCols := g_rule_cols()
+public bRuleBlock := g_rule_block()
+
 ::super:setTGVars()
 
 O_PARAMS

@@ -324,7 +324,7 @@ do while !EOF() .and. field->modul_name == g_rulemod( cMod ) ;
 		_nalog_cond( _idvn, cNalog ) .and. ;
 		_konto_cond( _idkonto, cKtoList ) .and. ;
 		( _partn_cond( _idpartner, cPartn) == .f. .or. ;
-		_d_p <> cDugPot )
+		_dp_cond( _d_p , cDugPot ) == .f. )
 			
 		nReturn := nErrLevel
 		
@@ -347,12 +347,25 @@ return nReturn
 // ---------------------------------------------------
 // da li kupac zadovoljava kriterij ????
 // ---------------------------------------------------
-static function _partn_cond( cNalPartn, cRulePartn )
+static function _partn_cond( cNalPartn, cRulePartn, lEmpty )
 local lRet := .f.
+
+if lEmpty == nil
+	lEmpty := .f.
+endif
 
 cNalPartn := ALLTRIM( cNalPartn ) 
 
-if cRulePartn == "#KUPAC#"
+if lEmpty == .t. .and. EMPTY( cRulePartn )
+
+	lRet := .t.
+
+elseif cRulePartn == "*"
+
+	// svi partneri
+	lRet := .t.
+
+elseif cRulePartn == "#KUPAC#"
 	
 	// provjeri da li je partner kupac?
 	
@@ -390,18 +403,140 @@ return lRet
 // ---------------------------------------------------
 // da li konto kriterij zadovoljava ????
 // ---------------------------------------------------
-static function _konto_cond( cNalKonto, cRuleKtoList )
+static function _konto_cond( cNalKonto, cRuleKtoList, lEmpty )
 local lRet := .f.
 
 cNalKonto := ALLTRIM( cNalKonto )
 
-// nalog konto
-if cNalKonto $ cRuleKtoList
+if lEmpty == nil
+	lEmpty := .f.
+endif
+
+if lEmpty == .t. .and. EMPTY( cRuleKtoList )
+	
 	lRet := .t.
+
+elseif cRuleKtoList == "*"
+
+	// sva konta
+	lRet := .t.
+
+elseif cNalKonto $ cRuleKtoList
+	
+	lRet := .t.
+	
 endif
 
 return lRet
 
+
+
+// ---------------------------------------------------
+// da li DP kriterij zadovoljava ????
+// ---------------------------------------------------
+static function _dp_cond( cNalDP, cRuleDP, lEmpty )
+local lRet := .f.
+
+cNalDP := ALLTRIM( cNalDP )
+
+if lEmpty == nil
+	lEmpty := .f.
+endif
+
+if lEmpty == .t. .and. EMPTY( cRuleDP )
+	
+	lRet := .t.
+
+elseif cNalDP == cRuleDP
+	
+	lRet := .t.
+	
+endif
+
+return lRet
+
+
+// -------------------------------------
+// ispitivanje broja veze naloga
+// -------------------------------------
+function _rule_veza_()
+local nErrLevel := 0
+
+// ako se koriste pravila ? uopste
+if is_fmkrules()
+	
+	nErrLevel := _rule_bv1_()
+
+endif
+
+return err_validate( nErrLevel )
+
+
+
+// -------------------------------------------
+// broj veze pravilo 1 ????
+// -------------------------------------------
+function _rule_bv1_()
+local nReturn := 0
+local nTArea := SELECT()
+
+local cObj := "KNJIZ_BROJ_VEZE"
+local cMod := goModul:oDataBase:cName
+
+local nErrLevel
+local cKtoList
+local cNalog
+local cPartn
+local cDugPot
+
+O_FMKRULES
+select fmkrules
+set order to tag "FINKNJ1"
+go top
+
+seek g_rulemod( cMod ) + g_ruleobj( cObj )
+
+do while !EOF() .and. field->modul_name == g_rulemod( cMod ) ;
+		.and. field->rule_obj == g_ruleobj( cObj )
+	
+	// B4 ili B* ili *
+	cNalog := ALLTRIM( fmkrules->rule_c3 )
+	
+	// 132 ili 132;1333;2311;....
+	cKtoList := ALLTRIM( fmkrules->rule_c6 )
+
+	// partner
+	cPartn := ALLTRIM( fmkrules->rule_c5 )
+
+	// duguje / potrazuje
+	cDugPot := ALLTRIM( fmkrules->rule_c1 )
+	
+	// nivo pravila
+	nErrLevel := fmkrules->rule_level
+
+	// ima li konto/nalog/opis ???
+	if nErrLevel <> 0 .and. ;
+		_nalog_cond( _idvn, cNalog ) .and. ;
+		_konto_cond( _idkonto, cKtoList, .t. ) .and. ;
+		_partn_cond( _idpartner, cPartn, .t. ) .and. ;
+		_dp_cond( _d_p, cDugPot, .t. ) .and. ;
+		EMPTY( _brdok )
+		
+		nReturn := nErrLevel
+		
+		sh_rule_err( fmkrules->rule_ermsg, nErrLevel )
+		
+		exit
+	
+		
+	endif
+	
+	skip
+	
+enddo
+
+select (nTArea)
+return nReturn
 
 
 

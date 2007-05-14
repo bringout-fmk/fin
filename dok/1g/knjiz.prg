@@ -370,7 +370,8 @@ endif
 	( EMPTY(_IdPartner) .or. P_Firma(@_IdPartner,14,20) ) .and. _rule_partn_() } when ;
 	{|| iif(ChkKtoMark(_idkonto),.t.,.f.)}
 
-@ m_x+16,m_y+2  SAY "Duguje/Potrazuje (1/2):" get _D_P valid V_DP() .and. _rule_d_p_()
+@ m_x+16,m_y+2  SAY "Duguje/Potrazuje (1/2):" get _D_P valid V_DP() .and. _rule_d_p_() .and. _rule_veza_()
+
 @ m_x+16,m_y+46  GET _IznosBHD  PICTURE "999999999999.99"
 @ m_x+17,m_y+46  GET _IznosDEM  WHEN {|| DinDEM(,,"_IZNOSBHD"),.t.} VALID {|oGet| V_IznosDEM(,,"_IZNOSDEM",oGet)} PICTURE '9999999999.99'
 @ m_x,m_y+50 SAY " <a-O> Otvorene stavke "

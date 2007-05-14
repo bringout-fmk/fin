@@ -1000,9 +1000,11 @@ if (nArea==-1 .or. nArea==(F_ULIMIT))
 	CREATE_INDEX("2" ,"Id+idpartner", SIFPATH+"ULIMIT.DBF")
 endif
 
+// kreiraj indexe tabele FMKRULES
+cre_rule_cdx()
 
 return
-*}
+
 
 
 

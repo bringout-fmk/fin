@@ -236,40 +236,6 @@ RETURN DE_CONT
 *}
 
 
-// --------------------------------------------
-// rule - kolone specificne
-// --------------------------------------------
-function g_rule_cols()
-local aKols := {}
-
-//rule_c1 = 1
-//rule_c2 = 5
-//rule_c3 = 10
-//rule_c4 = 10
-//rule_c5 = 50
-//rule_c6 = 50
-//rule_c7 = 100
-
-AADD(aKols, { "tip nal", {|| PADR(rule_c3, 10) }, "rule_c3", {|| .t.}, {|| .t. } })
-AADD(aKols, { "partner", {|| PADR(rule_c5, 20) }, "rule_c5", {|| .t.}, {|| .t. } })
-AADD(aKols, { "konto", {|| PADR(rule_c6, 20) }, "rule_c6", {|| .t.}, {|| .t. } })
-AADD(aKols, { "d_p", {|| rule_c1 }, "rule_c1", {|| .t.}, {|| .t. } })
-
-return aKols
-
-
-// -------------------------------------
-// rule - block tabele rule
-// -------------------------------------
-function g_rule_block()
-local bBlock := {|| ed_rule_bl() }
-return bBlock
-
-// ------------------------------------
-// edit rule key handler
-// ------------------------------------
-static function ed_rule_bl()
-return DE_CONT
 
 
 

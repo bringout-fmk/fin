@@ -101,16 +101,14 @@ return
  *  \brief Prebacivanja kartica
  */
 function PrebKartica()
-*{
-cSecur:=SecurR(KLevel,"Prekart")
-cSecur2:=SecurR(KLevel,"SGLEDAJ")
-if ImaSlovo("TX",cSecur) .or. ImaSlovo("D",cSecur2)
-	MsgBeep("Opcija nedostupna !")
-else
+//cSecur:=SecurR(KLevel,"Prekart")
+//cSecur2:=SecurR(KLevel,"SGLEDAJ")
+//if ImaSlovo("TX",cSecur) .or. ImaSlovo("D",cSecur2)
+//	MsgBeep("Opcija nedostupna !")
+//else
 	PreKart()
-endif
+//endif
 return
-*}
 
 
 /*! \fn GenPocStanja()

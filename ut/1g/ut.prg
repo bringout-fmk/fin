@@ -1,44 +1,5 @@
 #include "\dev\fmk\fin\fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/ut/1g/ut.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.7 $
- * $Log: ut.prg,v $
- * Revision 1.7  2004/01/29 12:53:45  sasavranic
- * Ispravljena greska za SECUR.DBF
- *
- * Revision 1.6  2004/01/13 19:07:57  sasavranic
- * appsrv konverzija
- *
- * Revision 1.5  2003/01/10 00:25:43  ernad
- *
- *
- * - popravka make systema
- * make zip ... \\*.chs -> \\\*.chs
- * ispravka std.ch ReadModal -> ReadModalSc
- * uvoðenje keyb/get.prg funkcija
- *
- * Revision 1.4  2002/11/18 04:29:19  mirsad
- * dorade-security
- *
- * Revision 1.3  2002/11/15 16:48:45  sasa
- * korekcija koda
- *
- * Revision 1.2  2002/06/21 08:50:54  sasa
- * no message
- *
- *
- */
-
-
-/*! \file fmk/fin/ut/1g/ut.prg
- *  \brief Utility
- */
-
 
 /*! \fn OtkljucajBug()
     \brief ??Otkljucaj lafo bug?
@@ -177,17 +138,169 @@ next
 BoxC()
 close all
 return
-*}
 
 
-/*! \fn StornoNaloga()
- *  \brief Storniranje naloga
- */
+// ----------------------------------
+// storniranje naloga
+// ----------------------------------
 function StornoNaloga()
-*{
 Povrat(.t.)
 return
-*}
+
+
+// ----------------------------------------------------------------
+// report sa greskama sa datumom na nalozima izazvanim opcijom
+// "Unos datuma naloga = 'D'"
+// 
+// ----------------------------------------------------------------
+function daterr_rpt()
+
+local __brnal
+local __idfirma
+local __idvn
+local __t_date
+
+local dSubanDate
+
+local nTotErrors := 0
+
+local nNalCnt := 0
+
+local nMonth
+
+local nSubanKto
+
+close all
+
+O_SUBAN
+select suban 
+set order to tag "10"
+// idfirma+idvn+brnal+idkonto+datdok
+
+O_ANAL
+select anal
+set order to tag "2"
+
+O_NALOG
+select nalog
+set order to tag "1"
+go top
+
+
+start print cret
+
+? "--------------------------------------------"
+? "Lista naloga sa neispravnim datumima:"
+? "--------------------------------------------"
+? "       broj        datum    datum    datum   "
+? " R.br  naloga      naloga   suban.   anal.   "
+? "                            prva.st  prva.st "
+? "------ ---------- -------- -------- -------- "
+
+do while !EOF()
+
+	// init. variables
+	
+	__idfirma := field->idfirma
+	__brnal := field->brnal
+	__idvn := field->idvn
+
+	// datum naloga
+	__t_date := field->datnal
+
+
+	if __brnal == "0004" .and. __idvn == "09"
+		altd()
+	endif
+	
+	++ nNalCnt 
+
+	// provjeri suban.dbf
+
+	select suban
+	go top
+	seek __idfirma + __idvn + __brnal
+	
+	if !FOUND()
+	
+		select nalog
+		skip
+		loop
+		
+	endif
+	
+	dSubanDate := field->datdok
+
+	// provjeri prvo da li je razlicit datum naloga i subanalitike
+
+	if __t_date <> dSubanDate
+	
+		// uzmi datum sa prve stavke subanilitike
+		
+		cSubanKto := field->idkonto
+		nMonth := MONTH( field->datdok )
+		
+		do while !EOF() .and. field->idfirma == __idfirma ;
+				.and. field->idvn == __idvn ;
+				.and. field->brnal == __brnal ;
+				.and. field->idkonto == cSubanKto
+
+			if MONTH(field->datdok) == nMonth
+				dSubanDate := field->datdok
+			endif
+						
+			skip
+			
+		enddo
+		
+		
+		// provjeri analitiku
+
+		select anal
+		go top
+		seek __idfirma + __idvn + __brnal
+
+		if !FOUND()
+			select nalog 
+			skip
+			loop
+		endif
+		
+		if field->datnal <> dSubanDate
+		
+			++ nTotErrors
+			
+			? STR(nTotErrors, 5) + ") " + __idfirma + "-" + ;
+				__idvn + "-" + ALLTRIM(__brnal), __t_date, dSubanDate, field->datnal
+			
+		
+		endif
+		
+	
+	endif
+		
+	
+
+	select nalog
+	skip
+	
+enddo
+
+if nTotErrors == 0
+	?
+	? "   !!!!! Nema gresaka !!!!!"
+	?
+endif
+
+
+ff
+end print
+
+close all
+
+return
+
+
 
 
 

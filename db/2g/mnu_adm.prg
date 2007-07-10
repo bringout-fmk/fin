@@ -22,13 +22,18 @@ private opc:={}
 private opcexe:={}
 private Izbor:=1
 
-AADD(opc, "1. install db-a                         ")
+AADD(opc, "1. install db-a                            ")
 AADD(opcexe, {|| goModul:oDatabase:install()})
+
 AADD(opc, "2. security")
 AADD(opcexe, {|| MnuSecMain()})
 
+AADD(opc, "3. pregled datumskih gresaka u nalozima")
+AADD(opcexe, {|| daterr_rpt() })
+
+
 if is_fmkrules()
-	AADD(opc, "3. fmk pravila - rules ")
+	AADD(opc, "R. fmk pravila - rules ")
 	AADD(opcexe, {|| p_fmkrules(,,, aRuleCols, bRuleBlock ) })
 endif
 

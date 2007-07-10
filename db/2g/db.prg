@@ -589,6 +589,9 @@ if (nArea==-1 .or. nArea==(F_SUBAN))
 	CREATE_INDEX("6","IdKonto",KUMPATH+"SUBAN")
 	CREATE_INDEX("7","Idpartner",KUMPATH+"SUBAN")
 	CREATE_INDEX("8","Datdok",KUMPATH+"SUBAN")
+	
+	CREATE_INDEX("10","idFirma+IdVN+BrNal+idkonto+DTOS(datdok)",KUMPATH+"SUBAN")
+	
 	if gRJ=="D"
 		CREATE_INDEX("9","idfirma+idkonto+idrj+idpartner+DTOS(datdok)+brnal+rbr",KUMPATH+"SUBAN")
 	endif
@@ -644,6 +647,7 @@ if (nArea==-1 .or. nArea==(F_ANAL))
 	CREATE_INDEX("3","idFirma+dtos(DatNal)",KUMPATH+"ANAL")  //analiti
 	CREATE_INDEX("4","Idkonto",KUMPATH+"ANAL")  //analiti
 	CREATE_INDEX("5","DatNal",KUMPATH+"ANAL")  //analiti
+	
 endif
 
 

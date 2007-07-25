@@ -19,9 +19,11 @@ AADD(opc, "2. ld->fin ")
 AADD(opcexe, {|| LdFin()})
 AADD(opc, "3. import elba ")
 AADD(opcexe, {|| _imp_elba_txt() })
+AADD(opc, "4. export dbf (svi nalozi) ")
+AADD(opcexe, {|| st_sv_nal() })
 
 if IsPlanika() .or. IsPlNS()
-	AADD(opc, "4. pos->fin ")
+	AADD(opc, "6. pos->fin ")
 	AADD(opcexe, {|| PosFin()})
 endif
 

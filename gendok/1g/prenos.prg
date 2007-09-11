@@ -642,6 +642,7 @@ LOCAL aNiz:={}
  ///////////////////////////
 
  O_KONTO
+ O_PARTN
  O_SINT; SET ORDER TO 2
  O_ANAL; SET ORDER TO 2
  O_SUBAN
@@ -649,6 +650,7 @@ LOCAL aNiz:={}
  IF !FILE("TEMP77.DBF")
    aTmp:=DBSTRUCT()
    AADD(aTmp,{"KONTO2","C",7,0})
+   AADD(aTmp,{"PART2", "C",6,0})
    AADD(aTmp,{"NSLOG","N",10,0})
    DBCREATE2("TEMP77.DBF",aTmp)
  ENDIF
@@ -669,7 +671,10 @@ LOCAL aNiz:={}
 
  GO TOP
  DO WHILE !EOF()
-   Scatter(); _konto2:=_idkonto; _nslog:=RECNO()
+   Scatter()
+   _konto2:=_idkonto
+   _part2:=_idpartner
+   _nslog:=RECNO()
    SELECT TEMP77
    APPEND BLANK
    Gather()
@@ -687,8 +692,9 @@ ImeKol:={ ;
           {"R.br",          {|| RBr     }, "rbr" , {|| wrbr()}, {|| vrbr()} } ,;
           {"Konto",         {|| IdKonto }, "IdKonto", {|| .t.}, {|| P_Konto(@_IdKonto),.t. } } ,;
           {"Novi konto",    {|| konto2  }, "konto2", {|| .t.}, {|| P_Konto(@_konto2),.t. } } ,;
-          {"Partner",       {|| IdPartner }, "IdPartner" } ,;
-          {"Br.veze ",      {|| BrDok   }, "BrDok" } ,;
+          {"Partner",       {|| IdPartner }, "IdPartner", {|| .t.}, {|| P_Firma(@_idpartner), .t. } } ,;
+          {"Novi partner",  {|| part2  }, "part2", {|| .t.}, {|| P_Firma(@_part2),.t. } } ,;
+	  {"Br.veze ",      {|| BrDok   }, "BrDok" } ,;
           {"Datum",         {|| DatDok  }, "DatDok" } ,;
           {"D/P",           {|| D_P     }, "D_P" } ,;
           {ValDomaca(),     {|| transform(IznosBHD,FormPicL(gPicBHD,15)) }, "iznos "+ALLTRIM(ValDomaca()) } ,;
@@ -782,7 +788,9 @@ return DE_CONT
 function AzurPPK()
 *{
  LOCAL lIndik1:=.f., lIndik2:=.f., nZapisa:=0, nSlog:=0, cStavka:="   "
-  SELECT SUBAN; SET FILTER TO; GO TOP
+  SELECT SUBAN
+  SET FILTER TO
+  GO TOP
   SELECT TEMP77
   Postotak(1,RECCOUNT2(),"Azuriranje promjena na subanalitici",,,.t.)
   GO TOP
@@ -790,11 +798,19 @@ function AzurPPK()
 
     // azuriraj subanalitiku
   //////////////////////////////////////////////////
-    if TEMP77->idkonto!=TEMP77->konto2
+    if (TEMP77->idkonto != TEMP77->konto2)  
       SELECT SUBAN
       GO TEMP77->NSLOG
       Scatter()
-       _idkonto:=TEMP77->konto2
+        _idkonto:=TEMP77->konto2
+      Gather()
+    endif
+
+    if (TEMP77->idpartner != TEMP77->part2)  
+      SELECT SUBAN
+      GO TEMP77->NSLOG
+      Scatter()
+        _idpartner:=TEMP77->part2
       Gather()
     endif
 

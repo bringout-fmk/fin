@@ -262,7 +262,7 @@ cBrVeze := __nalbr
 cKonto := _g_konto( aItem[1], aItem[10] )
 cPartner := _g_partn( aItem[1], aItem[9], aItem[8] )
 
-if ALLTRIM(cKonto) == "3370"
+if ALLTRIM(cKonto) == "3470"
 	cPartner := PADR("VOLKS", 6)
 endif
 
@@ -349,7 +349,7 @@ return cRet
 // -----------------------------------------------
 static function _g_konto( cTrans, cOpis )
 local cKonto := "?????"
-local cKtoKup := PADR("2120", 7)
+local cKtoKup := PADR("2110", 7)
 
 // ako je uplata na nas racun onda je to KUPAC 2120
 if ALLTRIM(cTrans) == "+"
@@ -364,13 +364,13 @@ if ALLTRIM(cTrans) == "-"
 	do case
 		
 		case "PROVIZIJA" $ UPPER(cOpis)
-			cKonto := PADR("3370", 7)
+			cKonto := PADR("3470", 7)
 		
 		case "PDV" $ cOpis
 			cKonto := PADR("5609", 7)
 			
 		otherwise 
-			cKonto := PADR("5430", 7)
+			cKonto := PADR("5410", 7)
 	endcase
 
 endif

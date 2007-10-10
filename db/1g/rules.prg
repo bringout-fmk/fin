@@ -8,6 +8,7 @@ function cre_rule_cdx()
 
 CREATE_INDEX( "FINKNJ1", "MODUL_NAME+RULE_OBJ+STR(RULE_NO,5)", SIFPATH + "FMKRULES" )
 
+CREATE_INDEX( "ELBA1", "MODUL_NAME+RULE_OBJ+RULE_C3", SIFPATH + "FMKRULES" )
 return
 
 
@@ -400,6 +401,7 @@ endif
 return lRet
 
 
+
 // ---------------------------------------------------
 // da li konto kriterij zadovoljava ????
 // ---------------------------------------------------
@@ -537,6 +539,96 @@ enddo
 
 select (nTArea)
 return nReturn
+
+
+
+// ----------------------------------------
+// ELBA import rules
+// ----------------------------------------
+
+// vraca konto po uslovu rule_c3
+function r_get_konto( cCond, cPartner )
+local nTArea := SELECT()
+
+local cObj := "ELBA_IMPORT"
+local cMod := goModul:oDataBase:cName
+local cKonto := "XX"
+
+O_FMKRULES
+select fmkrules
+set order to tag "ELBA1"
+go top
+
+seek g_rulemod( cMod ) + g_ruleobj( cObj ) + g_rule_c3( cCond )
+
+if cPartner == nil
+	cPartner := ""
+endif
+
+do while !EOF() .and. field->modul_name == g_rulemod(cMod) ;
+		.and. field->rule_obj == g_ruleobj(cObj) ;
+		.and. field->rule_c3 == g_rule_c3( cCond )
+		
+	if EMPTY(cPartner)
+
+		if EMPTY(field->rule_c5)
+			cKonto := PADR( field->rule_c6, 7 )
+			exit
+		endif
+			
+	else
+		
+		if ALLTRIM(cPartner) == ALLTRIM( field->rule_c5 )
+			cKonto := PADR( field->rule_c6, 7 )
+			exit
+		endif
+			
+	endif
+	
+	skip
+enddo
+
+select (nTArea)
+
+return cKonto
+
+
+
+// vraca partnera po uslovu konta
+function r_get_kpartn( cKonto )
+local nTArea := SELECT()
+
+local cObj := "ELBA_IMPORT"
+local cMod := goModul:oDataBase:cName
+local cCond := "KTO_PARTN"
+local cPartn := ""
+
+O_FMKRULES
+select fmkrules
+set order to tag "ELBA1"
+go top
+
+seek g_rulemod( cMod ) + g_ruleobj( cObj ) + g_rule_c3( cCond )
+
+do while !EOF() .and. field->modul_name == g_rulemod(cMod) .and. ;
+		field->rule_obj == g_ruleobj(cObj) .and. ;
+		field->rule_c3 == g_rule_c3(cCond)
+	
+	if ALLTRIM(cKonto) == ALLTRIM( field->rule_c6 )
+		
+		cPartn := PADR( field->rule_c5, 6 )
+		
+		exit
+	
+	endif
+	
+	skip
+
+enddo
+
+select (nTArea)
+
+return cPartn
 
 
 

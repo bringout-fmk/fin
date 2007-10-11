@@ -827,11 +827,13 @@ return cPartner
 // -------------------------------------------
 static function _src_p_bank( cBank )
 local cPartner := ""
+local nTArea := SELECT()
 
 if EMPTY(cBank)
 	return cPartner
 endif
 
+O_PARTN
 O_SIFV
 select sifv
 set order to tag "NAZ"
@@ -840,12 +842,53 @@ go top
 
 seek PADR("PARTN", 8) + PADR("BANK", 4) + cBank
 
-if FOUND()
+do while !EOF() .and. field->id == PADR("PARTN", 8) ;
+		.and. field->oznaka == PADR("BANK", 4) ;
+		.and. ALLTRIM(field->naz) == cBank
+
+	cPartner := PADR( ALLTRIM( sifv->idsif), 6)
+	
+	// sada pogledaj da li taj partner postoji uopste
+	select partn
+	go top
+	seek cPartner
+
+	if FOUND() .and. field->id == cPartner
+		exit
+	endif
+	
+	cPartner := ""
+	
+	// idi dalje i vidi ima li koga...
+	select sifv
+	
+	skip
+enddo
+
+//if FOUND()
 	
 	// ako si nasao po banci to je to!
-	cPartner := ALLTRIM( sifv->idsif )
+//	cPartner := PADR( ALLTRIM( sifv->idsif ), 6 )
 	
+//endif
+
+/*
+// pronadji da li ovaj ID postoji u partnerima
+O_PARTN
+go top
+seek cPartner
+
+if FOUND() .and. field->id == cPartner
+	select (nTArea)
+	return cPartner
 endif
+
+// nisam nasao partnera, ponisti ga
+// postoji u sifv ali nema ga u partnerima
+cPartner := ""
+
+select (nTArea)
+*/
 
 return cPartner
 

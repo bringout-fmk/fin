@@ -519,6 +519,8 @@ return
 function ZagIOSS( cDinDem, lExpDbf )
 local nRbr
 local nCOpis:=0
+local cIdPar
+local cNazPar
 
 if lExpDbf == nil
 	lExpDbf := .f.
@@ -528,7 +530,10 @@ endif
 
 @ prow(), 58 SAY "OBRAZAC: I O S"
 @ prow()+1,1 SAY cIdFirma
-SELECT PARTN; HSEEK cIdFirma
+
+SELECT PARTN
+HSEEK cIdFirma
+
 @ prow(),5 SAY naz
 @ prow(),pcol()+1 SAY naz2
 @ prow()+1,5 SAY Mjesto
@@ -537,8 +542,12 @@ SELECT PARTN; HSEEK cIdFirma
 @ prow()+1,5 SAY ZiroR
 ?
 ?
-SELECT PARTN; HSEEK cIdPartner
-@ prow(),45 SAY cidpartner; ?? " -",naz
+
+SELECT PARTN
+HSEEK cIdPartner
+
+@ prow(),45 SAY cIdPartner
+?? " -",naz
 @ prow()+1,45 SAY mjesto
 @ prow()+1,45 SAY adresa
 @ prow()+1,45 SAY ptt
@@ -546,6 +555,11 @@ SELECT PARTN; HSEEK cIdPartner
 if !empty(telefon)
   @ prow()+1,45 SAY "Telefon: "+telefon
 endif
+
+// setuj id i naziv partnera
+cIdPar := id
+cNazPar := naz
+
 ?
 ?
 ?
@@ -599,6 +613,7 @@ M:="       ---- ---------- -------------------- -------- -------- --------------
 ? M
 nCol1:=62
 SELECT SUBAN
+
 if cKaoKartica=="D"
 	set order to 1
      	altd()
@@ -636,7 +651,7 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==
             
 	    		if cKaoKartica=="D"
                
-	       			if prow()>61+gPStranica
+				if prow()>61+gPStranica
 	       	    			FF
 	       			endif      
                
@@ -656,7 +671,7 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==
                			endif
 
 	       			if lExpDbf == .t.
-	       				fill_exp_tbl( idpartner, partn->naz, brdok, opis, ;
+	       				fill_exp_tbl( cIdPar, cNazPar, brdok, opis, ;
 	       					datdok, datval, iif(d_p=="1", iznosbhd, 0), ;
 						iif(d_p=="2", iznosbhd, 0) )
 	      			endif
@@ -671,7 +686,7 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==
 				nPDEM+=IznosDEM
             		ENDIF
             
-	    		cOtvSt:=" "
+	    		cOtvSt := " "
         
 		else  // zatvorene stavke
             
@@ -691,9 +706,10 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==
       
       		if cKaoKartica=="N"
        
-        		if prow()>61+gPStranica
+			if prow()>61+gPStranica
 				FF
 			endif
+			
 			// MS 29.11.01
         
 			@ prow()+1,8 SAY ++nRbr PICTURE '999'
@@ -706,15 +722,18 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==
       
       		endif
       
-      		if cDinDem=="1"
+      		if cDinDem == "1"
+		
           		if cPrelomljeno=="D"
-              			if nDBHD-nPBHD>0
+              			
+				if nDBHD-nPBHD>0
                 			nDBHD:=nDBHD-nPBHD
                 			nPBHD:=0
               			else
                 			nPBHD:=nPBHD-nDBHD
                 			nDBHD:=0
               			endif
+				
           		endif
           
 	  		if cKaoKartica=="N"
@@ -723,8 +742,7 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==
            			@ prow(),pcol()+1 SAY nPBhD PICTURE picBHD
           	
 				if lExpDbf == .t.
-	       				fill_exp_tbl( idpartner, partn->naz, cbrdok, copis, ;
-	       					ddatdok, ddatval, nDBHD,nPBHD )
+	       				fill_exp_tbl( cIdPar, cNazPar, cBrDok, cOpis, dDatdok, dDatval, nDBHD,nPBHD )
 	  			endif
 	            
 	 		endif
@@ -748,8 +766,7 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==
           		
 	  
 	  			if lExpDbf == .t.
-	       				fill_exp_tbl( idpartner, partn->naz, cbrdok, copis, ;
-	       					ddatdok, ddatval, nDDEM,nPDEM )
+	       				fill_exp_tbl( cIdPar, cNazPar, cBrdok, cOpis, dDatdok, dDatval, nDDEM,nPDEM )
 	  			endif
 	  
 	  		endif

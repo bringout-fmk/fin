@@ -774,6 +774,8 @@ return cPartnId
 static function _set_part_bank( cPartn, cBank )
 local cRead := ""
 local nTArea := SELECT()
+local cOldBank
+local cNewBank
 
 // nema banke, nista...
 if EMPTY(cBank)
@@ -784,18 +786,25 @@ endif
 O_SIFK
 O_SIFV
 
+cNewBank := ""
+
 // stara banka
-cOldBank := IzSifK("PARTN", "BANK", cPartn )
+cOldBank := ALLTRIM( IzSifK("PARTN", "BANK", cPartn ) )
 
-cNewBank := cOldBank 
+// dodaj staru banku ako postoji
+if !EMPTY( cOldBank )
+	cNewBank += cOldBank
+endif
 
+// dodaj i , posto je potrebno
 if RIGHT( cNewBank, 1 ) <> ","
 	cNewBank += ","
 endif
 
+// dodaj konaèno novu banku...
 cNewBank += cBank
 
-
+// sve to ubaci u SIFV
 USifK( "PARTN", "BANK", cPartn, cNewBank )
 
 select (nTArea)

@@ -627,14 +627,14 @@ local nSeek
 
 cTxt := KonvZnWin( cTxt )
 
-// pokusaj pronaci po matrici
 
 if ALLTRIM(cTrRN) $ "#PRK#NR#"
 	return ""
 endif
 
-
+// pokusaj pronaci po matrici
 nSeek := ASCAN(aPartArr, {|xVal| xVal[1] == cTxt })
+
 if nSeek <> 0
 
 	// nasao sam ga u matrici
@@ -643,10 +643,12 @@ if nSeek <> 0
 endif
 
 if ALLTRIM( cTrType ) == "+"
+	
 	// trazi partnera za uplate na zr
 	_g_part_upl( cTxt )
 
 elseif ALLTRIM( cTrType ) == "-"
+	
 	// trazi partnera za isplate sa zr
 	_g_part_isp( cTxt, cTrRN )
 endif
@@ -666,10 +668,14 @@ local nSeek
 
 // uzmi banku i opis ako postoji "/"
 if LEFT(cTxt, 1) == "/"
+	
 	cDesc := ALLTRIM( SUBSTR( cTxt, 18, LEN(cTxt) ) )
 	cBank := ALLTRIM( SUBSTR( cTxt, 2, 16 ) )
+
 else
+
 	cDesc := ALLTRIM( cTxt )
+	
 endif
 
 cDesc := KonvZnWin( cDesc )
@@ -778,7 +784,19 @@ endif
 O_SIFK
 O_SIFV
 
-USifK( "PARTN", "BANK", cPartn, cBank )
+// stara banka
+cOldBank := IzSifK("PARTN", "BANK", cPartn )
+
+cNewBank := cOldBank 
+
+if RIGHT( cNewBank, 1 ) <> ","
+	cNewBank += ","
+endif
+
+cNewBank += cBank
+
+
+USifK( "PARTN", "BANK", cPartn, cNewBank )
 
 select (nTArea)
 
@@ -801,13 +819,17 @@ endif
 aTemp := TokToNiz( cDesc, " ")
 
 if LEN(aTemp) > 1
+	
 	cTemp := ALLTRIM( aTemp[1] )
 
 	if LEN( cTemp ) < 4
 		cTemp += " " + ALLTRIM( aTemp[2] )
 	endif
+
 else
+	
 	cTemp := ALLTRIM(aTemp[1])
+
 endif
 
 O_PARTN
@@ -840,21 +862,26 @@ set order to tag "NAZ"
 
 go top
 
-seek PADR("PARTN", 8) + PADR("BANK", 4) + cBank
+seek PADR("PARTN", 8) + PADR("BANK", 4) 
 
 do while !EOF() .and. field->id == PADR("PARTN", 8) ;
-		.and. field->oznaka == PADR("BANK", 4) ;
-		.and. ALLTRIM(field->naz) == cBank
+		.and. field->oznaka == PADR("BANK", 4)
 
-	cPartner := PADR( ALLTRIM( sifv->idsif), 6)
 	
-	// sada pogledaj da li taj partner postoji uopste
-	select partn
-	go top
-	seek cPartner
+	// ako trazena banka postoji vec u bankama...
+	if ( cBank $ field->naz )
+	
+	  cPartner := PADR( ALLTRIM( sifv->idsif ), 6)
+	
+	  // sada pogledaj da li taj partner postoji uopste
+	  select partn
+ 	  go top
+	  seek cPartner
 
-	if FOUND() .and. field->id == cPartner
+	  if FOUND() .and. field->id == cPartner
 		exit
+	  endif
+	
 	endif
 	
 	cPartner := ""
@@ -863,32 +890,8 @@ do while !EOF() .and. field->id == PADR("PARTN", 8) ;
 	select sifv
 	
 	skip
+
 enddo
-
-//if FOUND()
-	
-	// ako si nasao po banci to je to!
-//	cPartner := PADR( ALLTRIM( sifv->idsif ), 6 )
-	
-//endif
-
-/*
-// pronadji da li ovaj ID postoji u partnerima
-O_PARTN
-go top
-seek cPartner
-
-if FOUND() .and. field->id == cPartner
-	select (nTArea)
-	return cPartner
-endif
-
-// nisam nasao partnera, ponisti ga
-// postoji u sifv ali nema ga u partnerima
-cPartner := ""
-
-select (nTArea)
-*/
 
 return cPartner
 

@@ -148,6 +148,25 @@ Povrat(.t.)
 return
 
 
+// ---------------------------------------------
+// vraca unos granicnog datuma za report
+// ---------------------------------------------
+static function _g_gr_date()
+local dDate := DATE()
+
+Box(,1, 45)
+	@ m_x + 1, m_y + 2 SAY "Unesi granicni datum" GET dDate
+	read
+BoxC()
+
+if LASTKEY() == K_ESC
+	return nil
+endif
+
+return dDate
+
+
+
 // ----------------------------------------------------------------
 // report sa greskama sa datumom na nalozima izazvanim opcijom
 // "Unos datuma naloga = 'D'"
@@ -170,6 +189,12 @@ local nMonth
 
 local nSubanKto
 
+local nGrDate
+
+local nGrMonth
+
+local nGrSaldo := 0
+
 close all
 
 O_SUBAN
@@ -186,6 +211,12 @@ select nalog
 set order to tag "1"
 go top
 
+// granicni datum
+dGrDate := nil
+
+if pitanje(,"Gledati granicni datum ?", "N") == "D"
+	dGrDate := _g_gr_date()
+endif
 
 start print cret
 
@@ -208,11 +239,6 @@ do while !EOF()
 	// datum naloga
 	__t_date := field->datnal
 
-
-	if __brnal == "0004" .and. __idvn == "09"
-		altd()
-	endif
-	
 	++ nNalCnt 
 
 	// provjeri suban.dbf
@@ -231,7 +257,7 @@ do while !EOF()
 	
 	dSubanDate := field->datdok
 
-	// provjeri prvo da li je razlicit datum naloga i subanalitike
+	// 1. provjeri prvo da li je razlicit datum naloga i subanalitike
 
 	if __t_date <> dSubanDate
 	
@@ -280,6 +306,69 @@ do while !EOF()
 	endif
 		
 	
+	// 2. provjeri granicni datum
+
+	if dGrDate <> nil
+		
+		select suban
+		go top
+		seek __idfirma + __idvn + __brnal
+		
+		lManji := .f.
+		lVeci := .f.
+
+
+		// mjesec granicnog datuma
+		nGrMonth := MONTH( dGrDate )
+		
+		// to znaci da nalog mora da sadrzi samo taj mjesec ili manji
+		
+		// prodji po nalogu....
+		do while !EOF() .and. suban->(idfirma+idvn+brnal) == ;
+			(__idfirma + __idvn + __brnal)
+
+			// ako u subanalitici ima manji datum od 
+			// granicnog datuma
+			if suban->datdok <= dGrDate
+				
+				lManji := .t.
+			
+				// saldiraj ga
+				if suban->d_p == "1"
+					nGrSaldo += suban->iznosbhd
+				else
+					nGrSaldo -= suban->iznosbhd
+				endif
+			
+			endif
+
+			// ako u subanalitici ima veci datum od
+			// granicnog datuma i iskace iz mjeseca
+			if suban->datdok > dGrDate .and. ;
+				MONTH(suban->datdok) > nGrMonth
+				
+				lVeci := .t.
+			endif
+			
+			skip
+			
+		enddo
+		
+		// ako unutar jednog naloga ima i veci i manji datum od
+		// granicnog datuma pretpostavljamo da je to error
+		
+		if lManji == .t. .and. lVeci == .t.
+				
+			++ nTotErrors
+			
+			? STR(nTotErrors, 5) + ") " + __idfirma + "-" + ;
+				__idvn + "-" + ALLTRIM(__brnal), ;
+				nalog->datnal, "ERR: granicni datum"
+	
+		endif
+		
+	endif
+	
 
 	select nalog
 	skip
@@ -292,6 +381,13 @@ if nTotErrors == 0
 	?
 endif
 
+if dGrDate <> nil .and. nGrSaldo <> 0
+
+	?
+	? " Razlika utvrdjena po granicnom datumu =", STR( nGrSaldo, 12, 2) 
+	?
+
+endif
 
 ff
 end print

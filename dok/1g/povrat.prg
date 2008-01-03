@@ -1,37 +1,11 @@
 #include "\dev\fmk\fin\fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
-
-/*! \file fmk/fin/dok/1g/povrat.prg
- *  \brief Povrat dokumenta u pripremu
- */
-
-/*! \fn Povrat(lStorno)
- *  \brief Povrat dokumenta u pripremu
- *  \param lStorno - .t.-stornira nalog, .f.-povlaci ga u pripremu
- */
  
 function Povrat(lStorno)
-*{
 local nRec
 
 if lStorno==NIL 
   lStorno:=.f.
-endif
-
-cSecur:=SecurR(KLevel,"Povrat")
-if ImaSlovo("X",cSecur)
-   MsgBeep("Opcija nedostupna !")
-   closeret
-endif
-cSecur:=SecurR(KLevel,"SGLEDAJ")
-if ImaSlovo("D",cSecur)
-   MsgBeep("Opcija nedostupna !")
-   closeret
 endif
 
 if Logirati(goModul:oDataBase:cName, "DOK", "POVRAT" )
@@ -57,11 +31,11 @@ cBrNal:=cBrNal2:=space(4)
 Box("",IF(lStorno,3,1),IF(lStorno,65,35))
  @ m_x+1,m_y+2 SAY "Nalog:"
  if gNW=="D"
-  @ m_x+1,col()+1 SAY cIdFirma
+  @ m_x+1,col()+1 SAY cIdFirma PICT "@!"
  else
-  @ m_x+1,col()+1 GET cIdFirma
+  @ m_x+1,col()+1 GET cIdFirma PICT "@!"
  endif
- @ m_x+1,col()+1 SAY "-" GET cIdVN
+ @ m_x+1,col()+1 SAY "-" GET cIdVN PICT "@!"
  @ m_x+1,col()+1 SAY "-" GET cBrNal
  IF lStorno
    @ m_x+3,m_y+2 SAY "Broj novog naloga (naloga storna):"
@@ -70,7 +44,7 @@ Box("",IF(lStorno,3,1),IF(lStorno,65,35))
    else
     @ m_x+3,col()+1 GET cIdFirma2
    endif
-   @ m_x+3,col()+1 SAY "-" GET cIdVN2
+   @ m_x+3,col()+1 SAY "-" GET cIdVN2 PICT "@!"
    @ m_x+3,col()+1 SAY "-" GET cBrNal2
  ENDIF
  read; ESC_BCR

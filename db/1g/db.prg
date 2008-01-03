@@ -81,9 +81,256 @@ endif
 cPath:=cPath+cIme
 use  (cPath)
 return NIL
-*}
 
 
+// -----------------------------------------------------------------
+// provjerava da li u pripremi postoji vise razlicitih dokumenata
+// -----------------------------------------------------------------
+static function _is_vise_dok()
+local lRet := .f.
+local nTRec := RECNO()
+local cBrNal 
+local cTmpNal := "XXXX"
+
+select pripr
+go top
+
+cTmpNal := field->brnal
+
+do while !EOF() 
+
+	cBrNal := field->brnal
+	
+	if  cBrNal == cTmpNal 
+		
+		
+		cTmpNal := cBrNal
+		
+		skip
+		loop
+	
+	else
+		lRet := .t.
+		exit
+	endif
+	
+enddo
+
+return lRet
+
+
+// ------------------------------------------------------------
+// provjeri duple stavke u pripremi za vise dokumenata
+// ------------------------------------------------------------
+static function prov_duple_stavke() 
+local cSeekNal
+local lNalExist:=.f.
+
+select pripr
+go top
+
+// provjeri duple dokumente
+do while !EOF()
+	
+	cSeekNal := pripr->(idfirma + idvn + brnal)
+	
+	if dupli_nalog(cSeekNal)
+		lNalExist := .t.
+		exit
+	endif
+	
+	select pripr
+	skip
+	
+enddo
+
+// postoje dokumenti dupli
+if lNalExist
+	MsgBeep("U pripremi su se pojavili dupli nalozi !!!")
+	if Pitanje(,"Pobrisati duple naloge (D/N)?", "D")=="N"
+		MsgBeep("Dupli nalozi ostavljeni u tabeli pripreme!#Prekidam operaciju azuriranja!")
+		return 1
+	else
+		Box(,1,60)
+		
+			cKumPripr := "P"
+			@ m_x+1, m_y+2 SAY "Zelite brisati stavke iz kumulativa ili pripreme (K/P)" GET cKumPripr VALID !Empty(cKumPripr) .or. cKumPripr $ "KP" PICT "@!"
+			read
+		BoxC()
+		
+		if cKumPripr == "P"
+			// brisi pripremu
+			return prip_brisi_duple()
+		else
+			// brisi kumulativ
+			return kum_brisi_duple()
+		endif
+	endif
+endif
+
+return 0
+
+
+// ------------------------------------------------------------
+// brisi stavke iz pripreme koje se vec nalaze u kumulativu
+// ------------------------------------------------------------
+static function prip_brisi_duple()
+local cSeek
+select pripr
+go top
+
+do while !EOF()
+
+	cSeek := pripr->(idfirma + idvn + brnal)
+	
+	if dupli_nalog( cSeek )
+		// pobrisi stavku
+		select pripr
+		delete
+	endif
+	
+	select pripr
+	skip
+enddo
+
+return 0
+
+
+// -------------------------------------------------------------
+// brisi stavke iz kumulativa koje se vec nalaze u pripremi
+// -------------------------------------------------------------
+static function kum_brisi_duple()
+local cSeek
+select pripr
+go top
+
+cKontrola := "XXX"
+
+do while !EOF()
+	
+	cSeek := pripr->(idfirma + idvn + brnal)
+	
+	if cSeek == cKontrola
+		skip
+		loop
+	endif
+	
+	if dupli_nalog( cSeek )
+		
+		MsgO("Brisem stavke iz kumulativa ... sacekajte trenutak!")
+		
+		// brisi nalog
+		select nalog
+		
+		if !flock()
+			msg("Datoteka je zauzeta ",3)
+			closeret
+		endif
+	
+		set order to tag "1"
+		go top
+		seek cSeek
+		
+		if Found()
+			
+			do while !eof() .and. nalog->(idfirma+idvn+brnal) == cSeek
+      				skip 1
+				nRec:=RecNo()
+				skip -1
+      				DbDelete2()
+      				go nRec
+    			enddo
+    		endif
+		
+		// brisi iz suban
+		select suban
+		if !flock()
+			msg("Datoteka je zauzeta ",3)
+			closeret
+		endif
+	
+		set order to tag "4"
+		go top
+		seek cSeek
+		if Found()
+			do while !EOF() .and. suban->(idfirma + idvn + brnal) == cSeek
+				
+				skip 1
+				nRec:=RecNo()
+				skip -1
+				DbDelete2()
+				go nRec
+			enddo
+		endif
+	
+	
+		// brisi iz sint
+		select sint
+		if !flock()
+			msg("Datoteka je zauzeta ",3)
+			closeret
+		endif
+	
+		set order to tag "2"
+		go top
+		seek cSeek
+		if Found()
+			do while !EOF() .and. sint->(idfirma + idvn + brnal) == cSeek
+				
+				skip 1
+				nRec:=RecNo()
+				skip -1
+				DbDelete2()
+				go nRec
+			enddo
+		endif
+	
+		// brisi iz anal
+		select anal
+		if !flock()
+			msg("Datoteka je zauzeta ",3)
+			closeret
+		endif
+	
+		set order to tag "2"
+		go top
+		seek cSeek
+		if Found()
+			do while !EOF() .and. anal->(idfirma + idvn + brnal) == cSeek
+				
+				skip 1
+				nRec:=RecNo()
+				skip -1
+				DbDelete2()
+				go nRec
+			enddo
+		endif
+	
+	
+		MsgC()
+	endif
+	
+	cKontrola := cSeek
+	
+	select pripr
+	skip
+enddo
+
+return 0
+
+
+// ------------------------------------------
+// provjerava da li je dokument dupli
+// ------------------------------------------
+static function dupli_nalog(cSeek)
+select nalog
+set order to tag "1"
+go top
+seek cSeek
+if Found()
+	return .t.
+endif
+return .f.
 
 
 
@@ -93,8 +340,8 @@ return NIL
  */
  
 function Azur(lAuto)
-*{
 local bErrHan, nC
+local nTArea := SELECT()
 
 if Logirati(goModul:oDataBase:cName,"DOK","AZUR")
 	lLogAzur:=.t.
@@ -108,6 +355,31 @@ endif
 
 if !lAuto .and. Pitanje("pAz","Sigurno zelite izvrsiti azuriranje (D/N)?","N")=="N"
 	return
+endif
+
+O_KONTO
+O_PARTN
+O_PRIPR
+O_SUBAN
+O_ANAL
+O_SINT
+O_NALOG
+
+O_PSUBAN
+O_PANAL
+O_PSINT
+O_PNALOG
+
+// provjeri da li se u pripremi nalazi vise dokumenata... razlicitih
+if _is_vise_dok() == .t.
+	
+	// provjeri za duple stavke prilikom azuriranja...
+	if prov_duple_stavke() == 1 
+		return
+	endif
+	
+	// nafiluj sve potrebne tabele
+	stnal( .t. )
 endif
 
 O_KONTO
@@ -137,6 +409,7 @@ select PSINT
 if reccount2()==0
   fAzur:=.f.
 endif
+
 
 if !fAzur
   Beep(3)

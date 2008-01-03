@@ -1,38 +1,11 @@
 #include "\dev\fmk\fin\fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/razoff/1g/findisk.prg,v $
- * $Author: mirsad $ 
- * $Revision: 1.4 $
- * $Log: findisk.prg,v $
- * Revision 1.4  2003/05/20 09:34:16  mirsad
- * Pri prijemu sa disketa (FIN<->FIN) vise ne ispada ako se osvjezavaju partneri
- *
- * Revision 1.3  2003/04/04 08:38:38  mirsad
- * U opciji prenosa FIN<->FIN (diskete,modem) uslov za obuhvatanje stavki po datumu vise se ne odnosi na datume stavki vec na datume naloga
- *
- * Revision 1.2  2002/06/20 10:11:00  sasa
- * no message
- *
- *
- */
-
-
-/*! \file fmk/fin/razoff/1g/findisk.prg
- *  \brief Prenos dokumenata FIN<->FIN
- */
- 
-
 
 /*! \fn FinDisk()
  *  \brief Menij prenosa fin<->fin (diskete, modem)
  */
  
 function FinDisk()
-*{
 private Izbor:=1
 private opc:={}
 private opcexe:={}
@@ -45,7 +18,6 @@ AADD(opc,"3. podesavanje prenosa i prijema")
 AADD(opcexe,{|| PPPDisk()})
 Menu_SC("pfin")
 return .f.
-*}
 
 
 /*! \fn PrDisk()
@@ -53,7 +25,6 @@ return .f.
  */
  
 function PrDisk()
-*{
 local nRec
 PRIVATE cLokPren    := "A:\"
 PRIVATE cFZaPredaju := "AFIN"
@@ -64,11 +35,6 @@ PRIVATE cKonvFirma  := ""
 PRIVATE cKonvBrDok  := ""
 
 PPPDisk(.t.)
-
-//if Klevel<>"0"
-//    Beep(2); Msg("Nemate pristupa ovoj opciji !",4)
-//    closeret
-//endif
 
 if pitanje(,"Zelite li izvrsiti prenos fin.naloga subanalitike na diskete ?","N")=="N"
   closeret
@@ -90,23 +56,22 @@ if Pitanje(,"Nulirati datoteke prenosa prije nastavka ?","D")=="D"
   use
   create (PRIVPATH+"_partn") from (PRIVPATH+"struct")
 
-  if Izfmkini('Svi','Sifk','N')=="D"
-    O_SIFK
-    copy structure extended to (PRIVPATH+"struct")
-    use
-    create (PRIVPATH+"_SIFK") from (PRIVPATH+"struct")
+  O_SIFK
+  copy structure extended to (PRIVPATH+"struct")
+  use
+  create (PRIVPATH+"_SIFK") from (PRIVPATH+"struct")
 
-    O_SIFV
-    copy structure extended to (PRIVPATH+"struct")
+  O_SIFV
+  copy structure extended to (PRIVPATH+"struct")
 
-    use
-    create (PRIVPATH+"_SIFV") from (PRIVPATH+"struct")
+  use
+  create (PRIVPATH+"_SIFV") from (PRIVPATH+"struct")
 
-  endif
 
   close all
 
-  O_PSUBAN  // otvara se bez indeksa
+  O_PSUBAN  
+  // otvara se bez indeksa
   O__KONTO
   O__PARTN
 
@@ -117,10 +82,7 @@ if Pitanje(,"Nulirati datoteke prenosa prije nastavka ?","D")=="D"
   close all
 endif
 
-fSifk:=.f.
-if Izfmkini('Svi','Sifk','N')=="D"
-   fSifk:=.t.
-endif
+fSifk:=.t.
 
 O_PSUBAN
 O_SUBAN
@@ -226,15 +188,15 @@ close all
 
 O_KONTO
 O_PARTN
-
-if fsifk
-   O_SIFK;  O_SIFV
-endif
+O_SIFK
+O_SIFV
 
 O__KONTO
+
 INDEX ON id TO "_KONTTMP"  // index radi trazenja
 
 O__PARTN
+
 INDEX ON id TO "_PARTTMP"  // index radi trazenja
 
 select _konto
@@ -242,7 +204,8 @@ select _konto
 
 MsgO("Osvjezavam datoteke _Konto i _Partn ... ")
 O_PSUBAN
-select PSUBAN; go top
+select PSUBAN
+go top
 // uzmi samo konta koja su se pojavila u dokumentima !!!!
 
 altd()
@@ -295,8 +258,6 @@ close all
 
 FILECOPY( PRIVPATH+"OUTF.TXT" , PRIVPATH+"_FIN.TXT" )
 
-altd()
-
 aFajlovi:={ PRIVPATH+"PSUBAN.*",;
             PRIVPATH+"_KONTO.*",;
             PRIVPATH+"_PARTN.*",;
@@ -304,7 +265,6 @@ aFajlovi:={ PRIVPATH+"PSUBAN.*",;
             PRIVPATH+"_SIF?.*"}
 Zipuj(aFajlovi,cFZaPredaju,cLokPren)
 return
-*}
 
 
 
@@ -326,20 +286,8 @@ PRIVATE cKonvBrDok  := ""
 
 PPPDisk(.t.)
 
-fSifk:=.f.
-if Izfmkini('Svi','Sifk','N')=="D"
-   fSifk:=.t.
-endif
+fSifk:=.t.
 
-if Klevel<>"0"
-    Beep(2)
-    Msg("Nemate pristupa ovoj opciji !",4)
-    closeret
-endif
-
-// if Pitanje(,"Izvrsiti prenos sa disketa ?","N")=="N"
-//   closeret
-// endif
 
 IF !Unzipuj(cFZaPrijem,,cLokPren)   // raspakuje u PRIVPATH
   CLOSERET
@@ -392,13 +340,14 @@ cdn2:=Pitanje(,"KONTA - ZAMIJENITI postojece sifre ?","D")
 if cdn1=="D"
 close all
 O_KONTO
-if fsifk
-	O_SIFK
-	O_SIFV
-endif
+O_SIFK
+O_SIFV
 O__KONTO
-set order to 0; go top
+
+set order to 0
+go top
 Box(,1,60)
+
 // prolazimo kroz _KONTO
 do while !eof()
   @ m_x+1,m_y+2 SAY id; ?? "-",naz
@@ -409,15 +358,11 @@ do while !eof()
   if !found()
     append blank
     gather()
-    if fSifk
-       SifKOsv(PRIVPATH+"_SIFK",PRIVPATH+"_SIFV","KONTO",_id)
-    endif
+    SifKOsv(PRIVPATH+"_SIFK",PRIVPATH+"_SIFV","KONTO",_id)
   else
     if cdn2=="D"  // zamijeniti postojece sifre
      gather()
-     if fsifk
-        SifKOsv(PRIVPATH+"_SIFK",PRIVPATH+"_SIFV","KONTO",_id)
-     endif
+     SifKOsv(PRIVPATH+"_SIFK",PRIVPATH+"_SIFV","KONTO",_id)
     endif
   endif
   select _KONTO
@@ -429,10 +374,8 @@ endif // cnd1
 if pitanje(,"PARTN - dodati nepostojece sifre ?","D")=="D"
 	close all
 	O_PARTN
-	if fsifk
-		O_SIFK
-		O_SIFV
-	endif
+	O_SIFK
+	O_SIFV
 	O__PARTN
 	set order to 0
 	go top
@@ -537,7 +480,7 @@ LOCAL GetList:={}
   ENDIF
   USE
 RETURN
-*}
+
 
 
 

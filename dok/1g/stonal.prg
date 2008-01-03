@@ -1,55 +1,8 @@
 #include "\dev\fmk\fin\fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/dok/1g/stonal.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.8 $
- * $Log: stonal.prg,v $
- * Revision 1.8  2004/01/13 19:07:55  sasavranic
- * appsrv konverzija
- *
- * Revision 1.7  2003/04/12 06:45:10  mirsad
- * ispravka: gBrojac sada je PUBLIC varijabla
- *
- * Revision 1.6  2003/04/12 06:42:43  mirsad
- * ispravka: gBrojac sada je PUBLIC varijabla
- *
- * Revision 1.5  2002/11/18 04:27:38  mirsad
- * dorade-security
- *
- * Revision 1.4  2002/07/04 19:04:08  ernad
- *
- *
- * ciscenje sifrarnik fakt
- *
- * Revision 1.3  2002/06/19 13:46:23  sasa
- * no message
- *
- * Revision 1.2  2002/06/17 09:22:39  ernad
- * headeri, podesavanje Makefile
- *
- *
- */
-
-/*! \file fmk/fin/dok/1g/stonal.prg
- *  \brief Stampa proknjizenih naloga - stampa
- */
-
-/*! \fn MnuStampaAzurNaloga()
- *  \brief Menij za stampu proknjizenih naloga
- */
  
 function MnuStampaAzurNaloga()
-*{
 local izb:=1
-cSecur:=SecurR(KLevel,"StAzur")
-if ImaSlovo("X",cSecur)
-    MsgBeep("Opcija nedostupna !")
-    return
-endif
 private opc[2]
 opc[1]:="1. subanalitika        "
 opc[2]:="2. analitika/sintetika"
@@ -119,7 +72,7 @@ Box("",2,35)
  else
   @ m_x+1,col()+1 GET cIdFirma
  endif
- @ m_x+1,col()+1 SAY "-" GET cIdVN
+ @ m_x+1,col()+1 SAY "-" GET cIdVN PICT "@!"
  @ m_x+1,col()+1 SAY "-" GET cBrNal
  if gDatNal=="D"
   @ m_x+2,m_y+2 SAY "Datum naloga:" GET dDatNal
@@ -187,7 +140,7 @@ if fkum  // stampa starog naloga - naloga iz kumulativa - datoteka anal
   else
     @ m_x+1,col()+1 GET cIdFirma
   endif
-  @ m_x+1,col()+1 SAY "-" GET cIdVN
+  @ m_x+1,col()+1 SAY "-" GET cIdVN PICT "@!"
   @ m_x+1,col()+1 SAY "-" GET cBrNal
   read; ESC_BCR
  BoxC()

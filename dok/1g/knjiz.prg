@@ -797,7 +797,6 @@ function StNal(lAuto)
 *{
 private dDatNal:=date()
 StAnalNal(@lAuto)
-//StSintNal()
 SintStav(lAuto)
 return
 *}
@@ -838,23 +837,26 @@ go top
 EOF CRET
 
 fizgenerisi:=.f.
-if lAuto .or. reccount2()>9999  // keli  ze-do
-   if Pitanje(,"Staviti na stanje bez pojed stampe ?","N")=="D"
-     fizgenerisi:=.t.
-   else
-     lAuto:=.f.
-   endif
+
+if lAuto .or. field->idvn == "00" 
+	if Pitanje(,"Staviti na stanje bez pojed stampe ?","N")=="D"
+     		fizgenerisi:=.t.
+   	else
+     		lAuto:=.f.
+   	endif
 endif
 
 if lAuto
-  Box(,3,75)
-   @ m_x+0, m_y+2 SAY "PROCES FORMIRANJA SINTETIKE I ANALITIKE"
+	Box(,3,75)
+   	@ m_x+0, m_y+2 SAY "PROCES FORMIRANJA SINTETIKE I ANALITIKE"
 endif
 
 DO WHILE !EOF()
-   cIdFirma:=IdFirma; cIdVN:=IdVN; cBrNal:=BrNal
-   if !fizgenerisi
-     Box("",2,50)
+	cIdFirma:=IdFirma
+	cIdVN:=IdVN
+	cBrNal:=BrNal
+   	if !fizgenerisi
+     	Box("",2,50)
        set cursor on
        @ m_x+1,m_y+2 SAY "Nalog broj:"
        if gNW=="D"

@@ -463,7 +463,7 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner=I
    SKIP
 ENDDO
 
-FF
+//FF
 end print
 closeret
 return
@@ -843,7 +843,7 @@ endif
    ?
 
 //ENDIF
-if prow()>60+gPStranica; FF; endif
+if prow()>61+gPStranica; FF; endif
 ?
 ?
 F12CPI
@@ -877,7 +877,6 @@ if prow()>52+gPStranica; FF; endif
 ?
 ?
 @ prow(),0 SAY "_________________________________________________________________________"
-?
 ?
 ?
 @ prow(),48 SAY "DU¦NIK:"

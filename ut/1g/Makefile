@@ -1,10 +1,10 @@
 VERZIJA=CDX
 MODUL=fin_1ut
 
-SRCDOSROOT=c:\\dev\\fmk\\fin\\ut\\1g\\
+SRCDOSROOT=$(BASEDOS)\\fmk\\fin\\ut\\1g\\
 
 PRGS=ut.prg
 CS=
 ASMS=
 
-include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper
+include ../../../fmk_lib/Makefile_clipper

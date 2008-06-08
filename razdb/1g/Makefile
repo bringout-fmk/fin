@@ -1,10 +1,12 @@
 VERZIJA=CDX
 MODUL=fin_1rdb
 
-SRCDOSROOT=c:\\dev\\fmk\\fin\\razdb\\1g\\
+
+SRCDOSROOT=$(BASEDOS)\\fmk\\fin\\razdb\\1g\\
+
 
 PRGS=ldfin.prg faktfin.prg mnu_raz.prg pos_fin.prg blag_fin.prg elba.prg
 CS=
 ASMS=
 
-include $(SC_BUILD_HOME_DIR)/sclib/Makefile_clipper
+include ../../../fmk_lib/Makefile_clipper

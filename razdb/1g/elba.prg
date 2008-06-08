@@ -1,4 +1,4 @@
-#include "\dev\fmk\fin\fin.ch"
+#include "fin.ch"
 
 // vars
 static __delimit

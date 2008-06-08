@@ -1,6 +1,6 @@
-#include "\dev\fmk\fin\fin.ch"
-#include "\dev\fmk\fin\razdb\1g\razdb.ch"
+#include "fin.ch"
 
+#define F_T_PROMVP		245
 
 /*! \fn GetPrVPParams(cProdId, dDatOd, dDatDo, dDatDok, cTipNal, cShema)
  *  \brief Setuj parametre prenosa

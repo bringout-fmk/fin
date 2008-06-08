@@ -1,4 +1,4 @@
-#include "\dev\fmk\fin\fin.ch"
+#include "fin.ch"
 
 
 /*! \file fmk/fin/specif/ramaglas/rpt/1g/rpt_strn.prg

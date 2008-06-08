@@ -1,4 +1,4 @@
-#include "\dev\fmk\fin\fin.ch"
+#include "fin.ch"
 #include "\dev\fmk\fin\specif\tigra\1g\fin_tgr.ch"
 
 function Rpt_StanjePartnera()

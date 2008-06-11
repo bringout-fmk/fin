@@ -4,8 +4,8 @@ MODUL=fin_1rpt
 
 SRCDOSROOT=$(BASEDOS)\\fmk\\fin\\rpt\\1g\\
 
-PRGS=bilans.prg kartas.prg kartica.prg mnu_rpt.prg ostalo.prg proizv.prg specif.prg mnu_spec.prg rpt_dug.prg blag_di.prg
-# spec_ut.prg lst_nal.prg
+PRGS=bilans.prg kartas.prg kartica.prg mnu_rpt.prg ostalo.prg proizv.prg specif.prg mnu_spec.prg rpt_dug.prg blag_di.prg spec_ut.prg lst_nal.prg
+
 CS=
 ASMS=
 

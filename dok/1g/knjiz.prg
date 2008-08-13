@@ -1,11 +1,5 @@
 #include "fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                          Copyright Sigma-com software 2000-2006 
- * ----------------------------------------------------------------
- *
- */
 
 #define DABLAGAS lBlagAsis.and._IDVN==cBlagIDVN
 
@@ -277,7 +271,7 @@ if fNovi .and. (_idfirma<>idfirma .or. _idvn<>idvn)
 	if gBrojac=="1"
      		select NALOG
 		set order to 1
-     		seek _idfirma+_idvn+"X"
+     		seek _idfirma+_idvn+chr(254)
 		skip -1
      		if idfirma+idvn==_idfirma+_idvn
        			_brnal:=NovaSifra(brnal)
@@ -287,7 +281,7 @@ if fNovi .and. (_idfirma<>idfirma .or. _idvn<>idvn)
     	else
      		select NALOG
      		set order to 2
-     		seek _idfirma+"X"
+     		seek _idfirma+chr(254)
      		skip -1
      		brnal:=padl(alltrim(str(val(brnal)+1)),4,"0")
     	endif
@@ -1997,7 +1991,9 @@ function IzvodBanke()
 
     if gBrojac=="1"
      select NALOG; set order to 1
-     seek gfirma+cidvn+"X"; skip -1
+     seek gfirma+cidvn+chr(254)
+     skip -1
+     
      if idfirma+idvn==gfirma+cidvn
        cbrnal:=NovaSifra(brnal)
      else
@@ -2005,7 +2001,9 @@ function IzvodBanke()
      endif
     else
      select NALOG; set order to 2
-     seek gfirma+"X"; skip -1; cbrnal:=padl(alltrim(str(val(brnal)+1)),4,"0")
+     seek gfirma+chr(254) 
+     skip -1
+     cBrnal:=padl(alltrim(str(val(brnal)+1)),4,"0")
     endif
 
 

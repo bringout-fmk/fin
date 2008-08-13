@@ -1,11 +1,5 @@
 #include "fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
 
 /*! \file fmk/fin/razdb/1g/faktfin.prg
  *  \brief Prenos podataka FAKT->FIN
@@ -336,7 +330,7 @@ cIdVN:=IdVN   // uzmi vrstu naloga koja ce se uzeti u odnosu na prvu kalkulaciju
 
 if lAFin
 	select nalog
-	seek finmat->idfirma+cidvn+"X"
+	seek finmat->idfirma+cidvn+chr(254)
 	skip -1
 if idvn<>cidvn
      cBrnalF:="0000"

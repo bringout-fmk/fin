@@ -19,7 +19,6 @@ if fNovi
 else
 	nTot := 1
 endif
-altd()
 
 do while !EOF()
 	if field->idpartner == cIdP .and. field->idkonto == cIdK .and. field->d_p == cDp

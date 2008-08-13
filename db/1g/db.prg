@@ -1,11 +1,5 @@
 #include "fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
 
 /*! \file fmk/fin/db/1g/db.prg
  *  \brief Funkcije za rad sa tabelama
@@ -711,7 +705,7 @@ nArr:=SELECT()
 if gBrojac=="1"
 	select NALOG
 	set order to 1
-	seek gFirma+cIdVN+"X"
+	seek gFirma+cIdVN+chr(254)
 	skip -1
 	if idfirma+idvn==gFirma+cIdVN
 		cBrNal:=NovaSifra(brNal)
@@ -721,7 +715,7 @@ if gBrojac=="1"
 else
 	select NALOG
 	set order to 2
-	seek gFirma+"X"
+	seek gFirma+chr(254)
 	skip -1
 	cBrNal:=padl(alltrim(str(val(brnal)+1)),4,"0")
 endif

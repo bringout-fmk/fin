@@ -512,12 +512,47 @@ endif
 // nalog je uravnotezen, azuriraj ga !
 if round(nSaldo,4)==0  .or. gRavnot=="N" 
 
-if !( SUBAN->(flock()) .and. ANAL->(flock()) .and.  SINT->(flock()) .and.  NALOG->(flock())  ) 
- 	    Beep(4) 
- 	    BoxC() 
- 	    Msg("Azuriranje NE moze vrsiti vise korisnika istovremeno !") 
- 	    closeret 
-endif 
+   if !( SUBAN->(flock()) .and. ;
+   	ANAL->(flock()) .and.  ;
+	SINT->(flock()) .and.  ;
+	NALOG->(flock())  ) 
+ 	    
+	    nTime := 150
+	   
+	    Box(,1, 40)
+
+	    // daj mu vremena...
+	    do while nTime > 0
+	
+		-- nTime
+
+		@ m_x + 1, m_y + 2 SAY "timeout: " + ALLTRIM(STR(nTime))
+		
+		if ( SUBAN->(flock()) .and. ;
+			ANAL->(flock()) .and.  ;
+			SINT->(flock()) .and.  ;
+			NALOG->(flock())  ) 
+			exit
+		endif
+	    
+		sleep(1)
+
+	    enddo
+	    
+	    BoxC()
+
+	    if nTime = 0 .and. !( SUBAN->(flock()) .and. ;
+			ANAL->(flock()) .and.  ;
+			SINT->(flock()) .and.  ;
+			NALOG->(flock())  ) 
+	
+	    	Beep(4) 
+ 	    	BoxC() 
+ 	    	Msg("Timeout za azuriranje istekao!#Ne mogu azuriranti nalog...") 
+ 	    	closeret 
+	
+	endif
+   endif 
 
 
   @ m_x+3,m_y+2 SAY "NALOZI         "

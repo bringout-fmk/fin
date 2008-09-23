@@ -220,13 +220,13 @@ endif
 
 start print cret
 
-? "--------------------------------------------"
+? "------------------------------------------------"
 ? "Lista naloga sa neispravnim datumima:"
-? "--------------------------------------------"
-? "       broj        datum    datum    datum   "
-? " R.br  naloga      naloga   suban.   anal.   "
-? "                            prva.st  prva.st "
-? "------ ---------- -------- -------- -------- "
+? "------------------------------------------------"
+? "       broj           datum    datum    datum   "
+? " R.br  naloga         naloga   suban.   anal.   "
+? "                               prva.st  prva.st "
+? "------ ------------- -------- -------- -------- "
 
 do while !EOF()
 

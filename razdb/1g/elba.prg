@@ -216,9 +216,9 @@ for i:=1 to nFLines
 		// ovo su parametri izvoda...
 		aHeader := aItem
 		
-		__nalbr := PADL( aHeader[1], 4 , "0" )
+		__nalbr := PADL( aHeader[1], 8 , "0" )
 
-		@ m_x + 4, m_y + 2 SAY "Izvod broj: " + PADL(aHeader[1], 4, "0")
+		@ m_x + 4, m_y + 2 SAY "Izvod broj: " + PADL(aHeader[1], 8, "0")
 		
 	endif
 	

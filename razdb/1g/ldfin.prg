@@ -85,14 +85,14 @@ if gBrojac=="1"
 	if idfirma+idvn==gfirma+trfp3->idvn
 		cbrnal:=NovaSifra(brnal)
 	else
-		cbrnal:="0001"
+		cbrnal:="00000001"
 	endif
 else
 	select NALOG
 	set order to 2
 	seek gfirma+"X"
 	skip -1
-	cbrnal:=padl(alltrim(str(val(brnal)+1)),4,"0")
+	cbrnal:=padl(alltrim(str(val(brnal)+1)),8,"0")
 endif
 
 select trfp3

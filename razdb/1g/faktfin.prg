@@ -1,16 +1,6 @@
 #include "fin.ch"
 
-
-/*! \file fmk/fin/razdb/1g/faktfin.prg
- *  \brief Prenos podataka FAKT->FIN
- */
- 
-/*! \fn FaktFin() 
- *  \brief Prenos podataka FAKT->FIN
- */
-
 function FaktFin()
-*{
 O_PARAMS
 private cSection:="(",cHistory:=" "; aHistory:={}
 
@@ -333,7 +323,7 @@ if lAFin
 	seek finmat->idfirma+cidvn+chr(254)
 	skip -1
 if idvn<>cidvn
-     cBrnalF:="0000"
+     cBrnalF:="00000000"
 else
      cBrNalF:=brnal
 endif

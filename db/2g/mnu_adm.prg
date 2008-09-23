@@ -1,23 +1,7 @@
 #include "fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- *
- */
-
-
-/*! \file fmk/fin/db/2g/mnu_adm.prg
- *  \brief Administrativni menij
- */
-
-/*! \fn MnuAdminDB()
- *  \brief Administrativni meni
- */
 
 function MnuAdminDB()
-*{
 private opc:={}
 private opcexe:={}
 private Izbor:=1
@@ -30,6 +14,9 @@ AADD(opcexe, {|| MnuSecMain()})
 
 AADD(opc, "3. pregled datumskih gresaka u nalozima")
 AADD(opcexe, {|| daterr_rpt() })
+
+AADD(opc, "4. regeneracija broja naloga u kumulativu")
+AADD(opcexe, {|| regen_tbl() })
 
 
 if is_fmkrules()

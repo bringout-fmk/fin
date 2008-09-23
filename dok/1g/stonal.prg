@@ -62,7 +62,7 @@ SELECT SUBAN
 set order to 4
 cIdVN:=space(2)
 cIdFirma:=gFirma
-cBrNal:=space(4)
+cBrNal:=space(8)
 
 Box("",2,35)
  set cursor on
@@ -131,7 +131,7 @@ if fkum  // stampa starog naloga - naloga iz kumulativa - datoteka anal
 
  cIdVN:=space(2)
  cIdFirma:=gFirma
- cBrNal:=space(4)
+ cBrNal:=space(8)
 
  Box("",1,35)
   @ m_x+1,m_y+2 SAY "Nalog:"

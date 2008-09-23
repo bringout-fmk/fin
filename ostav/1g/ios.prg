@@ -145,8 +145,8 @@ DO WHILE !eof() .AND. cIdFirma==IdFirma .and. cIdKonto==IdKonto
      @ prow()+1,0 SAY ++B PICTURE '9999'
      @ prow(),5 SAY cIdPartner
      SELECT PARTN; HSEEK cIdPartner
-     @ prow(),12 SAY naz
-     @ prow(),37 SAY naz2 PICTURE 'XXXXXXXXXXXX'
+     @ prow(),12 SAY ALLTRIM(naz)
+     @ prow(),37 SAY ALLTRIM(naz2) PICTURE 'XXXXXXXXXXXX'
      @ prow(),50 SAY PTT
      @ prow(),56 SAY Mjesto
 
@@ -241,8 +241,8 @@ P_COND
 
 SELECT PARTN
 HSEEK cIdFirma
-@ prow(),pcol()+1 SAY naz
-@ prow(),pcol()+1 SAY naz2
+@ prow(),pcol()+1 SAY ALLTRIM(naz)
+@ prow(),pcol()+1 SAY ALLTRIM(naz2)
 
 ? M
 
@@ -534,8 +534,8 @@ endif
 SELECT PARTN
 HSEEK cIdFirma
 
-@ prow(),5 SAY naz
-@ prow(),pcol()+1 SAY naz2
+@ prow(),5 SAY ALLTRIM(naz)
+@ prow(),pcol()+1 SAY ALLTRIM(naz2)
 @ prow()+1,5 SAY Mjesto
 @ prow()+1,5 SAY Adresa
 @ prow()+1,5 SAY PTT

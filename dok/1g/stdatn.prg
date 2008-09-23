@@ -4,20 +4,22 @@ static __par_len
 
 
 function StDatn()
-*{
-LOCAL nDug:=0.00,nPot:=0.00
+local nDug:=0.00
+local nPot:=0.00
 
 cInteg:="N"
 nSort:=1
 
 cIdVN:="  "
+
 Box(,7,60)
- @ m_x+1,m_Y+2 SAY "Provjeriti integritet podataka"
- @ m_x+2,m_Y+2 SAY "u odnosu na datoteku naloga D/N ?"  GET cInteg  pict "@!" valid cinteg $ "DN"
- @ m_x+4,m_Y+2 SAY "Sortiranje dokumenata po:  1-(firma,vn,brnal) "
- @ m_x+5,m_Y+2 SAY "2-(firma,brnal,vn),    3-(datnal,firma,vn,brnal) " GET nSort pict "9"
- @ m_x+7,m_Y+2 SAY "Vrsta naloga (prazno-svi) " GET cIDVN pict "@!"
- read; ESC_BCR
+	@ m_x+1,m_Y+2 SAY "Provjeriti integritet podataka"
+ 	@ m_x+2,m_Y+2 SAY "u odnosu na datoteku naloga D/N ?"  GET cInteg  pict "@!" valid cinteg $ "DN"
+ 	@ m_x+4,m_Y+2 SAY "Sortiranje dokumenata po:  1-(firma,vn,brnal) "
+ 	@ m_x+5,m_Y+2 SAY "2-(firma,brnal,vn),    3-(datnal,firma,vn,brnal) " GET nSort pict "9"
+ 	@ m_x+7,m_Y+2 SAY "Vrsta naloga (prazno-svi) " GET cIDVN pict "@!"
+ 	read
+	ESC_BCR
 BoxC()
 
 O_NALOG
@@ -27,19 +29,28 @@ if cinteg=="D"
    O_SINT; set order to 2
 endif
 
-SELECT NALOG; set order to nSort
+SELECT NALOG
+set order to nSort
 GO TOP
+
+nBrNalLen := LEN(field->brnal)
 
 EOF CRET
 
 START PRINT CRET
 
-m:="---- --- --- ----- -------- ---------------- ----------------"+IF(gVar1=="0"," ------------ ------------","-")
-if fieldpos("SIFRA")<>0
-  m+=" ------"
+m:="---- --- --- " + REPLICATE("-",nBrNalLen + 1) + " -------- ---------------- ----------------"
+
+if gVar1=="0"
+	m+=" ------------ ------------"
 endif
+
+if fieldpos("SIFRA") <> 0
+	m+=" ------"
+endif
+
 if cInteg=="D"
- m:=m+" ---  --- ----"
+ 	m:=m+" ---  --- ----"
 endif
 
 nRBr:=0
@@ -58,24 +69,42 @@ DO WHILE !EOF()
       ELSE
        F10CPI
       ENDIF
+
       ?? "LISTA FIN. DOKUMENATA (NALOGA) NA DAN:",DATE()
       ? m
-      ? "*RED*FIR* V * BR  * DAT    *   DUGUJE       *   POTRAZUJE    *"+IF(gVar1=="0","   DUGUJE   * POTRAZUJE *","")
+      ? "*RED*FIR* V *" + PADR(" BR", nBrNalLen + 1) +"* DAT    *   DUGUJE       *   POTRAZUJE    *"+IF(gVar1=="0","   DUGUJE   * POTRAZUJE *","")
+      
       if fieldpos("SIFRA")<>0
         ?? "  OP. *"
       endif
-      if cInteg=="D"; ?? "  1  * 2 * 3 *"; endif
-      ? "*BRD*MA * N * NAL * NAL    *    "+ValDomaca()+"        *      "+ValDomaca()+"      *"+IF(gVar1=="0","    "+ValPomocna()+"    *    "+ValPomocna()+"   *","")
+      
+      if cInteg=="D"
+      	?? "  1  * 2 * 3 *"
+      endif
+      
+      ? "*BRD*MA * N *" + PADR(" NAL", nBrNalLen + 1) + "* NAL    *    "+ValDomaca()+"        *      "+ValDomaca()+"      *"
+      
+      if gVar1=="0"
+      	?? "    "+ValPomocna()+"    *    "+ValPomocna()+"   *"
+      endif
+      
       if fieldpos("SIFRA")<>0
         ?? "      *"
       endif
-      if cInteg=="D"; ?? "     *   *   *"; endif
+      
+      if cInteg=="D"
+      	?? "     *   *   *"
+      endif
+      
       if fieldpos("SIFRA")<>0
       endif
       ? m
    ENDIF
 
-      if !empty(cIdVN) .and. idvn<>cIDVN; skip; loop; endif
+      if !empty(cIdVN) .and. idvn<>cIDVN
+          skip
+	  loop
+      endif
 
       IF prow()>63; FF; ENDIF
       @ prow()+1,0 SAY ++nRBr PICTURE "9999"
@@ -83,7 +112,7 @@ DO WHILE !EOF()
       @ prow(),pcol()+2 SAY IdVN
       @ prow(),pcol()+2 SAY BrNal
       @ prow(),pcol()+1 SAY DatNal
-      @ prow(),28       SAY DugBHD picture picBHD
+      @ prow(),nPos:=pcol()+1 SAY DugBHD picture picBHD
       @ prow(),pcol()+1 SAY PotBHD picture picBHD
       IF gVar1=="0"
        @ prow(),pcol()+1 SAY DugDEM picture picDEM
@@ -150,7 +179,7 @@ ENDDO
 IF prow()>63; FF; ENDIF
 ? m
 ? "UKUPNO:"
-@ prow(),28 SAY nDugBHD picture picBHD
+@ prow(),nPos SAY nDugBHD picture picBHD
 @ prow(),pcol()+1 SAY nPotBHD picture picBHD
 IF gVar1=="0"
  @ prow(),pcol()+1 SAY nDugDEM picture picDEM
@@ -165,7 +194,7 @@ END PRINT
 closeret
 #endif
 return
-*}
+
 
 
 /*! \fn DnevnikNaloga()
@@ -240,9 +269,9 @@ LOCAL cMjGod:=""
   lJerry := ( IzFMKIni("FIN","JednovalutniNalogJerry","N",KUMPATH) == "D" )
 
   IF gNW=="N"
-    M:="------ ---------- --- "+"---- ------- " + REPL("-", __par_len) + " ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" -- ------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
+    M:="------ -------------- --- "+"---- ------- " + REPL("-", __par_len) + " ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" -- ------------- ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
   ELSE
-    M:="------ ---------- --- "+"---- ------- " + REPL("-", __par_len) + " ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
+    M:="------ -------------- --- "+"---- ------- " + REPL("-", __par_len) + " ----------------------------"+IF(gVar1=="1".and.lJerry,"-- "+REPL("-",20),"")+" ----------- -------- -------- --------------- ---------------"+IF(gVar1=="1","-"," ---------- ----------")
   ENDIF
   cMjGod:=STR(MONTH(dDatNal),2)+STR(YEAR(dDatNal),4)
   Zagl11()

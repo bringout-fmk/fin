@@ -276,14 +276,14 @@ if fNovi .and. (_idfirma<>idfirma .or. _idvn<>idvn)
      		if idfirma+idvn==_idfirma+_idvn
        			_brnal:=NovaSifra(brnal)
      		else
-       			_brnal:="0001"
+       			_brnal:="00000001"
      		endif
     	else
      		select NALOG
      		set order to 2
      		seek _idfirma+chr(254)
      		skip -1
-     		brnal:=padl(alltrim(str(val(brnal)+1)),4,"0")
+     		brnal:=padl(alltrim(str(val(brnal)+1)),8,"0")
     	endif
 
      	select  pripr
@@ -848,7 +848,7 @@ endif
 DO WHILE !EOF()
 	cIdFirma:=IdFirma
 	cIdVN:=IdVN
-	cBrNal:=BrNal
+	cBrNal:=(BrNal)
    	if !fizgenerisi
      	Box("",2,50)
        set cursor on
@@ -959,17 +959,21 @@ P_NRED
 ?? M
 if gNW=="D"
  P_NRED
- ?? IF(lDnevnik,"R.BR. *   BROJ   *DAN*","")+"*R. * KONTO *" + PADC("PART", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"       NAZIV PARTNERA         *                    ","    NAZIV PARTNERA ILI      ")+"*   D  O  K  U  M  E  N  T    *         IZNOS U  "+ValDomaca()+"         *"+IF(gVar1=="1","","    IZNOS U "+ValPomocna()+"    *")
+ ?? IF(lDnevnik,"R.BR. *   BROJ       *DAN*","")+"*R. * KONTO *" + PADC("PART", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"       NAZIV PARTNERA         *                    ","    NAZIV PARTNERA ILI      ")+"*   D  O  K  U  M  E  N  T    *         IZNOS U  "+ValDomaca()+"         *"+IF(gVar1=="1","","    IZNOS U "+ValPomocna()+"    *")
  P_NRED
- ?? IF(lDnevnik,"U DNE-*  NALOGA  *   *","")+"             " + PADC("NER", __par_len) + " "+IF(gVar1=="1".and.lJerry,"            ILI                      O P I S       ","                            ")+" ----------------------------- ------------------------------- "+IF(gVar1=="1","","---------------------")
- P_NRED; ?? IF(lDnevnik,"VNIKU *          *   *","")+"*BR *       *" + REPL(" ", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"        NAZIV KONTA           *                    ","    NAZIV KONTA             ")+"* BROJ VEZE * DATUM  * VALUTA *  DUGUJE "+ValDomaca()+"  * POTRAZUJE "+ValDomaca()+"*"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"* POT."+ValPomocna()+"*")
+ 
+ ?? IF(lDnevnik,"U DNE-*  NALOGA      *   *","")+"             " + PADC("NER", __par_len) + " "+IF(gVar1=="1".and.lJerry,"            ILI                      O P I S       ","                            ")+" ----------------------------- ------------------------------- "+IF(gVar1=="1","","---------------------")
+ P_NRED
+ 
+ ?? IF(lDnevnik,"VNIKU *              *   *","")+"*BR *       *" + REPL(" ", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"        NAZIV KONTA           *                    ","    NAZIV KONTA             ")+"* BROJ VEZE * DATUM  * VALUTA *  DUGUJE "+ValDomaca()+"  * POTRAZUJE "+ValDomaca()+"*"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"* POT."+ValPomocna()+"*")
 ELSE
  P_NRED
- ?? IF(lDnevnik,"R.BR. *   BROJ   *DAN*","")+"*R. * KONTO *" + PADC("PART", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"       NAZIV PARTNERA         *                    ","    NAZIV PARTNERA ILI      ")+"*           D  O  K  U  M  E  N  T             *         IZNOS U  "+ValDomaca()+"         *"+IF(gVar1=="1","","    IZNOS U "+ValPomocna()+"    *")
+ ?? IF(lDnevnik,"R.BR. *   BROJ       *DAN*","")+"*R. * KONTO *" + PADC("PART", __par_len) + "*"+IF(gVar1=="1".and.lJerry,"       NAZIV PARTNERA         *                    ","    NAZIV PARTNERA ILI      ")+"*           D  O  K  U  M  E  N  T             *         IZNOS U  "+ValDomaca()+"         *"+IF(gVar1=="1","","    IZNOS U "+ValPomocna()+"    *")
  P_NRED
- ?? IF(lDnevnik,"U DNE-*  NALOGA  *   *","")+"             " + PADC("NER", __par_len) + " "+IF(gVar1=="1".and.lJerry,"            ILI                      O P I S       ","                            ")+" ---------------------------------------------- ------------------------------- "+IF(gVar1=="1","","---------------------")
+ 
+ ?? IF(lDnevnik,"U DNE-*  NALOGA      *   *","")+"             " + PADC("NER", __par_len) + " "+IF(gVar1=="1".and.lJerry,"            ILI                      O P I S       ","                            ")+" ---------------------------------------------- ------------------------------- "+IF(gVar1=="1","","---------------------")
  P_NRED
- ?? IF(lDnevnik,"VNIKU *          *   *","")+"*BR *       *" + REPL(" ", __par_len)+ "*"+IF(gVar1=="1".and.lJerry,"        NAZIV KONTA           *                    ","    NAZIV KONTA             ")+"*  TIP I NAZIV   * BROJ VEZE * DATUM  * VALUTA *  DUGUJE "+ValDomaca()+"  * POTRAZUJE "+ValDomaca()+"*"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"* POT."+ValPomocna()+"*")
+ ?? IF(lDnevnik,"VNIKU *              *   *","")+"*BR *       *" + REPL(" ", __par_len)+ "*"+IF(gVar1=="1".and.lJerry,"        NAZIV KONTA           *                    ","    NAZIV KONTA             ")+"*  TIP I NAZIV   * BROJ VEZE * DATUM  * VALUTA *  DUGUJE "+ValDomaca()+"  * POTRAZUJE "+ValDomaca()+"*"+IF(gVar1=="1",""," DUG. "+ValPomocna()+"* POT."+ValPomocna()+"*")
 ENDIF
 P_NRED
 ?? M
@@ -1103,7 +1107,7 @@ DO WHILE !eof()
 
    private cDN:="N"
    if !lAuto
-     Box(,2,55)
+     Box(,2,60)
        @ m_x+1,m_y+2 SAY "Stampanje analitike/sintetike za nalog "+cidfirma+"-"+cidvn+"-"+cbrnal+" ?"  GET cDN pict "@!" valid cDN $ "DN"
        if gDatNal=="D"
         @ m_x+2,m_y+2 SAY "Datum naloga:" GET dDatNal
@@ -1278,7 +1282,7 @@ IF lSint==NIL; lSint:=.f.; ENDIF
   AADD(aDBf,{ 'IDFIRMA'   , 'C' ,   2 ,  0 })
   AADD(aDBf,{ 'IDKONTO'   , 'C' , IF(lSint,3,7) ,  0 })
   AADD(aDBf,{ 'IDVN'      , 'C' ,   2 ,  0 })
-  AADD(aDBf,{ 'BRNAL'     , 'C' ,   4 ,  0 })
+  AADD(aDBf,{ 'BRNAL'     , 'C' ,   8 ,  0 })
   AADD(aDBf,{ 'RBR'       , 'C' ,   3 ,  0 })
   AADD(aDBf,{ 'DATNAL'    , 'D' ,   8 ,  0 })
   AADD(aDBf,{ 'DUGBHD'    , 'N' ,  17 ,  2 })
@@ -1997,13 +2001,13 @@ function IzvodBanke()
      if idfirma+idvn==gfirma+cidvn
        cbrnal:=NovaSifra(brnal)
      else
-       cbrnal:="0001"
+       cbrnal:="00000001"
      endif
     else
      select NALOG; set order to 2
      seek gfirma+chr(254) 
      skip -1
-     cBrnal:=padl(alltrim(str(val(brnal)+1)),4,"0")
+     cBrnal:=padl(alltrim(str(val(brnal)+1)),8,"0")
     endif
 
 

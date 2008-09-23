@@ -1,47 +1,19 @@
 #include "fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/rpt/1g/kartas.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.3 $
- * $Log: kartas.prg,v $
- * Revision 1.3  2004/01/13 19:07:57  sasavranic
- * appsrv konverzija
- *
- * Revision 1.2  2002/06/20 11:31:07  sasa
- * no message
- *
- *
- */
-
-
-/*! \file fmk/fin/rpt/1g/kartas.prg
- *  \brief Kartice
- */
-
-/*! \fn SinKart()
- *  \brief Sinteticka kartica
- */
  
 function SinKart()
-*{
 cIdFirma:=gFirma
 qqKonto:=""
 dDatOd:=dDAtDo:=ctod("")
 cBrza:="D"
 
 IF gVar1=="0"
- M:="------- ------ ----- -------- ---------------- ----------------- ----------------- ------------- ------------- -------------"
+ M:="------- -------- ---- -------- ---------------- ----------------- ----------------- ------------- ------------- -------------"
 ELSE
- M:="------- ------ ----- -------- ---------------- ----------------- ------------------"
+ M:="------- -------- ---- -------- ---------------- ----------------- ------------------"
 ENDIF
 
-
 cPredh:="2"
-
 
 O_PARTN
 O_PARAMS
@@ -158,7 +130,7 @@ if prow()>55+gPStranica; FF; SinKZagl(); endif
 
 ? m
 SELECT KONTO; HSEEK cIdKonto
-? "KONTO   ",cIdKonto,konto->naz
+? "KONTO   ",cIdKonto,ALLTRIM(konto->naz)
 
 select SINT
 ? m
@@ -175,7 +147,7 @@ do whilesc !eof() .and. idfirma==cIdFirma .and. cIdKonto==IdKonto
    else
      if fPProm
        ? "Prethodno stanje"
-       @ prow(),30             SAY nDugBHD     PICTURE PicBHD
+       @ prow(),31             SAY nDugBHD     PICTURE PicBHD
        @ prow(),pcol()+2  SAY nPotBHD     PICTURE PicBHD
        @ prow(),pcol()+2  SAY nDugBHD-nPotBHD PICTURE PicBHD
        IF gVar1=="0"
@@ -188,12 +160,16 @@ do whilesc !eof() .and. idfirma==cIdFirma .and. cIdKonto==IdKonto
    endif
   endif
 
-  IF prow()>63+gPStranica; FF; SinKZagl();ENDIF
+  IF prow()>63 + gPStranica
+       FF
+       SinKZagl()
+  ENDIF
+  
   ? IdVN
-  @ prow(),9 SAY BrNal
-  @ prow(),16 SAY RBr
-  @ prow(),21 SAY DatNal
-  @ prow(),30 SAY DugBHD PICTURE PicBHD
+  @ prow(),8 SAY BrNal
+  @ prow(),17 SAY RBr
+  @ prow(),22 SAY DatNal
+  @ prow(),31 SAY DugBHD PICTURE PicBHD
   @ prow(), pcol()+2 SAY PotBHD PICTURE picBHD
   nDugBHD+=DugBHD; nPotBHD+=PotBHD
   nDugDEM+=DugDEM; nPotDEM+=PotDEM
@@ -206,10 +182,13 @@ do whilesc !eof() .and. idfirma==cIdFirma .and. cIdKonto==IdKonto
   SKIP
 ENDDO
 
-IF prow()>62+gPStranica; FF; SinKZagl(); ENDIF
+IF prow()>62+gPStranica
+     FF
+     SinKZagl()
+ENDIF
 ? m
 ? "UKUPNO ZA:"+cIdKonto
-@ prow(),30             SAY nDugBHD     PICTURE PicBHD
+@ prow(),31             SAY nDugBHD     PICTURE PicBHD
 @ prow(),pcol()+2  SAY nPotBHD     PICTURE PicBHD
 @ prow(),pcol()+2  SAY nDugBHD-nPotBHD PICTURE PicBHD
 IF gVar1=="0"
@@ -236,7 +215,7 @@ if cBrza=="N"
 IF prow()>62+gPStranica; FF; SinKZagl(); ENDIF
 ? M
 ? "UKUPNO ZA SVA KONTA:"
-@ prow(),30             SAY nSviD           PICTURE PicBHD
+@ prow(),31             SAY nSviD           PICTURE PicBHD
 @ prow(),pcol()+2  SAY nSviP           PICTURE PicBHD
 @ prow(),pcol()+2  SAY nSviD-nSviP     PICTURE PicBHD
 IF gVar1=="0"
@@ -274,7 +253,7 @@ if gNW=="D"
  ? "Firma:",gFirma,gNFirma
 else
  SELECT PARTN; HSEEK cIdFirma
- ? "Firma:",cidfirma,partn->naz,partn->naz2
+ ? "Firma:",cidfirma,ALLTRIM(partn->naz),ALLTRIM(partn->naz2)
 endif
 
 IF gRJ=="D" .and. gSAKrIz=="D" .and. LEN(cIdRJ)<>0
@@ -285,13 +264,13 @@ SELECT SINT
 IF gVar1=="1"; F12CPI; ENDIF
 ?  m
 IF gVar1=="0"
- ?  "*VRSTA * BROJ *REDNI* DATUM  *           I  Z  N  O  S     U     "+ValDomaca()+"             *      I  Z  N  O  S     U     "+ValPomocna()+"      *"
- ?  "                              ---------------------------------------------------- -----------------------------------------"
- ?  "*NALOGA*NALOGA*BROJ *        *    DUGUJE      *     POTRAZUJE   *      SALDO      *   DUGUJE    *  POTRAZUJE  *    SALDO   *"
+ ?  "*VRSTA * BROJ   *REDN* DATUM  *           I  Z  N  O  S     U     "+ValDomaca()+"             *      I  Z  N  O  S     U     "+ValPomocna()+"      *"
+ ?  "                               ---------------------------------------------------- -----------------------------------------"
+ ?  "*NALOGA*NALOGA  *BROJ*        *    DUGUJE      *     POTRAZUJE   *      SALDO      *   DUGUJE    *  POTRAZUJE  *    SALDO   *"
 ELSE
- ?  "*VRSTA * BROJ *REDNI* DATUM  *           I  Z  N  O  S     U     "+ValDomaca()+"             *"
- ?  "                              -----------------------------------------------------"
- ?  "*NALOGA*NALOGA*BROJ *        *    DUGUJE      *     POTRAZUJE   *      SALDO      *"
+ ?  "*VRSTA * BROJ   *REDN* DATUM  *           I  Z  N  O  S     U     "+ValDomaca()+"             *"
+ ?  "                               -----------------------------------------------------"
+ ?  "*NALOGA*NALOGA  *BROJ*        *    DUGUJE      *     POTRAZUJE   *      SALDO      *"
 ENDIF
 ?  m
 
@@ -521,7 +500,7 @@ if gNW=="D"
  ? "Firma:",gFirma,"-",gNFirma
 else
  SELECT PARTN; HSEEK cIdFirma
- ? "Firma:",cIdFirma,partn->naz,partn->naz2
+ ? "Firma:",cIdFirma,ALLTRIM(partn->naz),ALLTRIM(partn->naz2)
 endif
 
 IF gRJ=="D" .and. gSAKrIz=="D" .and. LEN(cIdRJ)<>0
@@ -561,9 +540,9 @@ qqKonto:=""
 cBrza:="D"
 cPTD:="N"
 IF gVar1=="0"
- M:="------- ------ ----- -------- ---------------- ----------------- ----------------- ------------- ------------- -------------"
+ M:="------- -------- ---- -------- ---------------- ----------------- ----------------- ------------- ------------- -------------"
 ELSE
- M:="------- ------ ----- -------- ---------------- ----------------- ------------------"
+ M:="------- -------- ---- -------- ---------------- ----------------- ------------------"
 ENDIF
 
 O_PARTN
@@ -708,7 +687,7 @@ SELECT KONTO; HSEEK cIdKonto; select anal
 if cBrza=="S"
   ? "KONTA : ",qqKonto
 else
-  ? "KONTO   ",cIdKonto,konto->naz
+  ? "KONTO   ",cIdKonto,ALLTRIM(konto->naz)
 endif
 ? m
 
@@ -724,7 +703,7 @@ do whilesc !eof() .and. IdFirma=cIdFirma .and. (cIdKonto==IdKonto .or. cBrza=="S
    else
      if fPProm
        ? "Prethodno stanje"
-       @ prow(),IF(gNW=="N".and.cPTD=="D",30+49,30) SAY nDugBHD     PICTURE PicBHD
+       @ prow(),IF(gNW=="N".and.cPTD=="D",31+49,31) SAY nDugBHD     PICTURE PicBHD
        @ prow(),pcol()+2  SAY nPotBHD     PICTURE PicBHD
        @ prow(),pcol()+2  SAY nDugBHD-nPotBHD PICTURE PicBHD
        IF gVar1=="0"
@@ -741,14 +720,14 @@ do whilesc !eof() .and. IdFirma=cIdFirma .and. (cIdKonto==IdKonto .or. cBrza=="S
   IF cBrza=="S"
     @ prow()+1,3 SAY IdKonto
     @ prow(),11 SAY IdVN
-    @ prow(),17 SAY BrNal
-    @ prow(),24 SAY RBr
-    @ prow(),29 SAY DatNal
+    @ prow(),16 SAY BrNal
+    @ prow(),25 SAY RBr
+    @ prow(),31 SAY DatNal
   ELSE
     @ prow()+1,3 SAY IdVN
-    @ prow(),9 SAY BrNal
-    @ prow(),16 SAY RBr
-    @ prow(),21 SAY DatNal
+    @ prow(),8 SAY BrNal
+    @ prow(),17 SAY RBr
+    @ prow(),22 SAY DatNal
   ENDIF
   IF gNW=="N".and.cPTD=="D"
     lPom:=.f.
@@ -762,13 +741,13 @@ do whilesc !eof() .and. IdFirma=cIdFirma .and. (cIdKonto==IdKonto .or. cBrza=="S
       SELECT TDOK; HSEEK SUBAN->idtipdok
     ENDIF
     SELECT ANAL
-    @ prow(),30+IF(cBrza=="S",8,0) SAY IF( lPom , SUBAN->idtipdok, "??"      )
+    @ prow(),31+IF(cBrza=="S",8,0) SAY IF( lPom , SUBAN->idtipdok, "??"      )
     @ prow(),pcol()+1 SAY IF( lPom , TDOK->naz      , SPACE(13) )
     @ prow(),pcol()+1 SAY IF( lPom , SUBAN->brdok   , SPACE(10) )
     nCOpis:=pcol()+1
     @ prow(),pcol()+1 SAY IF( lPom , PADR(cOpis:=ALLTRIM(SUBAN->opis),20)    , SPACE(20) )
   ENDIF
-  @ prow(),IF(gNW=="N".and.cPTD=="D",30+49,30)+IF(cBrza=="S",8,0) SAY DugBHD PICTURE PicBHD
+  @ prow(),IF(gNW=="N".and.cPTD=="D",30+49,31)+IF(cBrza=="S",8,0) SAY DugBHD PICTURE PicBHD
   @ prow(),pcol()+2 SAY PotBHD PICTURE picBHD
   nDugBHD+=DugBHD; nPotBHD+=PotBHD
   @ prow(),pcol()+2 SAY nDugBHD-nPotBHD PICTURE PicBHD
@@ -789,7 +768,7 @@ IF cBrza=="S"
 ELSE
   ? "UKUPNO ZA KONTO:"+cIdKonto
 ENDIF
-@ prow(),IF(gNW=="N".and.cPTD=="D",30+49,30)+IF(cBrza=="S",8,0) SAY nDugBHD  PICTURE PicBHD
+@ prow(),IF(gNW=="N".and.cPTD=="D",30+49,31)+IF(cBrza=="S",8,0) SAY nDugBHD  PICTURE PicBHD
 @ prow(),pcol()+2  SAY nPotBHD           PICTURE PicBHD
 @ prow(),pcol()+2  SAY nDugBHD-nPotBHD   PICTURE PicBHD
 
@@ -818,7 +797,7 @@ if cBrza=="N"
  IF prow()>61+gPStranica; FF; AnalKZagl(); ENDIF
  ? M
  ? "UKUPNO ZA SVA KONTA:"
- @ prow(),IF(gNW=="N".and.cPTD=="D",30+49,30) SAY nSviD  PICTURE PicBHD
+ @ prow(),IF(gNW=="N".and.cPTD=="D",30+49,31) SAY nSviD  PICTURE PicBHD
  @ prow(),pcol()+2  SAY nSviP             PICTURE PicBHD
  @ prow(),pcol()+2  SAY nSviD-nSviP       PICTURE PicBHD
 
@@ -860,7 +839,7 @@ if gNW=="D"
  ? "Firma:",gFirma,"-",gNFirma
 else
  SELECT PARTN; HSEEK cIdFirma
- ? "Firma:",cIdFirma,partn->naz,partn->naz2
+ ? "Firma:",cIdFirma,ALLTRIM(partn->naz),ALLTRIM(partn->naz2)
 endif
 
 IF gRJ=="D" .and. gSAKrIz=="D" .and. LEN(cIdRJ)<>0
@@ -873,24 +852,24 @@ IF gVar1=="0"
  IF gNW=="N".and.cPTD=="D"
    P_COND2
  ENDIF
- ? IF(cBrza=="S","------- ","")+"------- ------ ----- --------"+IF(gNW=="N".and.cPTD=="D"," ------------------------------------------------","")+" ---------------------------------------------------- -----------------------------------------"
- ? IF(cBrza=="S","*      *","")+"*VRSTA * BROJ *REDNI* DATUM  "+IF(gNW=="N".and.cPTD=="D","*                D O K U M E N T                 ","")+"*             I Z N O S     U     "+ValDomaca()+"               *        I Z N O S     U     "+ValPomocna()+"        *"
- ? IF(cBrza=="S"," KONTO  ","")+"                             "+IF(gNW=="N".and.cPTD=="D"," ------------------------------------------------","")+" ---------------------------------------------------- -----------------------------------------"
- ? IF(cBrza=="S","*      *","")+"*NALOGA*NALOGA*BROJ *        "+IF(gNW=="N".and.cPTD=="D","*     T I P      * VEZ.BROJ *        OPIS        ","")+"*     DUGUJE     *   POTRAZUJE     *       SALDO     *   DUGUJE   *  POTRAZUJE  *    SALDO    *"
+ ? IF(cBrza=="S","------- ","")+"------- -------- ---- --------"+IF(gNW=="N".and.cPTD=="D"," ------------------------------------------------","")+" ---------------------------------------------------- -----------------------------------------"
+ ? IF(cBrza=="S","*      *","")+"*VRSTA * BROJ   *REDN* DATUM  "+IF(gNW=="N".and.cPTD=="D","*                D O K U M E N T                 ","")+"*             I Z N O S     U     "+ValDomaca()+"               *        I Z N O S     U     "+ValPomocna()+"        *"
+ ? IF(cBrza=="S"," KONTO  ","")+"                              "+IF(gNW=="N".and.cPTD=="D"," ------------------------------------------------","")+" ---------------------------------------------------- -----------------------------------------"
+ ? IF(cBrza=="S","*      *","")+"*NALOGA*NALOGA  *BROJ*        "+IF(gNW=="N".and.cPTD=="D","*     T I P      * VEZ.BROJ *        OPIS        ","")+"*     DUGUJE     *   POTRAZUJE     *       SALDO     *   DUGUJE   *  POTRAZUJE  *    SALDO    *"
 ELSE
  IF gNW=="N".and.cPTD=="D"
    P_COND
  ELSE
    F12CPI
  ENDIF
- ? IF(cBrza=="S","------- ","")+"------- ------ ----- --------"+IF(gNW=="N".and.cPTD=="D"," ------------------------------------------------","")+" -----------------------------------------------------"
- ? IF(cBrza=="S","*      *","")+"*VRSTA * BROJ *REDNI* DATUM  "+IF(gNW=="N".and.cPTD=="D","*                D O K U M E N T                 ","")+"*             I Z N O S     U     "+ValDomaca()+"               *"
- ? IF(cBrza=="S"," KONTO  ","")+"                             "+IF(gNW=="N".and.cPTD=="D"," ------------------------------------------------","")+" -----------------------------------------------------"
- ? IF(cBrza=="S","*      *","")+"*NALOGA*NALOGA*BROJ *        "+IF(gNW=="N".and.cPTD=="D","*     T I P      * VEZ.BROJ *        OPIS        ","")+"*     DUGUJE     *   POTRAZUJE     *       SALDO     *"
+ ? IF(cBrza=="S","------- ","")+"------- -------- ---- --------"+IF(gNW=="N".and.cPTD=="D"," ------------------------------------------------","")+" -----------------------------------------------------"
+ ? IF(cBrza=="S","*      *","")+"*VRSTA * BROJ   *REDN* DATUM  "+IF(gNW=="N".and.cPTD=="D","*                D O K U M E N T                 ","")+"*             I Z N O S     U     "+ValDomaca()+"               *"
+ ? IF(cBrza=="S"," KONTO  ","")+"                              "+IF(gNW=="N".and.cPTD=="D"," ------------------------------------------------","")+" -----------------------------------------------------"
+ ? IF(cBrza=="S","*      *","")+"*NALOGA*NALOGA  *BROJ*        "+IF(gNW=="N".and.cPTD=="D","*     T I P      * VEZ.BROJ *        OPIS        ","")+"*     DUGUJE     *   POTRAZUJE     *       SALDO     *"
 ENDIF
 ? M
 
 RETURN
-*}
+
 
 

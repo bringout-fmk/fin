@@ -1,26 +1,4 @@
 #include "fin.ch"
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/dok/1g/mnu_oop.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: mnu_oop.prg,v $
- * Revision 1.4  2004/01/13 19:07:55  sasavranic
- * appsrv konverzija
- *
- *
- *
- */
-
-/*! \file fmk/fin/dok/1g/mnu_oop.prg
- *  \brief Menij ostalih operacija
- */
-
-/*! \fn MnuOstOperacije()
- *  \brief Menij ostalih operacija
- */
 
 function MnuOstOperacije()
 *{
@@ -58,5 +36,4 @@ AADD(opcexe, {|| OStav()})
 Menu_SC("oop")
 
 return
-*}
 

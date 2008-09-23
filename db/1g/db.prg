@@ -84,7 +84,7 @@ static function _is_vise_dok()
 local lRet := .f.
 local nTRec := RECNO()
 local cBrNal 
-local cTmpNal := "XXXX"
+local cTmpNal := "XXXXXXXX"
 
 select pripr
 go top
@@ -435,7 +435,7 @@ do while !eof()
 
 cNal:=IDFirma+IdVn+BrNal
 IF "." $ cNal
-  MsgBeep("Nalog "+IdFirma+"-"+idvn+"-"+brnal+;
+  MsgBeep("Nalog "+IdFirma+"-"+idvn+"-"+(brnal)+;
           " sadrzi znak '.' i zato nece biti azuriran!")
   DO WHILE !EOF() .and. cNal==IDFirma+IdVn+BrNal
     SKIP 1
@@ -443,7 +443,7 @@ IF "." $ cNal
   LOOP
 ENDIF
 
-@ m_x+1,m_y+2 SAY "Azuriram nalog: "+IdFirma+"-"+idvn+"-"+brnal
+@ m_x+1,m_y+2 SAY "Azuriram nalog: "+IdFirma+"-"+idvn+"-"+ALLTRIM(brnal)
 nSaldo:=0
 
 cEvIdFirma:=idfirma
@@ -525,7 +525,7 @@ endif
   seek cNal
   if found()
   	BoxC()
-  	Msg("Vec postoji u suban ? "+IdFirma+"-"+IdVn+"-"+BrNal+ "  !")
+  	Msg("Vec postoji u suban ? "+IdFirma+"-"+IdVn+"-"+ALLTRIM(BrNal)+ "  !")
   	closeret
   endif
 
@@ -534,7 +534,7 @@ endif
   seek cNal
   if found()
   	BoxC()
-	Msg("Vec postoji proknjizen nalog "+IdFirma+"-"+IdVn+"-"+BrNal+ "  !")
+	Msg("Vec postoji proknjizen nalog "+IdFirma+"-"+IdVn+"-"+ALLTRIM(BrNal)+ "  !")
         closeret
   endif // found()
 
@@ -710,19 +710,81 @@ if gBrojac=="1"
 	if idfirma+idvn==gFirma+cIdVN
 		cBrNal:=NovaSifra(brNal)
 	else
-		cBrNal:="0001"
+		cBrNal:="00000001"
 	endif
 else
 	select NALOG
 	set order to 2
 	seek gFirma+chr(254)
 	skip -1
-	cBrNal:=padl(alltrim(str(val(brnal)+1)),4,"0")
+	cBrNal:=padl(alltrim(str(val(brnal)+1)),8,"0")
 endif
 
 select (nArr)
 
 return cBrNal
 *}
+
+
+// ----------------------------------------------------------------
+// specijalna funkcija regeneracije brojeva naloga u kum tabelama
+// C(4) -> C(8) konverzija
+// stari broj A001 -> 0000A001
+// ----------------------------------------------------------------
+function regen_tbl()
+
+if !SigmaSIF("REGEN")
+	MsgBeep("Ne diraj lava dok spava !")
+	return
+endif
+
+// otvori sve potrebne tabele
+O_SUBAN
+O_NALOG
+O_ANAL
+O_SINT
+
+// pa idemo redom
+select suban
+_renum_convert()
+select nalog
+_renum_convert()
+select anal
+_renum_convert()
+select sint
+_renum_convert()
+
+
+return
+
+
+// --------------------------------------------------
+// konvertuje polje BRNAL na zadatoj tabeli
+// --------------------------------------------------
+static function _renum_convert()
+local xValue
+local nCnt
+
+set order to tag "0"
+go top
+
+Box(,2,50)
+
+@ m_x + 1, m_y + 2 SAY "Konvertovanje u toku... "
+
+nCnt := 0
+do while !EOF()
+	xValue := field->brnal
+	if !EMPTY(xValue)
+		replace field->brnal with PADL(ALLTRIM(xValue), 8, "0")
+		++ nCnt
+	endif
+	@ m_x + 2, m_y + 2 SAY PADR( "odradjeno " + ALLTRIM(STR(nCnt)), 45 )
+	skip
+enddo
+
+BoxC()
+
+return
 
 

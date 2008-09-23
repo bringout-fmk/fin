@@ -99,7 +99,7 @@ set relation to idfirma+idvn+brnal into nalog
 
 cidfirma:=gfirma
 cIdVN:=space(2)
-cBrNal:=space(4)
+cBrNal:=space(8)
 
 private qqBrNal:=space(80)
 private qqIdVN:=PADR(cUslovVDok,80)
@@ -158,8 +158,8 @@ if Pitanje(,"Prenijeti u datoteku prenosa suban.naloge sa ovim kriterijem ?","N"
   MsgO("Prolaz kroz SUBAN...")
   StartPrint(.t.)
   ? "FIN - U DATOTECI ZA PRENOS SU SLJEDECI DOKUMENTI - NALOZI:"
-  ?; ? "FIRMA³ TIP ³BROJ³  DATUM "
-     ? "-------------------------"
+  ?; ? "FIRMA³ TIP ³BROJ    ³  DATUM "
+     ? "-----------------------------"
   do while !eof()
   	select SUBAN
   	Scatter()
@@ -327,7 +327,7 @@ if !EMPTY(cKonvFirma+cKonvBrDok)
   ENDDO
 endif
 
-cidfirma:=gfirma; cIdVN:=space(2); cBrNal:=space(4)
+cidfirma:=gfirma; cIdVN:=space(2); cBrNal:=space(8)
 
 MsgO("Prenos PSUBAN -> PRIPR")
 select pripr

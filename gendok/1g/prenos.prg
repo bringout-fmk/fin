@@ -1,21 +1,7 @@
 #include "fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-/*! \file fmk/fin/gendok/1g/prenos.prg
- *  \brief Prenos podataka 
- */
-
-/*! \fn PrenosFin()
- *  \brief Generisanje pocetnog stanja
- */
  
 function PrenosFin()
-*{
 local cStranaBitna
 local lStranaBitna
 
@@ -237,7 +223,7 @@ do while !eof()
               Gather()
               replace rbr with str(++nRbr,4),;
                       idvn with "00",;
-                      brnal with "0001"
+                      brnal with "00000001"
 
               select suban
             endif
@@ -312,7 +298,7 @@ do while !eof()
                append blank
                replace  idfirma with cidfirma,;
                         idvn with "00",;
-                        brnal with "0001",;
+                        brnal with "00000001",;
                         rbr with str(++nRbr,4),;
                         idkonto with cIdkonto,;
                         idpartner with cidpartner,;
@@ -375,7 +361,7 @@ do while !eof()
                append blank
                replace  idfirma with cidfirma,;
                         idvn with "00",;
-                        brnal with "0001",;
+                        brnal with "00000001",;
                         rbr with str(++nRbr,4),;
                         idkonto with cIdkonto,;
                         idpartner with cidpartner,;
@@ -421,7 +407,7 @@ do while !eof()
                append blank
                replace  idfirma with cidfirma,;
                         idvn with "00",;
-                        brnal with "0001",;
+                        brnal with "00000001",;
                         rbr with str(++nRbr,4),;
                         idkonto with cIdkonto,;
                         idpartner with cidpartner,;
@@ -465,7 +451,7 @@ do while !eof()
                append blank
                replace  idfirma with cidfirma,;
                         idvn with "00",;
-                        brnal with "0001",;
+                        brnal with "00000001",;
                         rbr with str(++nRbr,4),;
                         idkonto with cIdkonto,;
                         idpartner with cidpartner,;
@@ -509,7 +495,7 @@ do while !eof()
                     datdok with dDatDo+1,;
                     idfirma with cidfirma,;
                     idvn with "00", idtipdok with "00",;
-                    brnal with "0001"
+                    brnal with "00000001"
             if !(cFilter==".t.")
               REPLACE  k1 WITH cSUBk1,;
                        k2 WITH cSUBk2,;
@@ -543,7 +529,7 @@ do while !eof()
                 datdok with dDatDo+1,;
                 idfirma with cidfirma,;
                 idvn with "00", idtipdok with "00",;
-                brnal with "0001"
+                brnal with "00000001"
          if !(cFilter==".t.")
            REPLACE  k1 WITH cSUBk1,;
                     k2 WITH cSUBk2,;

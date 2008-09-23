@@ -26,7 +26,7 @@ set order to 4
 cIdFirma:=gFirma
 cIdFirma2:=gFirma
 cIdVN:=cIdVN2:=space(2)
-cBrNal:=cBrNal2:=space(4)
+cBrNal:=cBrNal2:=space(8)
 
 Box("",IF(lStorno,3,1),IF(lStorno,65,35))
  @ m_x+1,m_y+2 SAY "Nalog:"
@@ -327,7 +327,7 @@ cNula:="N"
 cPreknjizi:="P"
 cStrana:="D"
 cIDVN:="88"
-cBrNal:="0001"
+cBrNal:="00000001"
 dDatDok:=date()
 cRascl:="D"
 private lRJRascl:=.f.

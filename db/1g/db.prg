@@ -516,8 +516,12 @@ if round(nSaldo,4)==0  .or. gRavnot=="N"
    	ANAL->(flock()) .and.  ;
 	SINT->(flock()) .and.  ;
 	NALOG->(flock())  ) 
- 	    
-	    nTime := 150
+ 	   
+	    if gAzurTimeOut == nil
+	    	nTime := 150
+	    else
+	        nTime := gAzurTimeOut
+	    endif
 	   
 	    Box(,1, 40)
 

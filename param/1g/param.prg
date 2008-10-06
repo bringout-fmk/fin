@@ -136,7 +136,12 @@ Box(,23,70)
 	
 	@ m_x + nX, m_y + 2 SAY "Pri pomoci asistenta provjeri i spoji duple uplate za partn.? (D/N)" GET gOAsDuPartn VALID gOAsDuPartn $ "DN" PICT "@!"
 
-  	nX := nX + 2
+	++ nX
+
+	@ m_x + nX, m_y + 2 SAY "Timeout kod azuriranja naloga (sec.):" ;
+		GET gAzurTimeout PICT "99999"
+  	
+	nX := nX + 2
 
 	@ m_x + nX, m_y + 2 SAY "********************** Ostalo:"
 	
@@ -303,6 +308,7 @@ Wpar("si",gSAKrIz)
 Wpar("zx",gKtoLimit)
 Wpar("zy",gnKtoLimit)
 Wpar("az",gnKZBdana)
+Wpar("aT",gAzurTimeOut)
 Wpar("OA",gOAsDuPartn)
 
 return

@@ -1,24 +1,7 @@
 #include "fin.ch"
 
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- */
- 
-
-/*! \file fmk/fin/main/2g/app.prg
- *  \brief TFinMod objekat - glavni objekat FIN modula
- * 
- */
- 
- 
-/*! \fn TFinModNew()
- *  \brief funkcija koja kreira TFinMod objekat
- */
 
 function TFinModNew()
-*{
 local oObj
 
 #ifdef CLIP
@@ -36,7 +19,6 @@ local oObj
 
 oObj:self:=oObj
 return oObj
-*}
 
 #ifdef CPP
 
@@ -329,6 +311,7 @@ public gnLOSt:=0
 public gPotpis:="N"
 public gnKZBDana:=0
 public gOAsDuPartn:="N"
+public gAzurTimeOut := 120
 
 public aRuleCols := g_rule_cols()
 public bRuleBlock := g_rule_block()
@@ -368,6 +351,7 @@ Rpar("dv",@gDatVal)
 Rpar("li",@gnLOSt)
 Rpar("po",@gPotpis)
 Rpar("az",@gnKZBdana)
+Rpar("aT",@gAzurTimeout)
 
 if empty(gNFirma)
 	Beep(1)

@@ -460,7 +460,7 @@ Box(,4,60)
  	dDatdok:=datdok
 	cIdFirma := gFirma
 	cTipDok := SPACE(2)
-	cBrDok := SPACE(4)
+	cBrDok := SPACE(8)
 	
 	@ m_x+2,m_Y+2 SAY "Dokument:" GET cIdFirma VALID !EMPTY(cIdFirma)
 	@ m_x+2,m_Y+15 SAY "-" GET cTipDok VALID !EMPTY(cTipDok)

@@ -314,7 +314,7 @@ if cKto == nil
 	cKto := ""
 endif
 
-if Logirati(goModul:oDataBase:cName,"OSTAV","AUTOZAT")
+if Logirati(goModul:oDataBase:cName,"DOK","ASISTENT")
 	lLogAZat:=.t.
 else
 	lLogAZat:=.f.
@@ -428,7 +428,7 @@ DO WHILESC !eof() .AND. idfirma==cidfirma .and. cIdKonto=IdKonto // konto
 ENDDO
 
 if lLogAZat
-	EventLog(nUser,goModul:oDataBase:cName,"OSTAV","AUTOZAT",nDugBHD,nPotBHD,nC,nil,"","","F:"+cIdFirma+"- K:"+cIdKonto,Date(),Date(),"","Automatsko zatvaranje otvorenih stavki")
+	EventLog(nUser,goModul:oDataBase:cName,"DOK","ASISTENT",nDugBHD,nPotBHD,nC,nil,"","","F:"+cIdFirma+"- K:"+cIdKonto,Date(),Date(),"","Automatsko zatvaranje otvorenih stavki")
 endif
 
 BoxC() // counter zatvaranja
@@ -571,7 +571,7 @@ function EdROS()
 *{
 local cDn:="N",nRet:=DE_CONT
 
-if Logirati(goModul:oDataBase:cName,"OSTAV","RUCNOZAT")
+if Logirati(goModul:oDataBase:cName,"DOK","ASISTENT")
 	lLogRucZat:=.t.
 else
 	lLogRucZat:=.f.
@@ -608,7 +608,7 @@ do case
 		replace OtvSt with ""
       	endif
      	if lLogRucZat
-		EventLog(nUser,goModul:oDataBase:cName,"OSTAV","RUCNOZAT",nil,nil,nil,nil,"",cMark,"",Date(),Date(),"","Rucno zatvaranje otvorenih stavki")
+		EventLog(nUser,goModul:oDataBase:cName,"DOK","ASISTENT",nil,nil,nil,nil,"",cMark,"",Date(),Date(),"","Rucno zatvaranje otvorenih stavki")
 	endif
        	nRet:=DE_REFRESH
      else
@@ -636,7 +636,7 @@ do case
        replace BrDok with cBrDok, opis with copis, datval with ddatval
      endif
      if lLogRucZat
-     	EventLog(nUser,goModul:oDataBase:cName,"OSTAV","RUCNOZAT",nil,nil,nil,nil,"",cBrDok,"Ispravka br.veze",dDatDok,dDatVal,cOpis,"Rucno zatvaranje otvorenih stavki")
+     	EventLog(nUser,goModul:oDataBase:cName,"DOK","ASISTENT",nil,nil,nil,nil,"",cBrDok,"Ispravka br.veze",dDatDok,dDatVal,cOpis,"Rucno zatvaranje otvorenih stavki")
      endif
      nRet:=DE_REFRESH
   case Ch==K_F5  .and. gTBDir="N"

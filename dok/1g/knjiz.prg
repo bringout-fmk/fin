@@ -557,11 +557,14 @@ AEVAL(GetList,{|o| o:display()})
 function EdPRIPR()
 *{
 local nTr2
+local lLogUnos := .f.
+local lLogBrisanje := .f.
 
-if Logirati(goModul:oDataBase:cName,"DOK","KNJIZ")
-	lLogKnjiz:=.t.
-else
-	lLogKnjiz:=.f.
+if Logirati(goModul:oDataBase:cName,"DOK","UNOS")
+	lLogUnos:=.t.
+endif
+if Logirati(goModul:oDataBase:cName,"DOK","BRISANJE")
+	lLogBrisanje:=.t.
 endif
 
 if (Ch==K_CTRL_T .or. Ch==K_ENTER) .and. reccount2()==0
@@ -603,10 +606,26 @@ case Ch==K_ALT_F5
 	return DE_REFRESH
   case Ch==K_CTRL_T
      if Pitanje(,"Zelite izbrisati ovu stavku ?","D")=="D"
+
+      cBDok :=field->idfirma + "-" + field->idvn + "-" + field->brnal
+      cStavka := field->rbr
+      cBKonto := field->idkonto
+      cBDP := field->d_p
+      dBDatnal := field->datdok
+      cBIznos := STR(field->iznosbhd)
+
       delete
+     
       BrisiPBaze()
-      if lLogKnjiz
-      		EventLog(nUser, goModul:oDataBase:cName, "DOK", "KNJIZ", nil, nil, nil, nil, "", "", "Stavka pobrisana", Date(), Date(), "", "Brisanje stavke...")		
+      
+      if lLogBrisanje
+      	EventLog(nUser, goModul:oDataBase:cName, "DOK", "BRISANJE",;
+		nil,nil,nil,nil,;
+		cBDok, "konto: " + cBKonto + " dp=" + cBDP +;
+		" iznos=" + cBIznos + " KM", "",;
+		dBDatNal,;
+		Date(),;
+		"", "Obrisana stavka broj " + cStavka + " naloga!")		
       endif
       return DE_REFRESH
      endif
@@ -716,8 +735,21 @@ case Ch==K_ALT_F5
 	   //SrediRbr(.t.)
            APPEND BLANK
            Gather()
-           if lLogKnjiz
-      	          EventLog(nUser, goModul:oDataBase:cName, "DOK", "KNJIZ", nDug, nPot, nil, nil, "", "", "Unos stavke ....", Date(), Date(), "", "Knjizenje novog naloga")
+           
+	   if lLogUnos
+
+	   	  cOpis := pripr->idfirma + "-" + ;
+		  	pripr->idvn + "-" + ;
+			pripr->brnal
+
+      	          EventLog(nUser, goModul:oDataBase:cName, ;
+		  	"DOK", "UNOS", ;
+		  	nil, nil, nil, nil,;
+		  	"nalog: " + cOpis, "duguje=" + STR(nDug) +;
+		  	" potrazuje=" + STR(nPot), "", ;
+		  	Date(), Date(), ;
+		  	"", "Unos novih stavki na nalog")
+	   
 	   endif
 	   
 	enddo
@@ -725,8 +757,17 @@ case Ch==K_ALT_F5
         return DE_REFRESH
    case Ch=K_CTRL_F9
         if Pitanje(,"Zelite li izbrisati pripremu !!????","N")=="D"
-             if lLogKnjiz
-	     	EventLog(nUser, goModul:oDataBase:cName, "DOK", "KNJIZ", nil, nil, nil, nil, "", "", pripr->idfirma+"-"+pripr->idvn+"-"+pripr->brnal, Date(), Date(), "", "Brisanje pripreme ....")
+             if lLogBrisanje
+
+	        cOpis := pripr->idfirma + "-" + ;
+			pripr->idvn + "-" + ;
+			pripr->brnal
+
+	     	EventLog(nUser, goModul:oDataBase:cName, ;
+			"DOK", "BRISANJE", ;
+			nil, nil, nil, nil, ;
+			cOpis, "", "", pripr->datdok, Date(), ;
+			"", "Brisanje kompletne pripreme !")
 	     endif
 	     zap
              BrisiPBaze()

@@ -412,7 +412,14 @@ if !fAzur
 endif
 
 if lLogAzur
-	EventLog(nUser, goModul:oDataBase:cName, "DOK", "AZUR", nil, nil, nil, nil, "", "", pripr->idfirma+"-"+pripr->idvn+"-"+pripr->brnal, Date(), Date(), "", "Azuriranje dokumenta - poceo !")
+	cOpis := pripr->idfirma + "-" + ;
+		pripr->idvn + "-" + ;
+		pripr->brnal
+
+	EventLog(nUser, goModul:oDataBase:cName, "DOK", "AZUR", ;
+		nil, nil, nil, nil, ;
+		cOpis, "", "", pripr->datdok, Date(), ;
+		"", "Azuriranje dokumenta - poceo !")
 
 endif
 
@@ -661,7 +668,14 @@ if round(nSaldo,4)==0  .or. gRavnot=="N"
   enddo
 
 if lLogAzur
-	EventLog(nUser, goModul:oDataBase:cName, "DOK", "AZUR", nSaldo, nil, nil, nil, "", "", cEvIdFirma+cEvVrBrNal, dDatNaloga, dDatValute, "", "Azuriranje dokumenta - zavrsio !!!")
+	
+	cOpis := cEvIdFirma + "-" + cEvVrBrNal
+
+	EventLog(nUser, goModul:oDataBase:cName, "DOK", "AZUR", ;
+		nSaldo, nil, nil, nil, ;
+		cOpis, "", "", dDatNaloga, dDatValute, ;
+		"", "Azuriranje dokumenta - zavrsio !!!")
+
 endif
 
 
@@ -700,7 +714,7 @@ zap
 
 closeret
 return
-*}
+
 
 
 

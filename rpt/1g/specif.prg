@@ -4,23 +4,19 @@
 static __par_len
 
 
-/*! \file fmk/fin/rpt/1g/specif.prg
- *  \brief Specifikacije
- */
-
-
-/*! \fn SpecDPK()
- *  \brief Specifikacija partnera po kontu
- */
-
 function SpecDPK()
 local nCol1
 
 picBHD:=FormPicL("9 "+gPicBHD,17)
 
-cF:=cDD:="2" // format izvjestaja
-cPG := "D"   // prikazi grad partnera
-cIdFirma:=gFirma; nIznos:=nIznos2:=0; cDP:="1"; qqKonto:=qqPartner:=SPACE(100)
+cF:=cDD:="2" 
+// format izvjestaja
+cPG := "D"   
+// prikazi grad partnera
+cIdFirma:=gFirma
+nIznos:=nIznos2:=0
+cDP:="1"
+qqKonto:=qqPartner:=SPACE(100)
 
 O_PARTN
 
@@ -882,13 +878,10 @@ return aFields
 
 
 
-
-/*! \fn SpecPoKP()
- *  \brief Specifikacija subanalitickih konta 
- */
- 
+// ---------------------------------------------------
+// Specifikacija subanalitickih konta 
+// ---------------------------------------------------
 function SpecPoKP()
-*{
 local cSK:="N"
 local cLDrugi:=""
 local cPom:=""
@@ -897,10 +890,12 @@ local cLTreci:=""
 local cIzr1
 local cIzr2
 local cExpRptDN:="N"
+local cOpcine := SPACE(20)
 private cSkVar:="N"
 private fK1:=fk2:=fk3:=fk4:="N"
 private cRasclaniti:="N"
 private cRascFunkFond:="N"
+
 
 cN2Fin:=IzFMkIni('FIN','PartnerNaziv2','N')
 
@@ -992,6 +987,8 @@ Box("",18,65)
  			@ m_x+13,m_y+2 SAY "Rasclaniti po RJ/FUNK/FOND? (D/N) "  GET cRascFunkFond pict "@!" valid cRascFunkFond $ "DN"
  	
 		endif
+
+		@ m_x + 15, m_y + 2 SAY "Opcina (prazno-sve):" GET cOpcine
 		UpitK1k4(13)
  		@ m_x+18,m_y+2 SAY "Export izvjestaja u dbf (D/N) ?" GET cExpRptDN pict "@!" valid cExpRptDN $ "DN"
 		
@@ -1163,18 +1160,40 @@ nup:=0      // DIN
 nud2:=0
 nup2:=0    // DEM
 do whileSC !eof()
+	
 	cSin:=left(idkonto,3)
  	nKd:=0
 	nKp:=0
  	nKd2:=0
 	nKp2:=0
+
  	do whileSC !EOF() .and.  cSin==left(idkonto,3)
-   		cIdKonto:=IdKonto
+   		
+		nTArea := SELECT()
+
+		cIdKonto:=IdKonto
    		cIdPartner:=IdPartner
+
+		if !EMPTY(cOpcine)
+			select partn
+			seek cIdPartner
+			if ALLTRIM(field->idops) $ cOpcine
+				// to je taj partner...
+			else
+				// posto nije to taj preskoci...
+				select (nTArea)
+				skip
+				loop
+			endif
+		endif
+		
+		select (nTArea)
+
    		nD:=0
 		nP:=0
    		nD2:=0
 		nP2:=0
+
    		if cRasclaniti=="D"
       			cRasclan:=idrj
    		else

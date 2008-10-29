@@ -1,36 +1,7 @@
 #include "fin.ch"
-/*
- * ----------------------------------------------------------------
- *                                     Copyright Sigma-com software 
- * ----------------------------------------------------------------
- * $Source: c:/cvsroot/cl/sigma/fmk/fin/rpt/1g/mnu_spec.prg,v $
- * $Author: sasavranic $ 
- * $Revision: 1.4 $
- * $Log: mnu_spec.prg,v $
- * Revision 1.4  2004/02/16 14:26:10  sasavranic
- * Na specifikaciji po suban kontima napravio rasclanjenje po RJ FUNK FOND
- *
- * Revision 1.3  2004/02/16 14:12:00  sasavranic
- * Na specifikaciji po suban kontima napravio rasclanjenje po RJ FUNK FOND
- *
- * Revision 1.2  2004/01/13 19:07:57  sasavranic
- * appsrv konverzija
- *
- *
- */
-
-
-/*! \file fmk/fin/rpt/1g/mnu_spec.prg
- *  \brief Menij specifikacija
- */
-
-/*! \fn MnuSpecif()
- *  \brief Glavni menij za izbor specifikacija
- */
 
  
 function MnuSpecif()
-*{
 private opc:={}
 private opcexe:={}
 private Izbor:=1

@@ -34,7 +34,7 @@ local nCOpis:=0
 local cOpis := ""
 local cBoxName
 local dPom := CTOD("")
-
+local cOpcine := SPACE(20)
 private fK1:=fk2:=fk3:=fk4:="N"
 private cIdFirma:=gFirma
 private fOtvSt:=lOtvSt
@@ -167,7 +167,8 @@ Box("#"+ cBoxName, 21, 65)
  		if cBrza<>"D"
    			@ row()+1,m_y+2 SAY "Uslov za naziv konta (prazno-svi) " GET qqNazKonta PICT "@!S20"
  		endif
-	 	@ row()+1,m_y+2 SAY "Svaka kartica treba da ima zaglavlje kolona ? (D/N)"  GET c1k1z pict "@!" valid c1k1z $ "DN"
+	 	@ row()+1,m_y+2 SAY "Opcina (prazno-sve):" GET cOpcine
+		@ row()+1,m_y+2 SAY "Svaka kartica treba da ima zaglavlje kolona ? (D/N)"  GET c1k1z pict "@!" valid c1k1z $ "DN"
 		read
 		ESC_BCR
 	
@@ -416,6 +417,22 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
 		nZDugDEM:=0
 		nZPotDEM:=0
     		cIdPartner:=IdPartner
+
+		nTarea := SELECT()
+
+		if !EMPTY(cOpcine)
+			select partn
+			seek cIdPartner
+			if FOUND() .and. field->id == cIdPartner .and. ALLTRIM(field->idops) $ ALLTRIM(cOpcine)
+				//
+			else
+				select (nTarea)
+				skip
+				loop
+			endif
+		endif
+
+		select (nTarea)
     		
 		if cRasclaniti=="D"
        			cRasclan:=idrj+funk+fond

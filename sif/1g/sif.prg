@@ -98,7 +98,7 @@ return
  *  \param dy
  */
  
-function P_Firma(cId,dx,dy)
+function P_dummy(cId,dx,dy)
 *{
 local cN2Fin, i
 

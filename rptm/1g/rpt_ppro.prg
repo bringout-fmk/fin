@@ -72,66 +72,87 @@ cSort := "dtos(datdok)"
 INDEX ON &cSort TO "SUBTMP" FOR &cFilter
 // SET FILTER TO &cFilter
 
-aDug := {}; nDug:=0
-aPot := {}; nPot:=0
-
-GO TOP
-DO WHILE !EOF()
-  IF &aUsl2
-    SKIP 1
-    LOOP
-  ENDIF
-  IF d_p=="1"
-    AADD( aDug , RedIspisa() )
-    nDug += iznosbhd
-  ELSE
-    AADD( aPot , RedIspisa() )
-    nPot += iznosbhd
-  ENDIF
-  SKIP 1
-ENDDO
+nDug:=0
+nPot:=0
 
 m := "------ -------- " + REPL("-", __par_len) + " "+REPL("-",40)+" "+REPL("-",16)
 z := "R.BR. * DATUM  *" + PADC("PARTN.", __par_len) + "*"+PADC("NAZIV PARTNERA ILI OPIS PROMJENE",40)+"*"+PADC("UPLATA KM",16)
 
 START PRINT CRET
- nStranica := 0
- ZagPPR("U")
- FOR i:=1 TO LEN(aPot)
-   IF prow()>60+gPstranica
+nStranica := 0
+ZagPPR("U")
+
+nCnt := 0
+
+GO TOP
+DO WHILE !EOF()
+  
+  IF prow()>60+gPstranica
      FF
      ZagPPR("U")
-   ENDIF
-   ? STR(i,5)+". "+aPot[i]
- NEXT
- ? m
- ? "UKUPNO UPLATE"+PADL(TRANSFORM(nPot,picbhd),67)
- ? m
- ?
- IF prow()>60+gPstranica
+  ENDIF
+  
+  IF &aUsl2
+    SKIP 1
+    LOOP
+  ENDIF
+  
+  IF d_p=="2"
+    ? STR(++nCnt, 6), RedIspisa()
+    nPot += iznosbhd
+  ENDIF
+  
+  SKIP
+
+ENDDO
+
+? m
+? "UKUPNO UPLATE"+PADL(TRANSFORM(nPot,picbhd),67)
+? m
+
+?
+
+IF prow()>60+gPstranica
    FF
    ZagPPR("I")
- ELSE
+ELSE
    ? "PREGLED ISPLATA:"
    ? m; ? z; ? m
- ENDIF
- FOR i:=1 TO LEN(aDug)
-   IF prow()>60+gPstranica
+ENDIF
+
+nCnt := 0
+
+GO TOP
+DO WHILE !EOF()
+  
+  IF prow()>60+gPstranica
      FF
      ZagPPR("I")
-   ENDIF
-   ? STR(i,5)+". "+aDug[i]
- NEXT
- ? m
- ? "UKUPNO ISPLATE"+PADL(TRANSFORM(nDug,picbhd),66)
- ? m
+  ENDIF
+  
+  IF &aUsl2
+    SKIP 1
+    LOOP
+  ENDIF
+  
+  IF d_p == "1"
+    ? STR(++nCnt, 6), RedIspisa()
+    nDug += iznosbhd
+  ENDIF
+  
+  SKIP
 
- FF
+ENDDO
+
+? m
+? "UKUPNO ISPLATE"+PADL(TRANSFORM(nDug,picbhd),66)
+? m
+
+FF
 END PRINT
 
 CLOSERET
 return
-*}
 
 
 
@@ -140,7 +161,6 @@ return
  */
  
 function RedIspisa()
-*{
 LOCAL cVrati:=""
   cVrati := DTOC(datdok)+" "+idpartner+" "
   IF EMPTY(idpartner)
@@ -150,7 +170,6 @@ LOCAL cVrati:=""
   ENDIF
   cVrati += ( " " + TRANSFORM(iznosbhd,picbhd) )
 RETURN cVrati
-*}
 
 
 
@@ -172,7 +191,6 @@ function ZagPPR(cI)
   ENDIF
   ? m; ? z; ? m
 RETURN
-*}
 
 
 
@@ -195,7 +213,6 @@ function StrKZN(cInput,cIz,cU)
    cInput:=STRTRAN(cInput,aIz[i],aU[i])
  NEXT
 RETURN cInput
-*}
 
 
 

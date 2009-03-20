@@ -296,6 +296,7 @@ BBMnoziSaK()
 
 START PRINT CRET
 
+
 B:=B1:=B2:=0  // brojaci
 
 select SUBAN
@@ -392,8 +393,8 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
                IF cFormat=="2"
                 @ prow(),pcol()+1 SAY PADR(naz,48-LEN (cidpartner))   // difidp
                ELSE
-                @ prow(),pcol()+1 SAY naz
-                @ prow(),pcol()+1 SAY naz2
+                @ prow(),pcol()+1 SAY PADR(naz,20)
+                @ prow(),pcol()+1 SAY PADR(naz2,20)
                 @ prow(),pcol()+1 SAY Mjesto
                 @ prow(),pcol()+1 SAY Adresa PICTURE 'XXXXXXXXXXXXXXXXX'
                ENDIF

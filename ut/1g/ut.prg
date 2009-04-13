@@ -1,6 +1,22 @@
 #include "fin.ch"
 
 
+
+// ----------------------------------
+// fix brnal
+// ----------------------------------
+function _f_brnal( cBrNal )
+
+
+if !EMPTY( ALLTRIM(cBrNal) ) .and. LEN(ALLTRIM(cBrNal)) < 8
+	cBrNal := PADL( ALLTRIM(cBrNal), 8, "0" )
+endif
+
+return .t.
+
+
+
+
 /*! \fn OtkljucajBug()
     \brief ??Otkljucaj lafo bug?
     \note sifra: BUG

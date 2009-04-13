@@ -36,7 +36,7 @@ Box("",IF(lStorno,3,1),IF(lStorno,65,35))
   @ m_x+1,col()+1 GET cIdFirma PICT "@!"
  endif
  @ m_x+1,col()+1 SAY "-" GET cIdVN PICT "@!"
- @ m_x+1,col()+1 SAY "-" GET cBrNal
+ @ m_x+1,col()+1 SAY "-" GET cBrNal VALID _f_brnal(@cBrNal)
  IF lStorno
    @ m_x+3,m_y+2 SAY "Broj novog naloga (naloga storna):"
    if gNW=="D"

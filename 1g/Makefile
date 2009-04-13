@@ -19,6 +19,5 @@ include ../../fmk_lib/Makefile_clipper
 LIBEXE:=@echo pokrenute make exe  !
 CPLIB:=@echo pokrenuti make exe !
 RMLIB:=@echo pokrenuti make exe !
-#e.obj : $(SC_BUILD_HOME_DIR)/sclib/sc.ch $(SC_BUILD_HOME_DIR)/sclib/std_cdx.ch ../fin.ch
 
 lib: exe

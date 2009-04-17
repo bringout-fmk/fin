@@ -186,7 +186,7 @@ do while .t.
  	@ m_x+3,m_y+2 SAY "Konto " GET qqKonto    pict "@!S50"
  	@ m_x+4,m_y+2 SAY "Od datuma :" get dDatOD
  	@ m_x+4,col()+2 SAY "do" GET dDatDo
- 	@ m_x+6,m_y+2 SAY "Format izvjestaja A3/A4 (1/2)" GET cFormat
+ 	@ m_x+6,m_y+2 SAY "Format izvjestaja A3/A4/A4L (1/2/3)" GET cFormat
  	@ m_x+7,m_y+2 SAY "Klase unutar glavnog izvjestaja (D/N)" GET cPodKlas VALID cPodKlas$"DN" PICT "@!"
  	@ m_x+8,m_y+2 SAY "Prikaz stavki sa saldom 0 D/N " GET cNule valid cnule $"DN" pict "@!"
  	cIdRJ:=""
@@ -222,7 +222,7 @@ if gRJ=="D" .and. "." $ cIdRj
   	// odsjeci ako je tacka. prakticno "01. " -> sve koje pocinju sa  "01"
 endif
 
-IF cFormat=="1"
+IF cFormat $ "1#3"
  private REP1_LEN:=236
  th1:= "---- ------- -------- --------------------------------------------------- -------------- ----------------- --------------------------------- ------------------------------- ------------------------------- -------------------------------"
  th2:= "*R. * KONTO *PARTNER *     NAZIV KONTA ILI PARTNERA                      *    MJESTO    *      ADRESA     *        PO¬ETNO STANJE           *         TEKUI PROMET         *       KUMULATIVNI PROMET      *            SALDO             *"
@@ -309,7 +309,7 @@ nCol1:=50
 DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
    IF prow() == 0
-   	ZaglSan()
+   	ZaglSan( cFormat )
    ENDIF
 
    // PS - pocetno stanje
@@ -377,7 +377,7 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
             IF prow()>61+gpStranica
 	    	FF
-		ZaglSan()
+		ZaglSan(cFormat)
 	    ENDIF
 
             IF (cNule == "N" .and. ROUND(D0KP-P0KP, 2) == 0)
@@ -435,7 +435,7 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
 	  IF prow() > 59 + gpStranica
 	 	FF
-		ZaglSan()
+		ZaglSan(cFormat)
 	  ENDIF
 
 	 //if (( cPrikaz == "1" .and. EMPTY(cIdPartner)) .or. cPrikaz $ "23" )
@@ -496,7 +496,7 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 
       IF prow() > 61 + gpStranica
       	FF 
-	ZaglSan()
+	ZaglSan(cFormat)
       ENDIF
 
       @ prow()+1,4 SAY replicate("=",REP1_LEN-4)
@@ -578,7 +578,7 @@ ENDDO
 
 IF prow()>59+gpStranica
   FF
-  ZaglSan()
+  ZaglSan(cFormat)
 ENDIF
 
 ? th5
@@ -669,9 +669,20 @@ RETURN
  *  \brief Zaglavlje strane subanalitickog bruto bilansa
  */
  
-function ZaglSan()
+function ZaglSan(cFormat)
+
+if cFormat == nil
+	cFormat := "2"
+endif
+
 ?
+
+if cFormat $ "1#3" 
+	? "#%LANDS#"
+endif
+
 P_COND2
+
 ?? "FIN: SUBANALITI¬KI BRUTO BILANS U VALUTI '"+TRIM(cBBV)+"'"
 if !(empty(dDatod) .and. empty(dDatDo))
     ?? " ZA PERIOD OD",dDatOd,"-",dDatDo

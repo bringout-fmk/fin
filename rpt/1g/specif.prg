@@ -891,6 +891,7 @@ local cIzr1
 local cIzr2
 local cExpRptDN:="N"
 local cOpcine := SPACE(20)
+local cVN := SPACE(20)
 private cSkVar:="N"
 private fK1:=fk2:=fk3:=fk4:="N"
 private cRasclaniti:="N"
@@ -981,10 +982,11 @@ Box("",18,65)
  		@ m_x+ 9,m_y+2 SAY "Prikaz stavki sa saldom 0 D/N" GET cNula pict "@!" valid cNula  $ "DN"
  		@ m_x+10,m_y+2 SAY "Skracena varijanta (D/N) ?" GET cSkVar pict "@!" valid cSkVar $ "DN"
  		@ m_x+11,m_y+2 SAY "Uslov za broj veze (prazno-svi) " GET qqBrDok PICT "@!S20"
+ 		@ m_x+12,m_y+2 SAY "Uslov za vrstu naloga (prazno-svi) " GET cVN PICT "@!S20"
  		cRasclaniti:="N"
  		if gRJ=="D"
-  			@ m_x+12,m_y+2 SAY "Rasclaniti po RJ (D/N) "  GET cRasclaniti pict "@!" valid cRasclaniti $ "DN"
- 			@ m_x+13,m_y+2 SAY "Rasclaniti po RJ/FUNK/FOND? (D/N) "  GET cRascFunkFond pict "@!" valid cRascFunkFond $ "DN"
+  			@ m_x+13,m_y+2 SAY "Rasclaniti po RJ (D/N) "  GET cRasclaniti pict "@!" valid cRasclaniti $ "DN"
+ 			@ m_x+14,m_y+2 SAY "Rasclaniti po RJ/FUNK/FOND? (D/N) "  GET cRascFunkFond pict "@!" valid cRascFunkFond $ "DN"
  	
 		endif
 
@@ -1014,7 +1016,8 @@ Box("",18,65)
    			aUsl4:=Parsiraj(cIdRJ,"IdRj")
  		ENDIF
  		aBV:=Parsiraj(qqBrDok,"UPPER(BRDOK)","C")
- 		if aBV<>NIL .and. ausl1<>NIL .and. aUsl2<>NIL .and. IF(gDUFRJ=="D",aUsl3<>NIL.and.aUsl4<>NIL,.t.)
+		aVN:=Parsiraj(cVN,"IDVN","C")
+ 		if aBV<>NIL .and. aVN<>NIL .and. ausl1<>NIL .and. aUsl2<>NIL .and. IF(gDUFRJ=="D",aUsl3<>NIL.and.aUsl4<>NIL,.t.)
 			exit
 		endif
 	enddo
@@ -1074,6 +1077,10 @@ IF gDUFRJ=="D"
 ELSE
   	cFilter := "IdFirma="+cm2str(cidfirma)
 ENDIF
+
+IF !EMPTY(cVN)
+	cFilter += ( ".and. " + aVN )
+endif
 
 IF !EMPTY(qqBrDok)
   	cFilter += ( ".and." + aBV )

@@ -39,5 +39,6 @@ cleanall:
 	cd ostav/1g; make clean
 	cd param/1g; make clean
 	cd ut/1g; make clean
+	cd 1g; make clean
 
 fin:    cleanall  liball

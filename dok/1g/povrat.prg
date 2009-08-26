@@ -1,6 +1,9 @@
 #include "fin.ch"
 
- 
+
+// -------------------------------------
+// povrat naloga u pripremu
+// -------------------------------------
 function Povrat(lStorno)
 local nRec
 
@@ -52,27 +55,29 @@ BoxC()
 
 
 if cBrNal="."
-  IF !SigmaSif()
-     CLOSERET
-  ENDIF
-  private qqBrNal:=qqDatDok:=qqIdvn:=space(80)
-  qqIdVn:=padr(cidvn+";",80)
-  Box(,3,60)
-   do while .t.
-    @ m_x+1,m_y+2 SAY "Vrste naloga   "  GEt qqIdVn pict "@S40"
-    @ m_x+2,m_y+2 SAY "Broj naloga    "  GEt qqBrNal pict "@S40"
-    read
-    private aUsl1:=Parsiraj(qqBrNal,"BrNal","C")
-    private aUsl3:=Parsiraj(qqIdVN,"IdVN","C")
-    if aUsl1<>NIL .and. ausl3<>NIL
-      exit
-    endif
-   enddo
-  Boxc()
-  if Pitanje(,IF(lStorno,"Stornirati","Povuci u pripremu")+" naloge sa ovim kriterijem ?","N")=="D"
-    select suban
-    if !flock(); Msg("SUBANALITIKA je zauzeta ",3); closeret; endif
-
+	IF !SigmaSif()
+     		CLOSERET
+  	ENDIF
+  	private qqBrNal:=qqDatDok:=qqIdvn:=space(80)
+  	qqIdVn:=padr(cidvn+";",80)
+  	Box(,3,60)
+   	do while .t.
+    		@ m_x+1,m_y+2 SAY "Vrste naloga   "  GEt qqIdVn pict "@S40"
+    		@ m_x+2,m_y+2 SAY "Broj naloga    "  GEt qqBrNal pict "@S40"
+    		read
+    		private aUsl1:=Parsiraj(qqBrNal,"BrNal","C")
+    		private aUsl3:=Parsiraj(qqIdVN,"IdVN","C")
+    		if aUsl1<>NIL .and. ausl3<>NIL
+      			exit
+    		endif
+   	enddo
+  	Boxc()
+  	if Pitanje(,IF(lStorno,"Stornirati","Povuci u pripremu")+" naloge sa ovim kriterijem ?","N")=="D"
+    		select suban
+    		if !flock()
+			Msg("SUBANALITIKA je zauzeta ",3)
+			closeret
+		endif
 
     private cFilt:="IdFirma=="+cm2str(cIdFirma)
     if aUsl1==".t." .and. aUsl3==".t."
@@ -208,7 +213,13 @@ IF !lBrisi
   CLOSERET
 ENDIF
 
-if !flock(); msg("Datoteka je zauzeta ",3); closeret; endif
+if tbl_busy( F_SUBAN ) = 0
+	msg("Datoteka je zauzeta ",3)
+	closeret
+endif
+
+//if !flock(); msg("Datoteka je zauzeta ",3); closeret; endif
+
 seek cidfirma+cidvn+cbrNal
 DO WHILE !EOF() .and. cIdFirma==IdFirma .and. cIdVN==IdVN .and. cBrNal==BrNal
   skip 1; nRec:=recno(); skip -1
@@ -221,7 +232,14 @@ MsgC()
 
 MsgO("ANAL")
 select ANAL; set order to 2
-if !flock(); msg("Datoteka je zauzeta ",3); closeret; endif
+
+if tbl_busy( F_ANAL ) = 0
+	msg("Datoteka je zauzeta ",3)
+	closeret
+endif
+
+//if !flock(); msg("Datoteka je zauzeta ",3); closeret; endif
+
 seek cidfirma+cidvn+cbrNal
 do while !eof() .and. cIdFirma==IdFirma .and. cIdVN==IdVN .and. cBrNal==BrNal
   skip 1; nRec:=recno(); skip -1
@@ -234,7 +252,14 @@ MsgC()
 
 MsgO("SINT")
 select sint;  set order to 2
-if !flock(); msg("Datoteka je zauzeta ",3); closeret; endif
+
+if tbl_busy( F_SINT ) = 0
+	msg("Datoteka je zauzeta ",3)
+	closeret
+endif
+
+//if !flock(); msg("Datoteka je zauzeta ",3); closeret; endif
+
 seek cidfirma+cidvn+cbrNal
 do while !eof() .and. cIdFirma==IdFirma .and. cIdVN==IdVN .and. cBrNal==BrNal
   skip 1; nRec:=recno(); skip -1
@@ -247,7 +272,13 @@ MsgC()
 
 MsgO("NALOG")
 select nalog
-if !flock(); msg("Datoteka je zauzeta ",3); closeret; endif
+
+if tbl_busy( F_NALOG ) = 0
+	msg("Datoteka je zauzeta ",3)
+	closeret
+endif
+//if !flock(); msg("Datoteka je zauzeta ",3); closeret; endif
+
 seek cidfirma+cidvn+cbrNal
 do while !eof() .and. cIdFirma==IdFirma .and. cIdVN==IdVN .and. cBrNal==BrNal
   skip 1; nRec:=recno(); skip -1
@@ -263,9 +294,56 @@ endif
 
 closeret
 return
-*}
 
 
+
+// --------------------------------
+// tabela zauzeta
+// --------------------------------
+function tbl_busy( f_area )
+local nTime
+private cAlias := ALIAS( f_area )
+
+if !( &(cAlias)->(flock()) )
+ 	   
+	    if gAzurTimeOut == nil
+	    	nTime := 150
+	    else
+	        nTime := gAzurTimeOut
+	    endif
+	   
+	    Box(,1, 40)
+
+	    // daj mu vremena...
+	    do while nTime > 0
+	
+		-- nTime
+
+		@ m_x + 1, m_y + 2 SAY "timeout: " + ALLTRIM(STR(nTime))
+		
+		if ( &(cAlias)->(flock()) )
+			exit
+		endif
+	    
+		sleep(1)
+
+	    enddo
+	    
+	    BoxC()
+
+	    if nTime = 0 .and. !( &(cAlias)->(flock()) )
+	
+	    	Beep(4) 
+ 	    	BoxC() 
+ 	    	Msg("Timeout istekao !#Ponovite operaciju") 
+ 	    	close
+		return 0
+	
+	    endif
+
+endif
+
+return 1
 
 
 /*! \fn Preknjiz()

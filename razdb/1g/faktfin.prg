@@ -319,17 +319,9 @@ cIdVN:=IdVN   // uzmi vrstu naloga koja ce se uzeti u odnosu na prvu kalkulaciju
              //  koja se kontira
 
 if lAFin
+	cBrNalF := nextnal( finmat->idfirma, cIdVn )
 	select nalog
-	seek finmat->idfirma+cidvn+chr(254)
-	skip -1
-if idvn<>cidvn
-     cBrnalF:="00000000"
-else
-     cBrNalF:=brnal
-endif
-cBrNalF:=NovaSifra(cBrNalF)
-select nalog
-use
+	use
 endif
 
 select finmat

@@ -268,24 +268,7 @@ read
 ESC_RETURN 0
 
 if fNovi .and. (_idfirma<>idfirma .or. _idvn<>idvn)
-	if gBrojac=="1"
-     		select NALOG
-		set order to 1
-     		seek _idfirma+_idvn+chr(254)
-		skip -1
-     		if idfirma+idvn==_idfirma+_idvn
-       			_brnal:=NovaSifra(brnal)
-     		else
-       			_brnal:="00000001"
-     		endif
-    	else
-     		select NALOG
-     		set order to 2
-     		seek _idfirma+chr(254)
-     		skip -1
-     		brnal:=padl(alltrim(str(val(brnal)+1)),8,"0")
-    	endif
-
+	_brnal := nextnal( _idfirma, _idvn )
      	select  pripr
 endif
 
@@ -2033,25 +2016,8 @@ function IzvodBanke()
 
   nH   := fopen(cIme)
   nRBr := 0
-
-    if gBrojac=="1"
-     select NALOG; set order to 1
-     seek gfirma+cidvn+chr(254)
-     skip -1
-     
-     if idfirma+idvn==gfirma+cidvn
-       cbrnal:=NovaSifra(brnal)
-     else
-       cbrnal:="00000001"
-     endif
-    else
-     select NALOG; set order to 2
-     seek gfirma+chr(254) 
-     skip -1
-     cBrnal:=padl(alltrim(str(val(brnal)+1)),8,"0")
-    endif
-
-
+  cBrNal := nextnal( gFirma, cIdvn )
+  
   StartPrint(.t.)
 
   P_COND2

@@ -76,24 +76,7 @@ select trfp3
 set filter to shema=cShema
 go top
 
-
-if gBrojac=="1"
-	select NALOG
-	set order to 1
-	seek gfirma+trfp3->idvn+"X"
-	skip -1
-	if idfirma+idvn==gfirma+trfp3->idvn
-		cbrnal:=NovaSifra(brnal)
-	else
-		cbrnal:="00000001"
-	endif
-else
-	select NALOG
-	set order to 2
-	seek gfirma+"X"
-	skip -1
-	cbrnal:=padl(alltrim(str(val(brnal)+1)),8,"0")
-endif
+cBrNal := nextnal( gFirma, trfp3->idvn )
 
 select trfp3
 

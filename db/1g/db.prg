@@ -743,32 +743,77 @@ endif
 
 PopWa()
 return .t.
-*}
 
 
-/*! \fn NextNal(cIdVN)
- *  \brief Vraca sljedeci broj naloga za idvn
- *  \param cIdVN - tip naloga
- */
-function NextNal(cIdVN)
-*{
+// --------------------------------
+// validacija broja naloga
+// --------------------------------
+static function __val_nalog( cNalog )
+local lRet := .t.
+local cTmp
+local cChar
+local i
+
+cTmp := RIGHT( cNalog, 4 )
+
+// vidi jesu li sve brojevi
+for i := 1 to LEN( cTmp )
+	
+	cChar := SUBSTR( cTmp, i, 1 )
+	
+	if cChar $ "0123456789"
+		loop
+	else
+		lRet := .f.
+		exit
+	endif
+
+next
+
+return lRet
+
+
+
+
+
+
+// ---------------------------------------------
+// centralna funkcija za odredjivanje
+// novog broja naloga !!!!
+// cIdFirma - firma
+// cIdVn - tip naloga
+// ---------------------------------------------
+function NextNal( cIdFirma, cIdVN )
 local nArr
 nArr:=SELECT()
 
 if gBrojac=="1"
 	select NALOG
 	set order to 1
-	seek gFirma+cIdVN+chr(254)
+	seek cIdFirma+cIdVN+chr(254)
 	skip -1
-	if idfirma+idvn==gFirma+cIdVN
-		cBrNal:=NovaSifra(brNal)
+	altd()
+	if ( idfirma + idvn == cIdFirma + cIdVN )
+		
+		// napravi validaciju polja ...
+		do while !BOF()
+
+			if !__val_nalog( field->brnal )
+				skip -1
+				loop
+			else
+				exit
+			endif
+		enddo
+		
+		cBrNal := NovaSifra(brNal)
 	else
-		cBrNal:="00000001"
+		cBrNal := "00000001"
 	endif
 else
 	select NALOG
 	set order to 2
-	seek gFirma+chr(254)
+	seek cIdFirma+chr(254)
 	skip -1
 	cBrNal:=padl(alltrim(str(val(brnal)+1)),8,"0")
 endif
@@ -776,7 +821,6 @@ endif
 select (nArr)
 
 return cBrNal
-*}
 
 
 // ----------------------------------------------------------------

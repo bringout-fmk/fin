@@ -583,10 +583,20 @@ case Ch==K_ALT_F5
         endif
      endif
      return DE_CONT
+  
+  case Ch==K_F8
+
+	// brisi stavke u pripremi od - do
+	if br_oddo() = 1
+		return DE_REFRESH
+	else
+		return DE_CONT
+	endif
 
   case Ch==K_F9
   	SrediRbr()
 	return DE_REFRESH
+  
   case Ch==K_CTRL_T
      if Pitanje(,"Zelite izbrisati ovu stavku ?","D")=="D"
 
@@ -802,8 +812,56 @@ case Ch==K_ALT_F5
 endcase
 
 return DE_CONT
-*}
 
+
+// ----------------------------------------
+// brisi stavke iz pripreme od-do
+// ----------------------------------------
+static function br_oddo()
+local nRet := 1
+local GetList := {}
+local cOd := SPACE(4)
+local cDo := SPACE(4)
+local nOd
+local nDo
+
+Box(,1, 31)
+	@ m_x + 1, m_y + 2 SAY "Brisi stavke od:" GET cOd VALID _rbr_fix(@cOd)
+	@ m_x + 1, col()+1 SAY "do:" GET cDo VALID _rbr_fix(@cDo)
+	read
+BoxC()
+
+if LastKey() == K_ESC .or. ;
+	Pitanje(,"Sigurno zelite brisati zapise ?","N") == "N"
+	return 0
+endif
+
+go top
+
+do while !EOF()
+	
+	cRbr := field->rbr
+
+	if cRbr >= cOd .and. cRbr <= cDo
+		delete
+	endif
+
+	skip
+enddo
+
+go top
+
+return nRet
+
+
+// -----------------------------------------
+// fiksiranje rednog broja
+// -----------------------------------------
+static function _rbr_fix( cStr )
+
+cStr := PADL( ALLTRIM(cStr), 4 )
+
+return .t.
 
 
 /*! \fn StNal(lAuto)

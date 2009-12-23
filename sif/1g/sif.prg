@@ -622,25 +622,6 @@ endif
 //*}
 
 
-/*! \fn P_Rj(cId,dx,dy)
- *  \brief Otvara sifrarnik radnih jedinica
- *  \param cId
- *  \param dx
- *  \param dy
- */
- 
-function P_RJ(cId,dx,dy)
-*{
-private imekol,kol
-
-ImeKol:={ { padr("Id",2), {|| id}, "id", {|| .t.}, {|| vpsifra(wid)} },;
-          { padr("Naziv",35), {||  naz}, "naz" }                       ;
-       }
-Kol:={1,2}
-private gTBDir:="N"
-return PostojiSifra(F_RJ,1,10,55,"Lista radnih jedinica",@cId,dx,dy)
-*}
-
 
 /*! \fn P_Funk(cId,dx,dy)
  *  \brief Otvara sifranik funkcionalnih klasifikacija 

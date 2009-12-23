@@ -2386,13 +2386,16 @@ function GetTekucaRJ()
 local nArr
 local lUsed
 local cRJ
+local nLen
 nArr:=SELECT()
 lUsed:=.t.
 O_PRIPR
 if gRJ == "D" .and. pripr->(FIELDPOS("IDRJ")) <> 0
-	cRJ:=SPACE( LEN(pripr->idrj) )
+	nLen := LEN( pripr->idrj )
+	cRJ:=SPACE( nLen )
 else
-	cRj:=SPACE(6)
+	nLen := 6
+	cRj:=SPACE(nLen)
 endif
 select (F_PARAMS)
 if !used()
@@ -2407,6 +2410,6 @@ if !lUsed
 	use
 endif
 select (nArr)
-return (PADR(cRJ,4))
-*}
+return ( PADR( cRJ, nLen ) )
+
 

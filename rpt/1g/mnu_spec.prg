@@ -40,6 +40,8 @@ AADD(opc, "E. rekapitulacija partnera po poslovnim godinama")
 AADD(opcexe, {|| RPPG()})
 AADD(opc, "F. pregled dugovanja partnera po rocnim intervalima ")
 AADD(opcexe, {|| SpecDugPartnera()})
+AADD(opc, "S. specifikacija troskova po gradilistima ")
+AADD(opcexe, {|| r_spec_tr()})
 
 Menu_SC("spc")
 return

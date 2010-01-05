@@ -1528,7 +1528,7 @@ RETURN
  
 function OstaleOpcije()
 *{
-private opc[3]
+private opc[4]
   opc[1]:="1. novi datum->datum, stari datum->dat.valute "
   opc[2]:="2. podijeli nalog na vise dijelova"
   if IzFMKINI("FIN","IzvodBanke","N")=="D"
@@ -1536,7 +1536,8 @@ private opc[3]
   else
     opc[3]:="3. -------------------------------"
   endif
-  h[1]:=h[2]:=h[3]:=""
+  opc[4]:="4. konverzija partnera"
+  h[1]:=h[2]:=h[3]:=h[4]:=""
   private Izbor:=1
   private am_x:=m_x,am_y:=m_y
   close all
@@ -1553,6 +1554,12 @@ private opc[3]
            if IzFMKINI("FIN","IzvodBanke","N")=="D"
              IzvodBanke()
            endif
+       case izbor == 4
+          msgo("konverzija - polje partnera")
+	  O_PRIPR
+          mod_f_val("idpartner", "1", "0", 4, 2, .t. )
+	  go top
+	  msgc()
      endcase
   enddo
   m_x:=am_x; m_y:=am_y

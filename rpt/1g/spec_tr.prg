@@ -95,16 +95,16 @@ P_10CPI
 ? PADL( "bruto:", 20 )
 @ prow(), pcol()+1 SAY STR(0,12,2)
 @ prow(), pcol()+1 SAY STR(nLD_bruto,12,2)
-@ prow(), pcol()+1 SAY STR(nLD_bruto,12,2)
+@ prow(), pcol()+1 SAY STR(0 - nLD_bruto,12,2)
 ? PADL( "10.5% od bruta:", 20 )
 nTmpBr := ( nLD_bruto * 0.105 )
 @ prow(), pcol()+1 SAY STR(0,12,2)
 @ prow(), pcol()+1 SAY STR(nTmpBr,12,2)
-@ prow(), pcol()+1 SAY STR(nTmpBr,12,2)
+@ prow(), pcol()+1 SAY STR(0 - nTmpBr,12,2)
 ? PADL( "ostali troskovi:", 20 )
-@ prow(), pcol()+1 SAY STR(nLD_pri,12,2)
+@ prow(), pcol()+1 SAY STR(0,12,2)
 @ prow(), pcol()+1 SAY STR(nLD_ras,12,2)
-@ prow(), pcol()+1 SAY STR(nLD_pri-nLD_ras,12,2)
+@ prow(), pcol()+1 SAY STR(0 - nLD_ras,12,2)
 
 
 ? PADR( "2) roba - materijal", 20 )
@@ -120,12 +120,16 @@ nTmpBr := ( nLD_bruto * 0.105 )
 ? cLine
 
 ? PADR( "UKUPNO:", 20 )
-@ prow(), pcol()+1 SAY STR( ( nLD_pri + nKALK_pri + nFIN_pri ) , 12, 2 )
-@ prow(), pcol()+1 SAY STR( ( nLD_ras + nTmpBr + nLD_bruto + ;
-	nKALK_ras + nFIN_ras ) , 12, 2 ) 
-@ prow(), pcol()+1 SAY STR( ( ( nLD_pri - ( nLD_ras + nLD_bruto + nTmpBr )) + ;
-	( nKALK_pri - nKALK_ras ) + ;
-	( nFIN_pri - nFIN_ras ) ) , 12, 2 )
+
+nTO_prih := ( nLD_pri + nKALK_pri + nFIN_pri )
+nTO_rash := ( nLD_ras + nTmpBr + nLD_bruto + nKALK_ras + nFIN_ras )
+
+// prihodi total
+@ prow(), pcol()+1 SAY STR( nTO_prih , 12, 2 )
+// rashodi total
+@ prow(), pcol()+1 SAY STR( nTO_rash , 12, 2 ) 
+// ukupno prihodi - rashodi
+@ prow(), pcol()+1 SAY STR( nTO_prih - nTO_rash , 12, 2 )
 
 ? cLine
 
@@ -386,7 +390,7 @@ do while !EOF() .and. field->idfirma == cIdFirma
 
 	if LEFT( cIdKonto, 1 ) == "6"
 		// prihod je na 6-ci
-		nFIN_pri += nP_saldo
+		nFIN_pri += ABS( nP_saldo )
 	else
 		// ovo je rashod
 		nFIN_ras += nP_saldo
@@ -580,18 +584,19 @@ do while !EOF() .and. field->idfirma == cIdFirma
 
   enddo
 
-  ? cLine
-  ? "ukupno partner " + cIdPartner
-  @ prow(), nK_col SAY PADR( _g_pt_naz( cIdPartner ), 40)
-  @ prow(), nP_col SAY STR( nP_dug, 12, 2 )
-  @ prow(), pcol()+1 SAY STR( nP_pot, 12, 2 )
-  @ prow(), pcol()+1 SAY STR( nP_saldo, 12, 2 )
-  ? cLine
+  //? cLine
+  //? "ukupno partner " + cIdPartner
+  //@ prow(), nK_col SAY PADR( _g_pt_naz( cIdPartner ), 40)
+  //@ prow(), nP_col SAY STR( nP_dug, 12, 2 )
+  //@ prow(), pcol()+1 SAY STR( nP_pot, 12, 2 )
+  //@ prow(), pcol()+1 SAY STR( nP_saldo, 12, 2 )
+  //? cLine
 
 enddo
 
 // ispisi total...
 
+? cLine
 ? "UKUPNO:"
 @ prow(), nP_col SAY STR( nT_dug, 12, 2 )
 @ prow(), pcol()+1 SAY STR( nT_pot, 12, 2 )

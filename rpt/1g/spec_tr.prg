@@ -9,6 +9,7 @@ function r_spec_tr()
 local dD_from
 local dD_to
 local cKtoList
+local cKtoListZ
 local cSp_ld
 local cGroup
 local cKonto
@@ -16,6 +17,7 @@ local cTxt
 local cLine
 private nLD_ras := 0
 private nLD_pri := 0
+private nLD_bruto := 0
 private nFIN_ras := 0
 private nFIN_pri := 0
 private nKALK_pri := 0
@@ -25,7 +27,7 @@ O_KONTO
 O_RJ
 
 // uslovi izvjestaja
-if g_vars( @dD_from, @dD_to, @cGroup, @cKtoList, @cSp_ld ) == 0
+if g_vars( @dD_from, @dD_to, @cGroup, @cKtoListZ, @cKtoList, @cSp_ld ) == 0
 	return
 endif
 
@@ -33,8 +35,19 @@ START PRINT CRET
 
 __r_head( dD_from, dD_to )
 
-// uzmi podatke fin-a
-__gen_fin( dD_from, dD_to, cGroup, cKtoList )
+
+? "1) stavke koje ne uticu na rekapitulaciju:"
+?
+
+// prvo uzmi podatke iz fin-a samo za pregled
+__gen2_fin( dD_from, dD_to, cGroup, cKtoList )
+
+?
+? "2) stavke koje uticu na rekapitulaciju:"
+?
+
+// zatim uzmi podatke iz fin-a koji uticu na zbir
+__gen_fin( dD_from, dD_to, cGroup, cKtoListZ )
 
 ? 
 
@@ -78,17 +91,28 @@ P_10CPI
 ? cTxt
 ? cLine
 
-? PADR( "place", 20 )
+? PADR( "1) place", 20 )
+? PADL( "bruto:", 20 )
+@ prow(), pcol()+1 SAY STR(0,12,2)
+@ prow(), pcol()+1 SAY STR(nLD_bruto,12,2)
+@ prow(), pcol()+1 SAY STR(nLD_bruto,12,2)
+? PADL( "10.5% od bruta:", 20 )
+nTmpBr := ( nLD_bruto * 0.105 )
+@ prow(), pcol()+1 SAY STR(0,12,2)
+@ prow(), pcol()+1 SAY STR(nTmpBr,12,2)
+@ prow(), pcol()+1 SAY STR(nTmpBr,12,2)
+? PADL( "ostali troskovi:", 20 )
 @ prow(), pcol()+1 SAY STR(nLD_pri,12,2)
 @ prow(), pcol()+1 SAY STR(nLD_ras,12,2)
 @ prow(), pcol()+1 SAY STR(nLD_pri-nLD_ras,12,2)
 
-? PADR( "roba - materijal", 20 )
+
+? PADR( "2) roba - materijal", 20 )
 @ prow(), pcol()+1 SAY STR(nKALK_pri,12,2)
 @ prow(), pcol()+1 SAY STR(nKALK_ras,12,2)
 @ prow(), pcol()+1 SAY STR(nKALK_pri-nKALK_ras,12,2)
 
-? PADR( "finansije", 20 )
+? PADR( "3) finansije", 20 )
 @ prow(), pcol()+1 SAY STR(nFIN_pri,12,2)
 @ prow(), pcol()+1 SAY STR(nFIN_ras,12,2)
 @ prow(), pcol()+1 SAY STR(nFIN_pri-nFIN_ras,12,2)
@@ -97,8 +121,9 @@ P_10CPI
 
 ? PADR( "UKUPNO:", 20 )
 @ prow(), pcol()+1 SAY STR( ( nLD_pri + nKALK_pri + nFIN_pri ) , 12, 2 )
-@ prow(), pcol()+1 SAY STR( ( nLD_ras + nKALK_ras + nFIN_ras ) , 12, 2 ) 
-@ prow(), pcol()+1 SAY STR( ( ( nLD_pri - nLD_ras ) + ;
+@ prow(), pcol()+1 SAY STR( ( nLD_ras + nTmpBr + nLD_bruto + ;
+	nKALK_ras + nFIN_ras ) , 12, 2 ) 
+@ prow(), pcol()+1 SAY STR( ( ( nLD_pri - ( nLD_ras + nLD_bruto + nTmpBr )) + ;
 	( nKALK_pri - nKALK_ras ) + ;
 	( nFIN_pri - nFIN_ras ) ) , 12, 2 )
 
@@ -201,7 +226,7 @@ return
 // --------------------------------------------------
 // generisi podatke iz fin-a
 // --------------------------------------------------
-static function __gen_fin( dD_from, dD_to, cGroup, cKtoList, cKtoKart )
+static function __gen_fin( dD_from, dD_to, cGroup, cKtoList )
 local cFilter := ""
 local cIdFirma := gFirma
 local cIdKonto
@@ -268,6 +293,8 @@ P_COND
 
 O_SUBAN
 select suban
+set order to tag "1"
+go top
 
 // radna jedinica
 cFilter += "idrj=" + cm2str( cGroup )
@@ -386,6 +413,191 @@ enddo
 
 ? cLine
 	 
+
+return
+
+
+// --------------------------------------------------
+// generisi podatke iz fin-a unakrsno
+// --------------------------------------------------
+static function __gen2_fin( dD_from, dD_to, cGroup, cKtoList )
+local cFilter := ""
+local cIdFirma := gFirma
+local cIdKonto
+local cIdPartner
+
+// partner dug/pot/saldo
+local nP_dug := 0
+local nP_pot := 0
+local nP_saldo := 0
+
+// konto dug/pot/saldo
+local nK_dug := 0
+local nK_pot := 0
+local nK_saldo := 0
+
+// total dug/pot/saldo
+local nT_dug := 0
+local nT_pot := 0
+local nT_saldo := 0
+
+local nRbr := 0
+local nP_col := 50
+local nK_col := 30
+
+local cTxt := ""
+local cLine := ""
+
+cTxt += PADR( "r.br", 5 )
+cTxt += SPACE(1)
+cTxt += PADR( "konto", 7 )
+cTxt += SPACE(1)
+cTxt += PADR( "part.", 6 )
+cTxt += SPACE(1)
+cTxt += PADR( "naziv", 40 )
+cTxt += SPACE(1)
+cTxt += PADR( "duguje", 12 )
+cTxt += SPACE(1)
+cTxt += PADR( "potrazuje", 12 )
+cTxt += SPACE(1)
+cTxt += PADR( "saldo", 12 )
+
+cLine += REPLICATE("-", 5)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 7)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 6)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 40)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 12)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 12)
+cLine += SPACE(1)
+cLine += REPLICATE("-", 12)
+
+? "FIN :: stanje po objektu " + cGroup + ;
+	" od " + DTOC( dD_from ) + " do " + DTOC( dD_to )
+
+P_COND
+
+? cLine
+? cTxt
+? cLine
+
+O_SUBAN
+select suban
+set order to tag "2"
+// idfirma+idpartner+idkonto
+
+// radna jedinica
+cFilter += "idrj=" + cm2str( cGroup )
+
+// datumski period
+cFilter += ".and. datdok >= CTOD('" + ;
+	DTOC( dD_from ) + ;
+	"') .and. datdok <= CTOD('" + ;
+	DTOC( dD_to )+ ;
+	"')"
+
+if !EMPTY( ALLTRIM( cKtoList ) )
+	cFilter += ".and." + PARSIRAJ( ALLTRIM( cKtoList ), "idkonto" )
+endif
+
+set filter to &cFilter
+go top
+hseek cIdFirma
+
+do while !EOF() .and. field->idfirma == cIdFirma   
+
+  cIdPartner := field->idpartner
+            
+  nP_dug := 0
+  nP_pot := 0
+  nP_saldo := 0
+ 
+  do while !EOF() .and. field->idfirma == cIdFirma ;
+		.and. field->idpartner == cIdPartner 
+	    
+ 	cIdKonto := field->idkonto
+  	nK_dug := 0
+  	nK_pot := 0
+  	nK_saldo := 0
+    
+	do while !EOF() .and. field->idfirma == cIdFirma ;
+	    	.and. field->idkonto == cIdKonto ;
+		.and. field->idpartner == cIdPartner 
+	      
+	      	// duguje/potrazuje
+        	if field->d_p == "1"
+			nK_dug += field->IznosBHD
+		else
+			nK_pot += field->IznosBHD
+		endif
+              
+              	skip
+	
+	enddo
+
+	nK_saldo := ( nK_dug - nK_pot ) 
+
+	if prow() > 61 + gpStranica
+		FF
+	endif
+
+	// ne prikazuj podatke ako su 0
+	if ROUND( nK_saldo, 2) == 0
+		loop
+	endif
+
+	? PADL( ALLTRIM( STR( ++ nRbr, 4 )) + ".", 5 )
+
+       	@ prow(), pcol()+1 SAY cIdKonto
+      	@ prow(), pcol()+1 SAY cIdPartner       
+
+        if EMPTY( cIdPartner )
+		@ prow(), nK_col := pcol()+1 SAY PADR( _g_kt_naz( cIdKonto ) , 40 )  
+	else
+		@ prow(), nK_col := pcol()+1 SAY PADR( _g_pt_naz( cIdPartner ) , 40 )  
+	endif
+	
+	// duguje
+	@ prow(), nP_col := pcol()+1 SAY STR(nK_dug,12,2)
+	// potrazuje
+        @ prow(), pcol()+1 SAY STR(nK_pot,12,2)
+	// saldo
+        @ prow(), pcol()+1 SAY STR(nK_saldo,12,2)
+       
+        // saldo po kontu
+	nP_dug += nK_dug
+	nP_pot += nK_pot
+	nP_saldo += nK_saldo
+
+	// total ...
+	nT_dug += nK_dug
+	nT_pot += nK_pot
+	nT_saldo += nK_saldo
+
+  enddo
+
+  ? cLine
+  ? "ukupno partner " + cIdPartner
+  @ prow(), nK_col SAY PADR( _g_pt_naz( cIdPartner ), 40)
+  @ prow(), nP_col SAY STR( nP_dug, 12, 2 )
+  @ prow(), pcol()+1 SAY STR( nP_pot, 12, 2 )
+  @ prow(), pcol()+1 SAY STR( nP_saldo, 12, 2 )
+  ? cLine
+
+enddo
+
+// ispisi total...
+
+? "UKUPNO:"
+@ prow(), nP_col SAY STR( nT_dug, 12, 2 )
+@ prow(), pcol()+1 SAY STR( nT_pot, 12, 2 )
+@ prow(), pcol()+1 SAY STR( nT_saldo, 12, 2 )
+
+? cLine
 
 return
 
@@ -799,15 +1011,17 @@ endif
 ? cLine
 
 // ukalkulisi u rashod
-nLD_ras += nT_bruto 
 
+nLD_bruto += nT_bruto
+nLD_ras += ( nT_tp_1 + nT_tp_2 + nT_tp_3 + nT_tp_4 + nT_tp_5 )
+ 
 return
 
 
 // -------------------------------------------------------
 // uslovi reporta
 // -------------------------------------------------------
-static function g_vars( dD_from, dD_to, cGroup, cKtoList, ;
+static function g_vars( dD_from, dD_to, cGroup, cKtoListZ, cKtoList, ;
 	cSpecLd )
 local nRet := 1
 local nBoxX := 10
@@ -819,6 +1033,7 @@ dD_from := DATE()-30
 dD_to := DATE()
 cSpecLD := "D"
 cKtoList := SPACE(200)
+cKtoListZ := SPACE(200)
 cGroup := SPACE(6)
 
 O_PARAMS
@@ -830,6 +1045,7 @@ RPar("d1", @dD_from)
 RPar("d2", @dD_to)
 RPar("ld", @cSpecLD)
 RPar("kl", @cKtoList)
+RPar("kz", @cKtoListZ)
 RPar("gr", @cGroup)
 
 Box(, nBoxX, nBoxY )
@@ -851,8 +1067,15 @@ Box(, nBoxX, nBoxY )
 	++ nX
 	++ nX
 	
-	@ m_x + nX, m_y + 2 SAY "FIN konta   - lista:" GET cKtoList ;
-		PICT "@S30"
+	@ m_x + nX, m_y + 2 SAY "FIN konta   - lista    (uticu na zbir):" ;
+		GET cKtoListZ ;
+		PICT "@S20"
+	
+	++ nX
+
+	@ m_x + nX, m_y + 2 SAY "FIN konta   - lista (ne uticu na zbir):" ;
+		GET cKtoList ;
+		PICT "@S20"
 	
 
 	read
@@ -868,6 +1091,7 @@ WPar("d1", dD_from)
 WPar("d2", dD_to)
 WPar("ld", cSpecLD)
 WPar("kl", cKtoList)
+WPar("kz", cKtoListZ)
 WPar("gr", cGroup)
 
 select params

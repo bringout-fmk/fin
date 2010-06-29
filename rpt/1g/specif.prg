@@ -712,8 +712,6 @@ ENDIF
 
 select ANAL; set order to 1
 
-altd()
-//cFilt1:="IdFirma=='"+cIdFirma+"'"
 cFilt1:="IdFirma=="+cm2str(cIdFirma)
 if !(empty(dDatOd) .and. empty(dDatDo))
   cFilt1 += ( ".and.DatNal>="+cm2str(dDatOd) +".and.DatNal<="+cm2str(dDatDo) )
@@ -721,7 +719,6 @@ endif
 if aUsl1<>".t."
  cFilt1 += ( ".and."+aUsl1 )
 endif
-
 
 set filter to &cFilt1
 

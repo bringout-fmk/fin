@@ -175,7 +175,7 @@ for i := nYearFrom to nYearTo
 			// ako nije prva sezona, preskaci pocetna stanja
 			// pocetno stanje se gleda samo u prvoj sezoni !
 
-			if lInSez = .t. .and. ( ALLTRIM(STR(i)) <> nYearFrom )
+			if lInSez = .t. .and. ( i <> nYearFrom )
 				
 				// ako saltas po sezonama 
 				// preskoci pocetna stanja...

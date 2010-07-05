@@ -172,10 +172,7 @@ for i := nYearFrom to nYearTo
 
 		do whileSC !eof() .and. cIdKonto == field->idkonto
        			
-			// ako nije prva sezona, preskaci pocetna stanja
-			// pocetno stanje se gleda samo u prvoj sezoni !
-
-			if lInSez = .t. .and. ( i <> nYearFrom )
+			if lInSez = .t.
 				
 				// ako saltas po sezonama 
 				// preskoci pocetna stanja...

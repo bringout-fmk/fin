@@ -14,8 +14,6 @@ AADD(opc, "3. konta za partnera")
 AADD(opcexe, {|| SpecPop()})
 AADD(opc, "4. po analitickim kontima")
 AADD(opcexe, {|| SpecPoK()})
-AADD(opc, "4i. po analitickim kontima - godine")
-AADD(opcexe, {|| spec_an()})
 AADD(opc, "5. po subanalitickim kontima")
 AADD(opcexe, {|| SpecPoKP()})
 AADD(opc, "6. za subanaliticki konto / 2")
@@ -47,5 +45,23 @@ AADD(opcexe, {|| r_spec_tr()})
 
 Menu_SC("spc")
 return
-*}
+
+
+
+// --------------------------------------------------
+// specifikacije po godinama
+// --------------------------------------------------
+function MnuSpecGod()
+private opc:={}
+private opcexe:={}
+private Izbor:=1
+
+AADD(opc, "1. po analitickim kontima                   ")
+AADD(opcexe, {|| spec_an()})
+AADD(opc, "2. po subanalitickim kontima")
+AADD(opcexe, {|| spec_sub()})
+
+Menu_SC("spg")
+return
+
 

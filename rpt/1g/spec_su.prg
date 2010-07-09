@@ -69,6 +69,7 @@ local nYearTo
 local lSilent
 local lWriteKParam
 local lInSez
+local cDok_izb := ""
 
 private cSkVar := "N"
 private fK1 := fk2 := fk3 := fk4 := "N"
@@ -107,6 +108,7 @@ qqKonto := SPACE(100)
 qqPartner := SPACE(100)
 dDatOd := CTOD("")
 dDatDo := CTOD("")
+cDok_izb := SPACE(150)
 
 O_PARAMS
 
@@ -198,19 +200,22 @@ Box("",20,65)
 			GET qqBrDok PICT "@!S20"
  		@ m_x+12, m_y+2 SAY "Uslov za vrstu naloga (prazno-svi) " ;
 			GET cVN PICT "@!S20"
- 		
+ 		@ m_x+13, m_y+2 SAY "Izbaciti dokumente: " ;
+			GET cDok_izb PICT "@!S30"
+ 	
+		
 		cRasclaniti := "N"
  		
 		if gRJ == "D"
-  			@ m_x+13, m_y+2 SAY "Rasclaniti po RJ (D/N) " ;
+  			@ m_x+14, m_y+2 SAY "Rasclaniti po RJ (D/N) " ;
 				GET cRasclaniti PICT "@!" ;
 				VALID cRasclaniti $ "DN"
  		
 		endif
 
-		@ m_x + 15, m_y + 2 SAY "Opcina (prazno-sve):" GET cOpcine
+		@ m_x + 16, m_y + 2 SAY "Opcina (prazno-sve):" GET cOpcine
 		
-		UpitK1k4( 14 )
+		UpitK1k4( 15 )
  		
 		@ m_x+20,m_y+2 SAY "Export izvjestaja u dbf (D/N) ?" ;
 			GET cExpRptDN PICT "@!" ;
@@ -251,8 +256,6 @@ Box("",20,65)
 		endif
 	enddo
 BoxC()
-
-altd()
 
 // godina od - do
 nYearFrom := YEAR( dDatOd )
@@ -423,6 +426,15 @@ for i := nYearFrom to nYearTo
 			.and. field->idpartner == cIdPartner ;
 			.and. RasclanRJ()
 		
+			// ima li dokumenata za izbaciti ?
+			if !EMPTY( cDok_izb )
+				if field->idvn $ cDok_izb
+					// preskoci na sljedeci zapis
+					skip
+					loop
+				endif
+			endif
+			
 			if lInSez == .t.
 				// ako su sezone, 
 				// preskaci pocetna stanja

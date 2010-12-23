@@ -13,7 +13,7 @@ picDEM:="@Z "+( R2:=FormPicL("9 "+gPicDEM,12) )
 R1:=R1+" "+ValDomaca()
 R2:=R2+" "+ValPomocna()
 
-private cMjesto:=PADR("ZENICA",20)
+private cMjesto:=PADR("SARAJEVO",20)
 
 O_PARAMS
 private cSection:="6",cHistory:=" "; aHistory:={}
@@ -145,7 +145,7 @@ DO WHILE !eof() .AND. cIdFirma==IdFirma .and. cIdKonto==IdKonto
      @ prow()+1,0 SAY ++B PICTURE '9999'
      @ prow(),5 SAY cIdPartner
      SELECT PARTN; HSEEK cIdPartner
-     @ prow(),12 SAY ALLTRIM(naz)
+     @ prow(),12 SAY PADR( ALLTRIM(naz), 20 )
      @ prow(),37 SAY ALLTRIM(naz2) PICTURE 'XXXXXXXXXXXX'
      @ prow(),50 SAY PTT
      @ prow(),56 SAY Mjesto
@@ -868,7 +868,8 @@ if prow()>58+gPStranica; FF; endif
 if prow()>52+gPStranica; FF; endif
 ?
 ?
-@ prow(),0 SAY "!! AKO U ROKU OD 15 DANA NE POTVRDITE, OVAJ IOS SMATRAèEMO PRIHVAèENIM !!"
+@ prow(),0 SAY "Po clanu 69. novog Zakona o racunovodstvu i reviziji u FBiH onaj ko ne odgovori na konfirmaciju" 
+@ prow()+1,0 SAY "u roku od 8 dana bit ce kaznjen za prekrsaj novcanom kaznom u iznosu od 5.000 do 15.000 KM."
 ?
 ?
 @ prow(),0 SAY "NAPOMENA: OSPORAVAMO ISKAZANO STANJE U CJELINI _______________ DJELIMI¨NO"

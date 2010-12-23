@@ -389,20 +389,26 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
 	       @ prow()+1,0 SAY  ++B  PICTURE '9999'    // ; ?? "."
                @ prow(),pcol()+1 SAY cIdKonto
                @ prow(),pcol()+1 SAY cIdPartner       // IdPartner(cIdPartner)
-               SELECT PARTN; HSEEK cIdPartner
-               IF cFormat=="2"
-                @ prow(),pcol()+1 SAY PADR(naz,48-LEN (cidpartner))   // difidp
+               
+	       SELECT PARTN
+	       HSEEK cIdPartner
+               
+	       IF cFormat=="2"
+                @ prow(),pcol()+1 SAY PADR(naz,48-LEN (cIdPartner)) 
                ELSE
                 @ prow(),pcol()+1 SAY PADR(naz,20)
                 @ prow(),pcol()+1 SAY PADR(naz2,20)
                 @ prow(),pcol()+1 SAY Mjesto
                 @ prow(),pcol()+1 SAY Adresa PICTURE 'XXXXXXXXXXXXXXXXX'
                ENDIF
-               select SUBAN
-               nCol1:=pcol()+1
+               
+	       select SUBAN
+               
+	       nCol1:=pcol()+1
                @ prow(),pcol()+1 SAY D0PS PICTURE PicD
                @ prow(),PCOL()+1 SAY P0PS PICTURE PicD
-               IF cFormat=="1"
+               
+	       IF cFormat=="1"
                 @ prow(),PCOL()+1 SAY D0TP PICTURE PicD
                 @ prow(),PCOL()+1 SAY P0TP PICTURE PicD
                ENDIF
@@ -502,7 +508,8 @@ DO WHILESC !EOF() .AND. IdFirma=cIdFirma   // idfirma
       @ prow()+1,4 SAY replicate("=",REP1_LEN-4)
       @ prow()+1,4 SAY ++B2 PICTURE '9999';?? "."
       @ prow(),pcol()+1 SAY cSinKonto
-      select KONTO; hseek cSinKonto
+      select KONTO
+      hseek cSinKonto
       IF cFormat=="1"
        @ prow(),pcol()+1 SAY left(naz,50)
       ELSE

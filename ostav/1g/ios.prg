@@ -70,7 +70,8 @@ return
  */
  
 procedure SpecIOS()
-*{
+local dDatDo := DATE()
+
 cIdFirma:=gFirma
 cIdKonto:=space(7)
 IF gVar1=="0"
@@ -89,6 +90,7 @@ else
   @ m_x+3,m_y+2 SAY "Firma: " GET cIdFirma valid {|| P_Firma(@cIdFirma),cidfirma:=left(cidfirma,2),.t.}
 endif
 @ m_x+4,m_y+2 SAY "Konto: " GET cIdKonto valid P_Konto(@cIdKonto)
+@ m_x+5,m_y+2 SAY "Datum do kojeg se generise  :" GET dDatDo 
 @ m_x+6,m_y+2 SAY "Prikaz partnera sa saldom 0 :" GET cPrik0 valid cPrik0 $ "DN" pict "@!"
 READ; ESC_BCR
 BoxC()
@@ -120,6 +122,14 @@ DO WHILE !eof() .AND. cIdFirma==IdFirma .and. cIdKonto==IdKonto
 
    cIdPartner:=IdPartner
    DO WHILE  !eof() .AND. cIdFirma=IdFirma .and. cIdKonto=IdKonto .AND. cIdPartner==IdPartner
+      
+      // ako je datum veci od datuma do kojeg generisem
+      // preskoci
+      if field->datdok > dDatDo
+      	skip
+	loop
+      endif
+      
       IF OtvSt=" "
          IF D_P="1"
             nDugBHD+=IznosBHD
@@ -266,6 +276,7 @@ local lExpDbf := .f.
 local cExpDbf := "N"
 local cLaunch 
 local aExpFields
+local dDatDo := DATE()
 
 close all
 cPrelomljeno:="N"
@@ -273,7 +284,7 @@ private cKaoKartica:="D"
 memvar->DATUM:=date()
 cDinDem:="1"
 
-Box("IOSS", 6, 60, .f.)
+Box("IOSS", 7, 60, .f.)
 	
 	@ m_x+1,m_y+8 SAY "I O S"
 	@ m_x+2,m_y+2 SAY "UKUCAJTE DATUM IOS-a:"  GET memvar->DATUM
@@ -282,7 +293,8 @@ Box("IOSS", 6, 60, .f.)
 	ENDIF
 	@ m_x+4,m_y+2 SAY "Prikaz prebijenog stanja " GET cPrelomljeno valid cPrelomljeno $ "DN" pict "@!"
 	@ m_x+5,m_y+2 SAY "Prikaz identicno kartici " GET cKaoKartica valid cKaoKartica $ "DN" pict "@!"
-	@ m_x+6,m_y+2 SAY "Exportovati tabelu u dbf?" GET cExpDbf VALID cExpDbf$"DN" PICT "@!"
+	@ m_x+6,m_y+2 SAY "Gledati period do: " GET dDatDo
+	@ m_x+7,m_y+2 SAY "Exportovati tabelu u dbf?" GET cExpDbf VALID cExpDbf$"DN" PICT "@!"
 	READ
 BoxC()
 
@@ -323,7 +335,7 @@ DO WHILE !eof()
    	nIznosDEM:=IznosDEM
    	
 	// ispisi ios, exportuj ako treba
-	ZagIOSS( cDinDem, lExpDbf )
+	ZagIOSS( cDinDem, dDatDo, lExpDbf )
    	
 	SKIP
 	
@@ -347,17 +359,17 @@ return 1
  */
  
 function IOSPrekid()
+local dDatDo := DATE()
 memvar->DATUM=DATE()
 cIdFirma:=gFirma
 cIdKonto:=space(7)
 cIdPartner:=space(6)
-
 O_KONTO
 O_PARTN
 private cKaoKartica:="D"
 cPrelomljeno:="N"
 cDinDem:="1"
-Box("IOSPrek",8,60,.f.)
+Box("IOSPrek",9,60,.f.)
 @ m_x+1,m_y+2 SAY " I O S (NASTAVAK U SLUCAJU PREKIDA RADA)"
 @ m_x+2,m_y+2 SAY "Datum IOS-a:" GET memvar->DATUM
 if gNW=="D"
@@ -370,8 +382,9 @@ endif
 IF gVar1=="0"
  @ m_x+6,m_y+2 SAY "Prikaz "+ALLTRIM(ValDomaca())+"/"+ALLTRIM(ValPomocna())+" (1/2)"  GET cDinDem valid cdindem $ "12"
 ENDIF
-@ m_x+7,m_y+2 SAY "Prikaz prebijenog stanja " GET cPrelomljeno valid cPrelomljeno $ "DN" pict "@!"
-@ m_x+8,m_y+2 SAY "Prikaz identicno kartici " GET cKaoKartica valid cKaoKartica $ "DN" pict "@!"
+@ m_x+7,m_y+2 SAY "Gledati period do: " GET dDatDo
+@ m_x+8,m_y+2 SAY "Prikaz prebijenog stanja " GET cPrelomljeno valid cPrelomljeno $ "DN" pict "@!"
+@ m_x+9,m_y+2 SAY "Prikaz identicno kartici " GET cKaoKartica valid cKaoKartica $ "DN" pict "@!"
 READ; ESC_BCR
 BoxC()
 nDugBHD:=nPotBHD:=nDugDEM:=nPotDEM:=0
@@ -395,7 +408,7 @@ SELECT IOS
 DO WHILE !eof()
    cIdFirma=IdFirma; cIdKonto=IdKonto; cIdPartner=IdPartner
    nIznosbHD=IznosBHD; nIznosDEM:=IznosDEM
-   ZagIOSS()
+   ZagIOSS( cDinDem, dDatDo )
    SKIP
 ENDDO
 
@@ -413,6 +426,7 @@ return
  
 function IOSPojed()
 *{
+local dDatDo := DATE()
 memvar->DATUM=date()
 cIdFirma:=gFirma
 cIdKonto:=space(7)
@@ -424,7 +438,7 @@ O_PARTN
 cDinDem:="1"
 private cKaoKartica:="D"
 cPrelomljeno:="N"
-Box("IOSPoj",8,60,.f.)
+Box("IOSPoj",9,60,.f.)
 @ m_x+1,m_y+2 SAY " I O S (POJEDINACAN)"
 @ m_x+2,m_y+2 SAY "Datum IOS-a :" GET memvar->DATUM
 if gNW=="D"
@@ -437,8 +451,10 @@ endif
 IF gVar1=="0"
  @ m_x+6,m_y+2 SAY "Prikaz "+ALLTRIM(ValDomaca())+"/"+ALLTRIM(ValPomocna())+" (1/2)"  GET cDinDem valid cdindem $ "12"
 ENDIF
-@ m_x+7,m_y+2 SAY "Prikaz prebijenog stanja " GET cPrelomljeno valid cPrelomljeno $ "DN" pict "@!"
-@ m_x+8,m_y+2 SAY "Prikaz identicno kartici " GET cKaoKartica valid cKaoKartica $ "DN" pict "@!"
+
+@ m_x+7,m_y+2 SAY "Datum do: " GET dDatDo
+@ m_x+8,m_y+2 SAY "Prikaz prebijenog stanja " GET cPrelomljeno valid cPrelomljeno $ "DN" pict "@!"
+@ m_x+9,m_y+2 SAY "Prikaz identicno kartici " GET cKaoKartica valid cKaoKartica $ "DN" pict "@!"
 READ; ESC_BCR
 BoxC()
 nDugBHD:=nPotBHD:=nDugDEM:=nPotDEM:=0
@@ -459,7 +475,7 @@ B:=0
 SELECT IOS
 DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner=IdPartner
    nIznosBHD:=IznosBHD; nIznosDEM:=IznosDEM
-   ZagIOSS(cdindem)
+   ZagIOSS(cDinDem, dDatDo )
    SKIP
 ENDDO
 
@@ -516,7 +532,7 @@ return
 // -----------------------------------------
 // zaglavlje IOS-a ispisuje stavke ios-a
 // -----------------------------------------
-function ZagIOSS( cDinDem, lExpDbf )
+function ZagIOSS( cDinDem, dDatDo, lExpDbf )
 local nRbr
 local nCOpis:=0
 local cIdPar
@@ -647,6 +663,11 @@ DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==
      
      	DO WHILE !eof() .AND. cIdFirma=IdFirma .AND. cIdKonto=IdKonto .AND. cIdPartner==IdPartner .and. (cKaoKartica=="D" .or. brdok==cBrdok)
          
+	 	if field->datdok > dDatDo
+			skip
+			loop
+		endif
+		
 		IF OtvSt = " "
             
 	    		if cKaoKartica=="D"

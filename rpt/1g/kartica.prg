@@ -454,7 +454,10 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
 
 	do whilesc !eof() .and. cIdKonto==IdKonto .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.)
 
-    		nPDugBHD:=0
+    		__p_naz := ""
+		__k_naz := ""
+		
+		nPDugBHD:=0
 		nPPotBHD:=0
 		nPDugDEM:=0
 		nPPotDEM:=0  // prethodni promet
@@ -506,7 +509,7 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
 		@ prow(),pcol()+1 SAY cIdKonto
     		SELECT KONTO
 		HSEEK cIdKonto
-			__k_naz := field->naz
+		__k_naz := field->naz
     		@ prow(),pcol()+2 SAY naz
     		? "Partner "
 		@ prow(),pcol()+1 SAY IF(cBrza=="D".and.RTRIM(qqPartner)==";",":  SVI",cIdPartner)
@@ -522,7 +525,7 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
     		if !( cBrza=="D" .and. RTRIM(qqPartner)==";" )
      			SELECT PARTN
 			HSEEK cIdPartner
-				__p_naz := field->naz
+			__p_naz := field->naz
      			@ prow(),pcol()+1 SAY ALLTRIM(naz)
 			@ prow(),pcol()+1 SAY ALLTRIM(naz2)
 			@ prow(),pcol()+1 SAY ZiroR
@@ -538,6 +541,18 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
     		fPrviPr:=.t.  // prvi prolaz
 
 		do whilesc !eof() .and. cIdKonto==IdKonto .and. (cIdPartner==IdPartner .or. (cBrza=="D" .and. RTRIM(qqPartner)==";")) .and. Rasclan() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.)
+			
+			// incijalizuj varijable za izvjestaj
+			__vr_nal := ""
+			__br_nal := ""
+			__r_br := ""
+			__dat_nal := CTOD("")
+			__dat_val := CTOD("")
+			__opis := ""
+			__br_veze := ""
+			__dug := 0
+			__pot := 0
+			
 			if prow()>62+gPStranica
              			FF
 				ZaglSif(.t.)

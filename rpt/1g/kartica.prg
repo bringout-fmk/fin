@@ -1038,9 +1038,9 @@ static function g_exp_fields()
 local aDbf := {}
 
 AADD( aDbf, { "id_konto", "C", 7, 0 }  )
-AADD( aDbf, { "naz_konto", "C", 40, 0 }  )
+AADD( aDbf, { "naz_konto", "C", 100, 0 }  )
 AADD( aDbf, { "id_partn", "C", 6, 0 }  )
-AADD( aDbf, { "naz_partn", "C", 40, 0 }  )
+AADD( aDbf, { "naz_partn", "C", 50, 0 }  )
 AADD( aDbf, { "vrsta_nal", "C", 2, 0 }  )
 AADD( aDbf, { "broj_nal", "C", 8, 0 }  )
 AADD( aDbf, { "nal_rbr", "C", 4, 0 }  )

@@ -33,6 +33,34 @@ Menu_SC("kart")
 
 return
 
+
+// otvara potrebne tabele za izvjestaj kartice
+static function o_kart_tbl()
+
+O_KONTO
+O_PARTN
+if gRj == "D"
+	O_RJ
+endif
+
+if IzFMKIni("FAKT","VrstePlacanja","N",SIFPATH)=="D"
+	lVrsteP:=.t.
+  	O_VRSTEP
+endif
+
+O_SUBAN
+O_TDOK
+
+if IzFMKIni("FIN","LimitiPoUgovoru_PoljeK3","N",SIFPATH)=="D"
+	O_ULIMIT
+  	SELECT ULIMIT
+  	SET ORDER TO TAG "2"
+endif
+
+return
+
+
+
 // ---------------------------------------------
 // SubKart(lOtvst)
 // Subanaliticka kartica
@@ -47,6 +75,20 @@ local cOpis := ""
 local cBoxName
 local dPom := CTOD("")
 local cOpcine := SPACE(20)
+local cExpDbf := "N"
+local aExpFields
+local __vr_nal
+local __br_nal
+local __br_veze
+local __r_br
+local __dat_val
+local __dat_nal
+local __opis
+local __p_naz
+local __k_naz
+local __dug
+local __pot
+
 private fK1:=fk2:=fk3:=fk4:="N"
 private cIdFirma:=gFirma
 private fOtvSt:=lOtvSt
@@ -54,11 +96,8 @@ private c1k1z:="N"
 private picBHD:=FormPicL(gPicBHD,16)
 private picDEM:=FormPicL(gPicDEM,12)
 
-O_KONTO
-O_PARTN
-if gRJ=="D"
-	O_RJ
-endif
+o_kart_tbl()
+
 private cSazeta:="N"
 private cK14:="1"
 
@@ -181,6 +220,8 @@ Box("#"+ cBoxName, 21, 65)
  		endif
 	 	@ row()+1,m_y+2 SAY "Opcina (prazno-sve):" GET cOpcine
 		@ row()+1,m_y+2 SAY "Svaka kartica treba da ima zaglavlje kolona ? (D/N)"  GET c1k1z pict "@!" valid c1k1z $ "DN"
+		@ row()+1,m_y+2 SAY "Export kartice u dbf ? (D/N)"  GET cExpDbf pict "@!" valid cExpDbf $ "DN"
+
 		read
 		ESC_BCR
 	
@@ -246,6 +287,13 @@ endif
 select params
 use
 
+if cExpDbf == "D"
+	// inicijalizuj export
+	aExpFields := g_exp_fields()
+	t_exp_create( aExpFields )
+	cLaunch := exp_report()
+endif
+
 cIdFirma:=TRIM(cIdFirma)
 
 cSecur:=SecurR(KLevel,"KartSve")
@@ -293,21 +341,11 @@ endif
 
 lVrsteP:=.f.
 
+o_kart_tbl()
+
 if IzFMKIni("FAKT","VrstePlacanja","N",SIFPATH)=="D"
 	lVrsteP:=.t.
   	O_VRSTEP
-endif
-
-O_SUBAN
-
-//"1","IdFirma+IdKonto+IdPartner+dtos(DatDok)+BrNal+RBr"
-
-O_TDOK
-
-if IzFMKIni("FIN","LimitiPoUgovoru_PoljeK3","N",SIFPATH)=="D"
-	O_ULIMIT
-  	SELECT ULIMIT
-  	SET ORDER TO TAG "2"
 endif
 
 select SUBAN
@@ -468,6 +506,7 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
 		@ prow(),pcol()+1 SAY cIdKonto
     		SELECT KONTO
 		HSEEK cIdKonto
+			__k_naz := field->naz
     		@ prow(),pcol()+2 SAY naz
     		? "Partner "
 		@ prow(),pcol()+1 SAY IF(cBrza=="D".and.RTRIM(qqPartner)==";",":  SVI",cIdPartner)
@@ -483,6 +522,7 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
     		if !( cBrza=="D" .and. RTRIM(qqPartner)==";" )
      			SELECT PARTN
 			HSEEK cIdPartner
+				__p_naz := field->naz
      			@ prow(),pcol()+1 SAY ALLTRIM(naz)
 			@ prow(),pcol()+1 SAY ALLTRIM(naz2)
 			@ prow(),pcol()+1 SAY ZiroR
@@ -619,7 +659,17 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
           		endif  // prethodni promet
 			
 			if !(fOtvSt .and. OtvSt=="9")
-              			? IdVN
+              	
+				// incijalizuj varijable za izvjestaj
+				__vr_nal := field->idvn
+				__br_nal := field->brnal
+				__r_br := field->rbr
+				__dat_nal := field->datdok
+				__dat_val := field->datval
+				__opis := field->opis
+				__br_veze := field->brdok
+		
+				? IdVN
 				@ prow(),pcol()+1 SAY BrNal
               			if cSazeta=="N"
                				@ prow(),pcol()+1 SAY RBr
@@ -760,8 +810,23 @@ do whilesc !eof() .and. IF(gDUFRJ!="D",IdFirma=cIdFirma,.t.) // firma
           endif
           OstatakOpisa(@cOpis,nCOpis,{|| IF(prow()>60+gPStranica,EVAL({|| gPFF(),ZaglSif(.t.)}),)},nSirOp)
 
+			// upisi u export dbf
+		  	if cExpDbf == "D"
+				
+				if field->d_p == "1"
+					__dug := field->iznosbhd
+					__pot := 0
+				else
+					__dug := 0
+					__pot := field->iznosbhd
+				endif
+
+		  		_add_to_export( cIdKonto, __k_naz, cIdPartner, __p_naz, __vr_nal, __br_nal, __r_br, ;
+								__br_veze, __dat_nal, __dat_val, __opis, __dug, __pot, (__dug - __pot) )
+		  	endif
 
           SKIP 1
+
      enddo // partner
 
      IF prow()>56+gPStranica; FF; ZaglSif(.t.); ENDIF
@@ -944,9 +1009,62 @@ endif
 FF
 END PRINT
 
+// export podataka, dbf
+if cExpDbf == "D"
+	tbl_export( cLaunch )
+endif
+
 closeret
 return
 *}
+
+// vraca polja export tabele
+static function g_exp_fields()
+local aDbf := {}
+
+AADD( aDbf, { "id_konto", "C", 7, 0 }  )
+AADD( aDbf, { "naz_konto", "C", 40, 0 }  )
+AADD( aDbf, { "id_partn", "C", 6, 0 }  )
+AADD( aDbf, { "naz_partn", "C", 40, 0 }  )
+AADD( aDbf, { "vrsta_nal", "C", 2, 0 }  )
+AADD( aDbf, { "broj_nal", "C", 8, 0 }  )
+AADD( aDbf, { "nal_rbr", "C", 4, 0 }  )
+AADD( aDbf, { "broj_veze", "C", 10, 0 }  )
+AADD( aDbf, { "dat_nal", "D", 8, 0 }  )
+AADD( aDbf, { "dat_val", "D", 8, 0 }  )
+AADD( aDbf, { "opis_nal", "C", 100, 0 }  )
+AADD( aDbf, { "duguje", "N", 15, 5 }  )
+AADD( aDbf, { "potrazuje", "N", 15, 5 }  )
+AADD( aDbf, { "saldo", "N", 15, 5 }  )
+
+return aDbf
+
+// upisuje u export tabelu podatke
+static function _add_to_export( cKonto, cK_naz, cPartn, cP_naz, cVn, cBr, cRbr, ;
+								cBrVeze, dDatum, dDatVal, cOpis, nDug, nPot, nSaldo )
+local nTArea := SELECT()
+
+O_R_EXP
+select r_export
+
+append blank
+replace field->id_konto with cKonto
+replace field->naz_konto with (cK_naz)
+replace field->id_partn with cPartn
+replace field->naz_partn with (cP_naz)
+replace field->vrsta_nal with cVn
+replace field->broj_nal with cBr
+replace field->nal_rbr with cRbr
+replace field->broj_veze with (cBrVeze)
+replace field->dat_nal with dDatum
+replace field->dat_val with dDatVal
+replace field->opis_nal with (cOpis)
+replace field->duguje with nDug
+replace field->potrazuje with nPot
+replace field->saldo with nSaldo
+
+select (nTArea)
+return
 
 
 

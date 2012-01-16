@@ -568,7 +568,8 @@ HSEEK cIdFirma
 @ prow()+1,5 SAY Adresa
 @ prow()+1,5 SAY PTT
 @ prow()+1,5 SAY ZiroR
-?
+@ prow()+1,5 SAY IzSifK( "PARTN", "REGB", cIdFirma, .f. )
+
 ?
 
 SELECT PARTN
@@ -583,12 +584,12 @@ HSEEK cIdPartner
 if !empty(telefon)
   @ prow()+1,45 SAY "Telefon: "+telefon
 endif
+@ prow()+1,45 SAY IzSifK( "PARTN", "REGB", cIdPartner, .f. )
 
 // setuj id i naziv partnera
 cIdPar := id
 cNazPar := naz
 
-?
 ?
 ?
 @ prow(),6 SAY "IZVOD OTVORENIH STAVKI NA DAN :"; @ prow(),pcol()+2 SAY memvar->DATUM; @ prow(),pcol()+1 SAY "GODINE"
@@ -901,8 +902,9 @@ if prow()>58+gPStranica; FF; endif
 if prow()>52+gPStranica; FF; endif
 ?
 ?
-@ prow(),0 SAY "Po clanu 69. novog Zakona o racunovodstvu i reviziji u FBiH onaj ko ne odgovori na konfirmaciju" 
-@ prow()+1,0 SAY "u roku od 8 dana bit ce kaznjen za prekrsaj novcanom kaznom u iznosu od 5.000 do 15.000 KM."
+@ prow(),0 SAY "Prema clanu 28. stav 4. Zakona o racunovodstvu i reviziji u FBiH (Sl.novine FBiH, broj 83/09)" 
+@ prow()+1,0 SAY "na ovu nasu konfirmaciju ste duzni odgovoriti u roku od osam dana. Ukoliko u tom roku ne primimo"
+@ prow()+1,0 SAY "potvrdu ili osporavanje iskazanog stanja, smatracemo da je usaglasavanje zavrseno i da je stanje isto."
 ?
 ?
 @ prow(),0 SAY "NAPOMENA: OSPORAVAMO ISKAZANO STANJE U CJELINI _______________ DJELIMI¬NO"

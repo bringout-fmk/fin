@@ -903,3 +903,95 @@ BoxC()
 return
 
 
+
+// -----------------------------------------
+// provjera podataka za migraciju f18
+// -----------------------------------------
+function f18_test_data()
+local _a_sif := {}
+local _a_data := {}
+local _a_ctrl := {} 
+local _chk_sif := .f.
+
+if Pitanje(, "Provjera sifrarnika (D/N) ?", "N") == "D"
+	_chk_sif := .t.
+endif
+
+// provjeri sifrarnik
+if _chk_sif == .t.
+	f18_sif_data( @_a_sif, @_a_ctrl )
+endif
+
+f18_fin_data( @_a_data, @_a_ctrl )
+
+// prikazi rezultat testa
+f18_rezultat( _a_ctrl, _a_data, _a_sif )
+
+return
+
+
+
+// -----------------------------------------
+// provjera suban, anal, sint
+// -----------------------------------------
+static function f18_fin_data( data, checksum )
+local _n_c_iznos := 0
+local _n_c_stavke := 0
+local _scan 
+
+O_SUBAN
+O_ANAL
+O_SINT
+
+Box(, 2, 60 )
+
+select suban
+set order to tag "4"
+go top
+
+do while !EOF()
+	
+	_firma := field->idfirma
+	_tdok := field->idvn
+	_brdok := field->brnal
+	_dok := _firma + "-" + _tdok + "-" + ALLTRIM( _brdok )
+	
+	_rbr_chk := "xx"
+
+	@ m_x + 1, m_y + 2 SAY "dokument: " + _dok
+
+	do while !EOF() .and. field->idfirma == _firma ;
+		.and. field->idvn == _tdok ;
+		.and. field->brnal == _brdok
+		
+		_rbr := field->rbr
+		
+		@ m_x + 2, m_y + 2 SAY "redni broj dokumenta: " + PADL( _rbr, 5 )
+
+		if _rbr == _rbr_chk
+			// dodaj u matricu...
+			_scan := ASCAN( data, {|var| var[1] == _dok } )
+			if _scan == 0
+				AADD( data, { _dok } ) 
+			endif
+		endif
+
+		_rbr_chk := _rbr
+
+		// kontrolni broj
+		++ _n_c_stavke
+		_n_c_iznos += ( field->iznosbhd )
+
+		skip
+	enddo
+
+enddo
+
+BoxC()
+
+if _n_c_stavke > 0
+	AADD( checksum, { "fin data", _n_c_stavke, _n_c_iznos } )
+endif
+
+return
+
